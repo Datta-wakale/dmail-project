@@ -1,0 +1,75 @@
+
+.home-container {
+    width: 100%;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #202124;
+}
+.home-content {
+    width: 90%;
+    max-width: 650px;
+    text-align: center;
+    padding: 50px 30px;
+}
+.home-logo {
+    font-size: 42px;
+    font-weight: 500;
+    color: #5f6368;
+    margin-bottom: 35px;
+    letter-spacing: -1px;
+}
+.home-logo span {
+    color: #4285f4;
+}
+
+.home-heading {
+    font-size: 42px;
+    font-weight: 400;
+    color: #202124;
+    margin: 0 0 20px;
+}
+.home-info {
+    max-width: 580px;
+    margin: 12px auto;
+    color: #5f6368;
+    font-size: 17px;
+    line-height: 1.6;
+}
+.home-info strong {
+    color: #202124;
+}
+
+.home-content > :last-child {
+    margin-top: 35px;
+}
+.mail-container {
+  display: flex;
+  width: 100%;
+  min-height: calc(100vh - 64px);
+}
+
+.mail-content {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+}
+.mail-container {
+  display: flex;
+  width: 100%;
+  height: calc(100vh - 64px);
+}
+
+.mail-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.mail-content {
+  flex: 1;
+  overflow-y: auto;
+}

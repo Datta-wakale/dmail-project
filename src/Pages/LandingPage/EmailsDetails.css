@@ -1,0 +1,150 @@
+.email-details-container {
+  width: 100%;
+  min-height: calc(100vh - 72px);
+  background-color: #ffffff;
+}
+
+/* Toolbar */
+
+.email-details-toolbar {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0 16px;
+
+  border-bottom: 1px solid #e5e7eb;
+  box-sizing: border-box;
+}
+
+.toolbar-right {
+  display: flex;
+  align-items: center;
+}
+
+/* Content */
+
+.email-details-content {
+  padding: 30px 50px;
+  max-width: 1000px;
+}
+
+/* Subject */
+
+.email-details-subject {
+  font-size: 28px;
+  font-weight: 400;
+  color: #202124;
+
+  margin: 0 0 28px 0;
+}
+
+/* Sender */
+
+.email-details-header {
+  display: flex;
+  align-items: center;
+
+  width: 100%;
+  margin-bottom: 30px;
+}
+
+.email-avatar {
+  width: 42px;
+  height: 42px;
+
+  border-radius: 50%;
+
+  background-color: #e8f0fe;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #1967d2;
+  font-size: 18px;
+  font-weight: 600;
+
+  margin-right: 12px;
+}
+
+.email-sender-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.sender-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #202124;
+}
+
+.receiver-info {
+  font-size: 13px;
+  color: #5f6368;
+
+  margin-top: 3px;
+}
+
+.email-details-date {
+  margin-left: auto;
+
+  font-size: 13px;
+  color: #5f6368;
+}
+
+/* Message */
+
+.email-message {
+  font-size: 15px;
+  line-height: 1.7;
+
+  color: #202124;
+
+  white-space: pre-wrap;
+
+  min-height: 180px;
+
+  padding-left: 54px;
+}
+
+/* Reply / Forward */
+
+.email-actions {
+  display: flex;
+  gap: 12px;
+
+  margin-top: 40px;
+  margin-left: 54px;
+}
+
+.email-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 9px 18px;
+
+  border: 1px solid #dadce0;
+  border-radius: 18px;
+
+  background-color: #ffffff;
+
+  color: #3c4043;
+
+  cursor: pointer;
+
+  font-size: 14px;
+}
+
+.email-action-btn:hover {
+  background-color: #f1f3f4;
+}
+
+/* No email */
+
+.no-email {
+  padding: 40px;
+  color: #5f6368;
+}

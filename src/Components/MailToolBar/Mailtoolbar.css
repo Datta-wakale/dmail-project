@@ -1,0 +1,6 @@
+.mail-toolbar {
+  display: flex;
+  align-items: center;
+  height: 50px;
+  padding: 0 10px;
+}

@@ -1,0 +1,161 @@
+/* Header */
+
+.header-container {
+  width: 100%;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  box-sizing: border-box;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  position: relative;
+  z-index: 100;
+}
+
+/* Logo */
+
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+.logo h1 {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 28px;
+  font-weight: 600;
+  color: #1a73e8;
+}
+
+.logo svg {
+  font-size: 30px;
+}
+/* Navigation */
+
+.nav-buttons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+/* Sign In */
+.sign-in {
+  padding: 11px 20px;
+  border: 1px solid #dadce0;
+  border-radius: 6px;
+  background: white;
+  color: #1a73e8;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+.sign-in:hover {
+  background-color: #f1f6ff;
+  border-color: #1a73e8;
+}
+/* Create account wrapper */
+.create-account-wrapper {
+  position: relative;
+}
+/* Create account */
+.create-acc {
+  padding: 12px 18px;
+  border: none;
+  border-radius: 6px;
+  background-color: #1a73e8;
+  color: white;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: 0.2s ease;
+  text-decoration: none!important;
+}
+.create-acc:hover {
+  background-color: #1765cc;
+}
+.arrow {
+  font-size: 13px;
+}
+/* Dropdown */
+.account-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 280px;
+  padding: 8px;
+  background: white;
+  border: 1px solid #dadce0;
+  border-radius: 10px;
+  box-shadow:
+    0 4px 8px rgba(60, 64, 67, 0.15),
+    0 8px 20px rgba(60, 64, 67, 0.15);
+}
+
+.account-dropdown button {
+  width: 100%;
+  padding: 14px 16px;
+  border: none;
+  border-radius: 7px;
+  background: white;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: background 0.2s ease;
+}
+
+.account-dropdown button:hover {
+  background-color: #f1f3f4;
+}
+.account-dropdown strong {
+  color: #202124;
+  font-size: 15px;
+  font-weight: 500;
+}
+.account-dropdown span {
+  color: #5f6368;
+  font-size: 13px;
+}
+.search-bar {
+  width: 400px;
+}
+
+.search-bar input {
+  width: 100%;
+  padding: 10px 16px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  outline: none;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+.search-bar input:focus {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
+}
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.menu-toggle {
+  transition: transform 0.3s ease !important;
+}
+
+.menu-toggle.menu-open {
+  transform: rotate(180deg);
+}
+.logo{
+  cursor: pointer;
+
+}

@@ -1,0 +1,10 @@
+.email-input-wrapper{
+    position: relative;
+}
+.email-domain{
+   position: absolute;
+   top: 14px;
+   right: 10px;
+   color: rgb(65, 63, 63);
+   font-size: medium;
+}
