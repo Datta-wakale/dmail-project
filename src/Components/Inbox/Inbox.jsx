@@ -15,11 +15,17 @@ const Inbox = () => {
         selectedCategory
     } = useOutletContext();
     // Get only received emails
+    // const receivedEmails = emails.filter(
+    // (email) =>
+    //     email.to === loggedInUser.email &&
+    //     email.receiverFolder === "inbox" &&
+    //     ( !email.receiverSnoozedUntil || new Date(email.receiverSnoozedUntil) <= new Date()));
     const receivedEmails = emails.filter(
     (email) =>
         email.to === loggedInUser.email &&
         email.receiverFolder === "inbox" &&
-        ( !email.receiverSnoozedUntil || new Date(email.receiverSnoozedUntil) <= new Date()));
+        !email.receiverSnoozedUntil
+);
     // Category filter
     const categoryEmails = receivedEmails.filter(
         (email) =>

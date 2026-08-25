@@ -313,7 +313,8 @@
       "attachment": null,
       "senderFolder": "trash",
       "receiverFolder": "inbox",
-      "id": "NICgwfTjdUs"
+      "id": "NICgwfTjdUs",
+      "receiverSnoozedUntil": "2026-08-26T12:30:00.000Z"
     },
     {
       "from": "abhi@dmail.com",
@@ -344,7 +345,8 @@
       "attachment": null,
       "senderFolder": "sent",
       "receiverFolder": "inbox",
-      "id": "IcqBWEJZVxM"
+      "id": "IcqBWEJZVxM",
+      "receiverSnoozedUntil": "2026-08-26T12:30:00.000Z"
     },
     {
       "from": "abhi@dmail.com",
@@ -365,7 +367,8 @@
       "attachment": null,
       "senderFolder": "sent",
       "receiverFolder": "inbox",
-      "id": "zwZZZwqSlYA"
+      "id": "zwZZZwqSlYA",
+      "receiverSnoozedUntil": null
     },
     {
       "from": "datta@dmail.com",
@@ -410,7 +413,8 @@
       "attachment": null,
       "senderFolder": "trash",
       "receiverFolder": "inbox",
-      "id": "Oezl38KzFUA"
+      "id": "Oezl38KzFUA",
+      "receiverSnoozedUntil": null
     },
     {
       "from": "abhi@dmail.com",
@@ -421,7 +425,8 @@
       "attachment": null,
       "senderFolder": "sent",
       "receiverFolder": "inbox",
-      "id": "H9T9M5tHVe4"
+      "id": "H9T9M5tHVe4",
+      "receiverSnoozedUntil": "2026-08-26T02:30:00.000Z"
     },
     {
       "from": "abhi@dmail.com",
@@ -432,7 +437,9 @@
       "attachment": null,
       "senderFolder": "sent",
       "receiverFolder": "inbox",
-      "id": "-_fav4nxq4M"
+      "id": "-_fav4nxq4M",
+      "receiverSnoozedUntil": "2026-08-26T02:30:00.000Z",
+      "senderSnoozedUntil": "2026-08-26T12:30:00.000Z"
     },
     {
       "from": "abhi@dmail.com",
@@ -443,7 +450,8 @@
       "attachment": null,
       "senderFolder": "sent",
       "receiverFolder": "inbox",
-      "id": "68WCG7HNO_I"
+      "id": "68WCG7HNO_I",
+      "senderSnoozedUntil": null
     },
     {
       "from": "abhi@dmail.com",
@@ -475,7 +483,7 @@
       "senderFolder": "sent",
       "receiverFolder": "deleted",
       "id": "DNy1Pcx0Ln4",
-      "receiverSnoozedUntil": "2026-08-26T02:30:00.000Z"
+      "receiverSnoozedUntil": "2026-08-26T12:30:00.000Z"
     },
     {
       "from": "abhi@dmail.com",

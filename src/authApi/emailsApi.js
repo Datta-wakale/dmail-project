@@ -291,34 +291,66 @@ export const archiveEmail = async (id, folder) => {
 };
 
 // SNOOZE EMAIL
+// export const snoozeEmail = async (id, folder, snoozedUntil) => {
+//   const response = await fetch(`${apiUrl}/${id}`);
+
+//   if (!response.ok) {
+//     throw new Error("Unable to find email");
+//   }
+//   const email = await response.json();
+//   let updatedEmail = { ...email };
+
+//   // Received email
+//   if (
+//     folder === "inbox" ||
+//     folder === "spam" ||
+//     folder === "starred-received"
+//   ) {
+//     updatedEmail.receiverSnoozedUntil = snoozedUntil;
+//   }
+
+//   // Sent email
+//   if (
+//     folder === "sent" ||
+//     folder === "starred-sent"
+//   ) {
+//     updatedEmail.senderSnoozedUntil = snoozedUntil;
+//   }
+//   if (!updatedEmail.receiverSnoozedUntil &&
+//       !updatedEmail.senderSnoozedUntil) {
+//     throw new Error("Invalid folder");
+//   }
+
+//   const updateResponse = await fetch(`${apiUrl}/${id}`, {
+//     method: "PUT",
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//     body: JSON.stringify(updatedEmail),
+//   });
+//   if (!updateResponse.ok) {
+//     throw new Error("Unable to snooze email");
+//   }
+//   return await updateResponse.json();
+// };
+
 export const snoozeEmail = async (id, folder, snoozedUntil) => {
   const response = await fetch(`${apiUrl}/${id}`);
 
   if (!response.ok) {
     throw new Error("Unable to find email");
   }
+
   const email = await response.json();
+
   let updatedEmail = { ...email };
 
-  // Received email
-  if (
-    folder === "inbox" ||
-    folder === "spam" ||
-    folder === "starred-received"
-  ) {
+  if (folder === "inbox") {
     updatedEmail.receiverSnoozedUntil = snoozedUntil;
   }
 
-  // Sent email
-  if (
-    folder === "sent" ||
-    folder === "starred-sent"
-  ) {
+  if (folder === "sent") {
     updatedEmail.senderSnoozedUntil = snoozedUntil;
-  }
-  if (!updatedEmail.receiverSnoozedUntil &&
-      !updatedEmail.senderSnoozedUntil) {
-    throw new Error("Invalid folder");
   }
 
   const updateResponse = await fetch(`${apiUrl}/${id}`, {
@@ -328,8 +360,10 @@ export const snoozeEmail = async (id, folder, snoozedUntil) => {
     },
     body: JSON.stringify(updatedEmail),
   });
+
   if (!updateResponse.ok) {
     throw new Error("Unable to snooze email");
   }
+
   return await updateResponse.json();
 };

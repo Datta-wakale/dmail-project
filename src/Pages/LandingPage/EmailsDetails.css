@@ -141,3 +141,27 @@
   padding: 40px;
   color: #5f6368;
 }
+.snooze-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin: 10px 0 20px;
+    padding: 10px 15px;
+}
+
+.snooze-info span {
+    font-size: 14px;
+    color: #5f6368;
+}
+
+.snooze-info button {
+    border: none;
+    background: none;
+    color: #1a73e8;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.snooze-info button:hover {
+    text-decoration: underline;
+}
