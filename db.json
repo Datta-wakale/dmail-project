@@ -95,22 +95,11 @@
     {
       "from": "abhi@dmail.com",
       "to": "datta@dmail.com",
-      "subject": "Health Concern",
-      "message": "fagfdgf t utyu 3wwebet tgjghgnbmbn tyhfhfgh",
-      "createdAt": "2026-08-19T02:15:32.701Z",
-      "attachment": null,
-      "senderFolder": "trash",
-      "receiverFolder": "trash",
-      "id": "2Ny9FcnTSAU"
-    },
-    {
-      "from": "abhi@dmail.com",
-      "to": "datta@dmail.com",
       "subject": "hbhjbnb",
       "message": "njndfv dfmgfdgmflg gdo;gdfg",
       "createdAt": "2026-08-19T03:18:53.742Z",
       "attachment": null,
-      "senderFolder": "sent",
+      "senderFolder": "trash",
       "receiverFolder": "trash",
       "id": "U2GDIyYbKE8",
       "starred": false
@@ -125,7 +114,7 @@
       "message": "jnn cvc  vxv vkd d",
       "createdAt": "2026-08-19T05:33:31.728Z",
       "attachment": null,
-      "senderFolder": "sent",
+      "senderFolder": "trash",
       "receiverFolder": "trash",
       "id": "1C_hLfz043U",
       "starred": false
@@ -192,7 +181,7 @@
       "senderFolder": "sent",
       "receiverFolder": "trash",
       "id": "ivh8bda1f4Q",
-      "starred": true
+      "starred": false
     },
     {
       "from": "datta@dmail.com",
@@ -201,8 +190,8 @@
       "message": "keep updating until its get finished",
       "createdAt": "2026-08-20T07:18:46.212Z",
       "attachment": null,
-      "senderFolder": "sent",
-      "receiverFolder": "inbox",
+      "senderFolder": "trash",
+      "receiverFolder": "trash",
       "id": "7hNpL2zsmAs",
       "starred": false
     },
@@ -217,9 +206,9 @@
       "createdAt": "2026-08-20T09:05:05.821Z",
       "attachment": null,
       "senderFolder": "sent",
-      "receiverFolder": "inbox",
+      "receiverFolder": "spam",
       "id": "ZwR-MEFeZtE",
-      "starred": true
+      "starred": false
     },
     {
       "from": "abhi@dmail.com",
@@ -257,6 +246,246 @@
       "senderFolder": "sent",
       "receiverFolder": "inbox",
       "id": "vYUTzhMmh5Q"
+    },
+    {
+      "from": "datta@dmail.com",
+      "to": "abhi@dmail.com",
+      "subject": "Check working or not",
+      "message": "check working or not",
+      "createdAt": "2026-08-25T05:23:47.624Z",
+      "attachment": null,
+      "senderFolder": "sent",
+      "receiverFolder": "inbox",
+      "id": "c0TU7zj27W4",
+      "starred": true
+    },
+    {
+      "from": "datta@dmail.com",
+      "to": "abhi@dmail.com",
+      "subject": "draft msg",
+      "message": "draft msg",
+      "createdAt": "2026-08-25T05:55:13.790Z",
+      "attachment": null,
+      "senderFolder": "sent",
+      "receiverFolder": "deleted",
+      "id": "OpP7hvz_Ja8"
+    },
+    {
+      "from": "abhi@dmail.com",
+      "to": "datta@dmail.com",
+      "subject": "The Rock",
+      "message": "The Mr big show",
+      "createdAt": "2026-08-25T06:23:45.430Z",
+      "attachment": null,
+      "senderFolder": "sent",
+      "receiverFolder": "inbox",
+      "id": "a0vn53Oh7q4",
+      "receiverSnoozedUntil": "2026-08-26T10:58:00.000Z"
+    },
+    {
+      "from": "abhi@dmail.com",
+      "to": "datta@gmail.com",
+      "subject": "hghgh",
+      "message": "hdhdfb",
+      "createdAt": "2026-08-25T06:42:40.311Z",
+      "attachment": null,
+      "senderFolder": "trash",
+      "receiverFolder": "inbox",
+      "id": "oq7mZfNlzeE"
+    },
+    {
+      "from": "abhi@dmail.com",
+      "to": "datta@gmail.com",
+      "subject": "hghgh",
+      "message": "dattta",
+      "createdAt": "2026-08-25T06:42:50.038Z",
+      "attachment": null,
+      "senderFolder": "trash",
+      "receiverFolder": "inbox",
+      "id": "uobW4NYQbLo"
+    },
+    {
+      "from": "abhi@dmail.com",
+      "to": "datta@dmail.com",
+      "subject": "hghgh",
+      "message": "dmail issue",
+      "createdAt": "2026-08-25T06:46:29.108Z",
+      "attachment": null,
+      "senderFolder": "trash",
+      "receiverFolder": "inbox",
+      "id": "NICgwfTjdUs"
+    },
+    {
+      "from": "abhi@dmail.com",
+      "to": "",
+      "subject": "hghgh",
+      "message": "",
+      "attachment": null,
+      "createdAt": "2026-08-25T07:14:45.549Z",
+      "senderFolder": "trash",
+      "id": "db0DrHyW1YY"
+    },
+    {
+      "from": "abhi@dmail.com",
+      "to": "",
+      "subject": "hghgh",
+      "message": "",
+      "attachment": null,
+      "createdAt": "2026-08-25T07:15:00.292Z",
+      "senderFolder": "trash",
+      "id": "OeTtpxYP1V8"
+    },
+    {
+      "from": "abhi@dmail.com",
+      "to": "datta@dmail.com",
+      "subject": "hghgh",
+      "message": "datta123 check the working of draft perfeclty",
+      "createdAt": "2026-08-25T07:15:41.111Z",
+      "attachment": null,
+      "senderFolder": "sent",
+      "receiverFolder": "inbox",
+      "id": "IcqBWEJZVxM"
+    },
+    {
+      "from": "abhi@dmail.com",
+      "to": "abhi@dmail.com",
+      "subject": "Re: hghgh",
+      "message": "ddff",
+      "attachment": null,
+      "senderFolder": "sent",
+      "receiverFolder": "archive",
+      "id": "W7_f2rEPbGg"
+    },
+    {
+      "from": "datta@dmail.com",
+      "to": "abhi@dmail.com",
+      "subject": "1234",
+      "message": "1234 checking draft",
+      "createdAt": "2026-08-25T07:20:34.919Z",
+      "attachment": null,
+      "senderFolder": "sent",
+      "receiverFolder": "inbox",
+      "id": "zwZZZwqSlYA"
+    },
+    {
+      "from": "datta@dmail.com",
+      "to": "pratik@dmail.com",
+      "subject": "hghgh",
+      "message": "check the compose is working or not",
+      "createdAt": "2026-08-25T07:53:00.282Z",
+      "attachment": null,
+      "senderFolder": "sent",
+      "receiverFolder": "inbox",
+      "id": "mcRCSad1Bz8"
+    },
+    {
+      "from": "datta@dmail.com",
+      "to": "datta@dmail.com",
+      "subject": "hghgh",
+      "message": "ffdfd",
+      "createdAt": "2026-08-25T08:00:20.544Z",
+      "attachment": null,
+      "senderFolder": "trash",
+      "receiverFolder": "trash",
+      "id": "q89h539Lm1A",
+      "receiverSnoozedUntil": "2026-08-26T02:30:00.000Z"
+    },
+    {
+      "from": "abhi@dmail.com",
+      "to": "datta@gmail.com",
+      "subject": "Money",
+      "message": "hhg ytryjghjmhg",
+      "createdAt": "2026-08-25T08:35:46.935Z",
+      "attachment": null,
+      "senderFolder": "sent",
+      "receiverFolder": "inbox",
+      "id": "JigpjLwp_U0"
+    },
+    {
+      "from": "datta@dmail.com",
+      "to": "abhi@dmail.com",
+      "subject": "money",
+      "message": "money related dmail",
+      "createdAt": "2026-08-25T08:37:19.832Z",
+      "attachment": null,
+      "senderFolder": "trash",
+      "receiverFolder": "inbox",
+      "id": "Oezl38KzFUA"
+    },
+    {
+      "from": "abhi@dmail.com",
+      "to": "abhi@dmail.com",
+      "subject": "offer",
+      "message": "check this below offer",
+      "createdAt": "2026-08-25T08:42:07.368Z",
+      "attachment": null,
+      "senderFolder": "sent",
+      "receiverFolder": "inbox",
+      "id": "H9T9M5tHVe4"
+    },
+    {
+      "from": "abhi@dmail.com",
+      "to": "datta@dmail.com",
+      "subject": "instagram",
+      "message": "dmail in social",
+      "createdAt": "2026-08-25T08:43:47.696Z",
+      "attachment": null,
+      "senderFolder": "sent",
+      "receiverFolder": "inbox",
+      "id": "-_fav4nxq4M"
+    },
+    {
+      "from": "abhi@dmail.com",
+      "to": "datta@dmail.com",
+      "subject": "Verify Otp",
+      "message": "verify your otp to sign in",
+      "createdAt": "2026-08-25T08:44:54.103Z",
+      "attachment": null,
+      "senderFolder": "sent",
+      "receiverFolder": "inbox",
+      "id": "68WCG7HNO_I"
+    },
+    {
+      "from": "abhi@dmail.com",
+      "to": "abhi@dmail.com",
+      "subject": "Re: hghgh",
+      "message": "datta",
+      "attachment": null,
+      "senderFolder": "sent",
+      "receiverFolder": "inbox",
+      "id": "Jl0dj7kbTDw"
+    },
+    {
+      "from": "abhi@dmail.com",
+      "to": "pratik@gmail.com",
+      "subject": "Fwd: Re: hghgh",
+      "message": "ddsfsdfds\n\n----------------\nFrom: abhi@dmail.com\nTo: abhi@dmail.com\n\nddff",
+      "attachment": null,
+      "senderFolder": "sent",
+      "receiverFolder": "inbox",
+      "id": "GklmVM9L8G0"
+    },
+    {
+      "from": "abhi@dmail.com",
+      "to": "datta@dmail.com",
+      "subject": "Re: money",
+      "message": "i didn't receive anything",
+      "attachment": null,
+      "threadId": "Oezl38KzFUA",
+      "senderFolder": "sent",
+      "receiverFolder": "deleted",
+      "id": "DNy1Pcx0Ln4",
+      "receiverSnoozedUntil": "2026-08-26T02:30:00.000Z"
+    },
+    {
+      "from": "abhi@dmail.com",
+      "to": "abhi@dmail.com",
+      "subject": "Fwd: 1234",
+      "message": "check frowarded email\n\n----------------\nFrom: datta@dmail.com\nTo: abhi@dmail.com\n\n1234 checking draft",
+      "attachment": null,
+      "senderFolder": "sent",
+      "receiverFolder": "inbox",
+      "id": "af6W1ierpT0"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"

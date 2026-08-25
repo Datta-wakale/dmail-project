@@ -1,0 +1,79 @@
+.email-row {
+    display: flex;
+    align-items: center;
+    height: 52px;
+    padding: 0 10px;
+    border-bottom: 1px solid #e0e0e0;
+    cursor: pointer;
+}
+
+.email-row:hover {
+    background-color: #f5f5f5;
+}
+
+/* Sender */
+.email-sender {
+    width: 220px;
+    font-size: 14px;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Subject + message */
+.email-content {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.email-subject {
+    font-weight: 600;
+}
+
+.email-preview {
+    color: #666;
+}
+
+/* Date */
+.email-date {
+    width: 80px;
+    font-size: 12px;
+    text-align: right;
+}
+
+/* Hover action icons */
+.email-hover-actions {
+    display: none;
+    align-items: center;
+}
+
+/* Show actions when row is hovered */
+.email-row:hover .email-hover-actions {
+    display: flex;
+}
+
+/* Show actions when checkbox is selected */
+.email-hover-actions.show-actions {
+    display: flex;
+}
+
+/* Selected row */
+.email-row.email-selected {
+    background-color: #f5f5f5;
+}
+
+/* Star */
+.star-active {
+    color: #f4b400;
+}
+
+/* No emails */
+.no-email {
+    text-align: center;
+    padding: 40px;
+    color: #777;
+}

@@ -1,14 +1,67 @@
-import { useOutletContext } from "react-router-dom"
 
-const Drafts = ()=> {
 
-    const {emails, setEmails} = useOutletContext();
-    
-    return(
-        <>
-            <p className="no-email">No Dmail is avalable at this time</p>
-        </>
-    )
-}
+import { useContext } from "react";
+import { useOutletContext } from "react-router-dom";
+import { UserContext } from "../../Context/UserContext";
+import DraftRow from "./DraftRow";
 
-export default Drafts
+const Drafts = () => {
+
+    const { loggedInUser } = useContext(UserContext);
+
+    const {
+        emails,
+        search,
+        filterEmails
+    } = useOutletContext();
+
+    // Get only draft emails
+    const draftEmails = emails.filter(
+        (email) =>
+            email.from === loggedInUser.email &&
+            email.senderFolder === "draft"
+    );
+
+    // Search + sort
+    const filteredEmails = [
+        ...filterEmails(draftEmails, search)
+    ].sort(
+        (a, b) =>
+            new Date(b.createdAt) -
+            new Date(a.createdAt)
+    );
+
+    return (
+        <div className="draft-container">
+
+            <div className="email-list">
+
+                {filteredEmails.length === 0 ? (
+
+                    <p className="no-email">
+                        {search.trim()
+                            ? `No dmails found for "${search}"`
+                            : "No drafts available"
+                        }
+                    </p>
+
+                ) : (
+
+                    filteredEmails.map((email) => (
+
+                        <DraftRow
+                            key={email.id}
+                            email={email}
+                        />
+
+                    ))
+
+                )}
+
+            </div>
+
+        </div>
+    );
+};
+
+export default Drafts;

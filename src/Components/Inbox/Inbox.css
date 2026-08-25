@@ -51,3 +51,24 @@
   padding: 40px;
   color: #777;
 }
+.email-hover-actions {
+    display: none;
+    align-items: center;
+    margin-left: auto;
+}
+
+.email-row:hover .email-hover-actions {
+    display: flex;
+}
+
+.email-hover-actions.actions-visible {
+    display: flex;
+}
+
+.email-row:hover .email-date {
+    display: none;
+}
+
+.email-hover-actions .MuiIconButton-root {
+    padding: 6px;
+}

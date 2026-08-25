@@ -6,9 +6,14 @@ import DraftsIcon from "@mui/icons-material/Drafts";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { NavLink } from "react-router-dom";
 import ReportIcon from "@mui/icons-material/Report";
+import { useState } from "react";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import AllInboxIcon from "@mui/icons-material/AllInbox";
+import SnoozeIcon from '@mui/icons-material/Snooze';
 import "./SideBar.css";
 
 const SideBar = ({ onCompose, open }) => {
+  const [moreOpen, setMoreOpen] = useState(false);
 
   return (
     <aside className={`sidebar ${open ? "" : "sidebar-closed"}`} >
@@ -67,6 +72,47 @@ const SideBar = ({ onCompose, open }) => {
           <DeleteIcon />
           <span>Trash</span>
         </NavLink>
+        {/* More */}
+        <button
+          className="sidebar-item more-btn"
+          onClick={() => setMoreOpen((prev) => !prev)}
+        >
+          <ExpandMoreIcon
+            className={`more-arrow ${moreOpen ? "more-arrow-open" : ""
+              }`}
+          />
+
+          <span>More</span>
+        </button>
+
+        {/* More options */}
+        {moreOpen && (
+          <div className="more-options">
+
+            <NavLink
+              to="/all-mail"
+              className={({ isActive }) =>
+                `sidebar-item ${isActive ? "active" : ""
+                }`
+              }
+            >
+              <AllInboxIcon />
+              <span>All Mail</span>
+            </NavLink>
+              
+              <NavLink
+              to="/snooze"
+              className={({ isActive }) =>
+                `sidebar-item ${isActive ? "active" : ""
+                }`
+              }
+            >
+              <SnoozeIcon/>
+              <span>snooze</span>
+            </NavLink>
+          </div>
+        )}
+
       </nav>
     </aside>
   );

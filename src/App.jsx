@@ -16,6 +16,8 @@ import ForgotDmail from "./Pages/Login/ForgotDmail";
 import ForgotPassword from "./Pages/Login/ForgotPassword";
 import Drafts from "./Components/Drafts/Drafts.";
 import Spam from "./Components/Spam/Spam"
+import AllDmails from "./Components/AllDmails/AllDmails";
+import Snoozed from "./Snoozed/Snoozed";
 function App() {
 
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -62,7 +64,9 @@ function App() {
               <Route path="drafts" element={<Drafts />} />
               <Route path="trash" element={<TrashEmails />} />
               <Route path="starred" element={<StarredEmails />} />
+              <Route path="all-mail" element={<AllDmails/>}/>
               <Route path="email/:id" element={<EmailsDetails />} />
+              <Route path="snooze" element={<Snoozed/>}/>
             </Route>
 
           </Route>

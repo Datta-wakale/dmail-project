@@ -1,31 +1,40 @@
 import { useContext } from "react";
 import { useOutletContext } from "react-router-dom";
-import { UserContext } from "../../Context/UserContext";
-import EmailRow from "../EmailRow.jsx/EmailRow";
+import { UserContext } from "../Context/UserContext";
+import EmailRow from "../Components/EmailRow.jsx/EmailRow";
 
-const StarredEmails = () => {
-
+const Snoozed = () => {
     const { loggedInUser } = useContext(UserContext);
-
-    const {
-        emails,
-        search,
+    const { emails, search,
         filterEmails
     } = useOutletContext();
 
-    // Get all starred emails related to logged-in user
-    const starredEmails = emails.filter(
-        (email) =>
-            email.starred === true &&
-            (
-                email.from === loggedInUser.email ||
-                email.to === loggedInUser.email
-            )
-    );
+    const now = new Date();
 
-    // Search + sort
+    // Get snoozed emails that belong to logged-in user
+    const snoozedEmails = emails.filter((email) => {
+
+        // Received email snooze
+        if (email.to === loggedInUser.email) {
+            return (
+                email.receiverSnoozedUntil &&
+                new Date(email.receiverSnoozedUntil) > now
+            );
+        }
+
+        // Sent email snooze
+        if (email.from === loggedInUser.email) {
+            return (
+                email.senderSnoozedUntil &&
+                new Date(email.senderSnoozedUntil) > now
+            );
+        }
+
+        return false;
+    });
+
     const filteredEmails = [
-        ...filterEmails(starredEmails, search)
+        ...filterEmails(snoozedEmails, search)
     ].sort(
         (a, b) =>
             new Date(b.createdAt) -
@@ -33,25 +42,18 @@ const StarredEmails = () => {
     );
 
     return (
-        <div className="inbox-container">
-
+        <div className="snoozed-container">
             <div className="email-list">
 
                 {filteredEmails.length === 0 ? (
-
                     <p className="no-email">
-
                         {search.trim()
-                            ? `No search found ${search} in starred dmail`
-                            : "No starred dmail is present"
+                            ? `No dmails found for "${search}"`
+                            : "No snoozed dmails"
                         }
-
                     </p>
-
                 ) : (
-
                     filteredEmails.map((email) => (
-
                         <EmailRow
                             key={email.id}
                             email={email}
@@ -61,15 +63,11 @@ const StarredEmails = () => {
                                     : "inbox"
                             }
                         />
-
                     ))
-
                 )}
 
             </div>
-
         </div>
     );
 };
-
-export default StarredEmails;
+export default Snoozed;

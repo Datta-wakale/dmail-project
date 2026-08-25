@@ -1,0 +1,60 @@
+.mail-categories {
+  width: 100%;
+  height: 56px;
+  display: flex;
+  align-items: stretch;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  box-sizing: border-box;
+}
+
+.mail-category-btn {
+  flex: 1;
+  max-width: 240px;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 0 20px;
+
+  border: none;
+  background-color: transparent;
+
+  color: #5f6368;
+  font-size: 14px;
+  font-weight: 500;
+
+  cursor: pointer;
+  position: relative;
+}
+
+.mail-category-btn:hover {
+  background-color: #f5f7f8;
+}
+
+.mail-category-btn.active {
+  color: #1967d2;
+  background-color: #f8fafd;
+}
+
+.mail-category-btn.active::after {
+  content: "";
+
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 0;
+
+  height: 3px;
+
+  background-color: #1967d2;
+
+  border-radius: 3px 3px 0 0;
+}
+
+.category-icon {
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+}

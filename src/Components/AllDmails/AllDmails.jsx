@@ -3,55 +3,44 @@ import { useOutletContext } from "react-router-dom";
 import { UserContext } from "../../Context/UserContext";
 import EmailRow from "../EmailRow.jsx/EmailRow";
 
-const StarredEmails = () => {
-
+const AllDmails = () => {
     const { loggedInUser } = useContext(UserContext);
-
     const {
         emails,
         search,
         filterEmails
     } = useOutletContext();
 
-    // Get all starred emails related to logged-in user
-    const starredEmails = emails.filter(
-        (email) =>
-            email.starred === true &&
-            (
-                email.from === loggedInUser.email ||
-                email.to === loggedInUser.email
-            )
-    );
+    // Show all emails related to logged-in user
+    const allMails = emails.filter((email) => {
+        // Sent by logged-in user
+        if (email.from === loggedInUser.email) {
+            return email.senderFolder !== "trash";
+        }
+        // Received by logged-in user
+        if (email.to === loggedInUser.email) {
+            return email.receiverFolder !== "trash";
+        }
+        return false;
+    });
 
-    // Search + sort
     const filteredEmails = [
-        ...filterEmails(starredEmails, search)
-    ].sort(
-        (a, b) =>
-            new Date(b.createdAt) -
-            new Date(a.createdAt)
-    );
+        ...filterEmails(allMails, search)
+    ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
     return (
-        <div className="inbox-container">
-
+        <div className="all-mail-container">
             <div className="email-list">
-
                 {filteredEmails.length === 0 ? (
-
                     <p className="no-email">
-
                         {search.trim()
-                            ? `No search found ${search} in starred dmail`
-                            : "No starred dmail is present"
+                            ? `No dmails found for "${search}"`
+                            : "No emails available"
                         }
-
                     </p>
 
                 ) : (
-
                     filteredEmails.map((email) => (
-
                         <EmailRow
                             key={email.id}
                             email={email}
@@ -61,15 +50,10 @@ const StarredEmails = () => {
                                     : "inbox"
                             }
                         />
-
                     ))
-
                 )}
-
             </div>
-
         </div>
     );
 };
-
-export default StarredEmails;
+export default AllDmails;

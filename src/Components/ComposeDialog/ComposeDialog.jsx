@@ -1,7 +1,7 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState , useRef} from "react";
 import { UserContext } from "../../Context/UserContext";
 import { checkEmailExists } from "../../authApi/authApi";
-import { sendEmail } from "../../authApi/emailsApi";
+import { sendEmail ,saveDraft, deleteDraft} from "../../authApi/emailsApi";
 import Dialog from "@mui/material/Dialog";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
@@ -9,7 +9,7 @@ import SendIcon from "@mui/icons-material/Send";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import { toast } from "react-toastify";
 import "./ComposeDialog.css";
-const ComposeDialog = ({ open, onClose, onEmailSent }) => {
+const ComposeDialog = ({ open, onClose, onEmailSent,draftToEdit,onDraftSaved,}) => {
   const { loggedInUser } = useContext(UserContext);
   const [mail, setMail] = useState({
     to: "",
@@ -17,6 +17,7 @@ const ComposeDialog = ({ open, onClose, onEmailSent }) => {
     message: "",
     attachment: null,
   });
+  const isSending = useRef(false);
   const [error, setError] = useState("");
   // Input change
   const handleChange = (event) => {
@@ -34,7 +35,6 @@ const ComposeDialog = ({ open, onClose, onEmailSent }) => {
     if (!file) {
       return;
     }
-
     // check attachment size before sending dmail
     const maxSize = 70 * 1024;
     console.log("actual file size :: ", file.size);
@@ -42,7 +42,6 @@ const ComposeDialog = ({ open, onClose, onEmailSent }) => {
       setError("attachment is too large (upto 70kb)");
       return;
     }
-
     const reader = new FileReader();
     reader.onload = () => {
       setMail((prev) => ({
@@ -57,73 +56,131 @@ const ComposeDialog = ({ open, onClose, onEmailSent }) => {
     };
     reader.readAsDataURL(file);
   };
-  // Send email
-  const handleSend = async () => {
-    // Validation
-    if (!mail.to.trim()) {
-      setError("Recipient Dmail is required");
-      return;
-    }
-    if (!mail.subject.trim()) {
-      setError("Subject is required");
-      return;
-    }
-    if (!mail.message.trim()) {
-      setError("Message is required");
-      return;
-    }
-    try {
-      // Check recipient
-      const recipient = await checkEmailExists(mail.to.trim());
-      if (!recipient) {
-        setError("Recipient Dmail does not exist");
-        return;
-      }
-      // Create email object
-      const emailData = {
-        from: loggedInUser.email,
-        to: recipient.email,
-        subject: mail.subject.trim(),
-        message: mail.message.trim(),
-        createdAt: new Date().toISOString(),
-        attachment: mail.attachment,
-      };
-      // Send email
-      const newEmail = await sendEmail(emailData);
-      onEmailSent(newEmail);
-      toast.success("Dmail sent successfully");
-      // Clear form
-      setMail({ to: "", subject: "", message: "", attachment: null, });
-      setError("");
-      // Close dialog
-      onClose();
-    } catch (error) {
-      console.error(error);
-      setError("Unable to send an Dmail");
-    }
-  };
 
-  useEffect(()=> {
-      if(open){
-        setMail({
-          to: "",
-          subject: "",
-          message: "",
-          attachment: ""
-        })
-        setError("");
-        setToFocused(false);
-      }
-  },[open]);
+  const handleSend = async () => {
+  // Mark that user is trying to send
+  isSending.current = true;
+  // Validation
+  if (!mail.to.trim()) {
+    setError("Recipient Dmail is required");
+    isSending.current = false;
+    return;
+  }
+  if (!mail.subject.trim()) {
+    setError("Subject is required");
+    isSending.current = false;
+    return;
+  }
+  if (!mail.message.trim()) {
+    setError("Message is required");
+    isSending.current = false;
+    return;
+  }
+  try {
+    const recipient = await checkEmailExists(mail.to.trim());
+    if (!recipient) {
+      setError("Recipient Dmail does not exist");
+      isSending.current = false;
+      return;
+    }
+    const emailData = {
+      from: loggedInUser.email,
+      to: recipient.email,
+      subject: mail.subject.trim(),
+      message: mail.message.trim(),
+      createdAt: new Date().toISOString(),
+      attachment: mail.attachment,
+    };
+    const newEmail = await sendEmail(emailData);
+    if (draftToEdit) {
+      await deleteDraft(draftToEdit.id);
+    }
+    onEmailSent(newEmail, draftToEdit?.id);
+    toast.success("Dmail sent successfully");
+    setMail({
+      to: "",
+      subject: "",
+      message: "",
+      attachment: null,
+    });
+    setError("");
+    onClose();
+  } catch (error) {
+    console.error(error);
+    setError("Unable to send an Dmail");
+  }
+};
+  // Close compose and save as draft if user typed something
+const handleClose = async () => {
+  // If Send button was clicked,
+  // don't save anything as draft
+  if (isSending.current) {
+    onClose();
+    return;
+  }
+  const hasContent =
+    mail.to.trim() ||
+    mail.subject.trim() ||
+    mail.message.trim() ||
+    mail.attachment;
+  // Nothing entered
+  if (!hasContent) {
+    onClose();
+    return;
+  }
+  try {
+
+    const draftData = {
+      from: loggedInUser.email,
+      to: mail.to.trim(),
+      subject: mail.subject.trim(),
+      message: mail.message.trim(),
+      attachment: mail.attachment,
+      createdAt: new Date().toISOString(),
+    };
+    const newDraft = await saveDraft(draftData);
+    console.log("Draft saved:", newDraft);
+    // Add new draft to Home emails state
+    onDraftSaved(newDraft);
+    // Close compose
+    onClose();
+  } catch (error) {
+    console.error("Unable to save draft", error);
+  }
+};
+
+useEffect(() => {
+  if (!open) {
+    return;
+  }
+  isSending.current = false;
+  if (draftToEdit) {
+    setMail({
+      to: draftToEdit.to || "",
+      subject: draftToEdit.subject || "",
+      message: draftToEdit.message || "",
+      attachment: draftToEdit.attachment || null,
+    });
+  } else {
+    setMail({
+      to: "",
+      subject: "",
+      message: "",
+      attachment: null,
+    });
+  }
+  setError("");
+  setToFocused(false);
+}, [open, draftToEdit]);
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+    <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
       <div className="compose-dialog">
         <div className="compose-header">
           <h3>New Message</h3>
-          <IconButton onClick={onClose}>
+         <IconButton onClick={handleClose}>
             <CloseIcon />
-          </IconButton>
+        </IconButton>
         </div>
         <div className="recipient-wrapper">
           {toFocused && <span className="recipient-label">To</span>}

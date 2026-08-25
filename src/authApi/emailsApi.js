@@ -164,3 +164,172 @@ export const permanentlyDeleteEmail = async (id, folder) => {
   }
   return await updateResponse.json();
 };
+// RESTORE EMAIL FROM TRASH
+export const restoreEmail = async (id, folder) => {
+  const response = await fetch(`${apiUrl}/${id}`);
+
+  if (!response.ok) {
+    throw new Error("Unable to find email");
+  }
+
+  const email = await response.json();
+
+  let updatedEmail;
+
+  if (folder === "inbox") {
+    updatedEmail = {
+      ...email,
+      receiverFolder: "inbox",
+    };
+  }
+
+  if (folder === "sent") {
+    updatedEmail = {
+      ...email,
+      senderFolder: "sent",
+    };
+  }
+
+  if (!updatedEmail) {
+    throw new Error("Invalid folder");
+  }
+
+  const updateResponse = await fetch(`${apiUrl}/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(updatedEmail),
+  });
+
+  if (!updateResponse.ok) {
+    throw new Error("Unable to restore email");
+  }
+  return await updateResponse.json();
+};
+// Save email as draft
+export const saveDraft = async (draftData) => {
+    const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            ...draftData,
+            senderFolder: "draft",
+        }),
+    });
+
+    if (!response.ok) {
+        throw new Error("Unable to save draft");
+    }
+
+    return await response.json();
+};
+
+// delete the draft permanently
+export const deleteDraft = async(id)=>{
+
+    const response = await fetch(`${apiUrl}/${id}`,{
+        method: "DELETE",
+    });
+    if(!response.ok){
+        throw new Error("Unable to delete draft");
+    }
+    return true;
+}
+
+// MOVE EMAIL TO ARCHIVE
+export const archiveEmail = async (id, folder) => {
+  const response = await fetch(`${apiUrl}/${id}`);
+
+  if (!response.ok) {
+    throw new Error("Unable to find email");
+  }
+
+  const email = await response.json();
+
+  let updatedEmail;
+
+  if (
+    folder === "inbox" ||
+    folder === "spam" ||
+    folder === "starred-received"
+  ) {
+    updatedEmail = {
+      ...email,
+      receiverFolder: "archive",
+    };
+  }
+
+  if (
+    folder === "sent" ||
+    folder === "starred-sent"
+  ) {
+    updatedEmail = {
+      ...email,
+      senderFolder: "archive",
+    };
+  }
+
+  if (!updatedEmail) {
+    throw new Error("Invalid folder");
+  }
+
+  const updateResponse = await fetch(`${apiUrl}/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(updatedEmail),
+  });
+
+  if (!updateResponse.ok) {
+    throw new Error("Unable to archive email");
+  }
+  return await updateResponse.json();
+};
+
+// SNOOZE EMAIL
+export const snoozeEmail = async (id, folder, snoozedUntil) => {
+  const response = await fetch(`${apiUrl}/${id}`);
+
+  if (!response.ok) {
+    throw new Error("Unable to find email");
+  }
+  const email = await response.json();
+  let updatedEmail = { ...email };
+
+  // Received email
+  if (
+    folder === "inbox" ||
+    folder === "spam" ||
+    folder === "starred-received"
+  ) {
+    updatedEmail.receiverSnoozedUntil = snoozedUntil;
+  }
+
+  // Sent email
+  if (
+    folder === "sent" ||
+    folder === "starred-sent"
+  ) {
+    updatedEmail.senderSnoozedUntil = snoozedUntil;
+  }
+  if (!updatedEmail.receiverSnoozedUntil &&
+      !updatedEmail.senderSnoozedUntil) {
+    throw new Error("Invalid folder");
+  }
+
+  const updateResponse = await fetch(`${apiUrl}/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(updatedEmail),
+  });
+  if (!updateResponse.ok) {
+    throw new Error("Unable to snooze email");
+  }
+  return await updateResponse.json();
+};

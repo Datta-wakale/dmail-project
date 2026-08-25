@@ -1,7 +1,7 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { useNavigate, useOutletContext, useParams, useLocation } from "react-router-dom";
 import { UserContext } from "../../Context/UserContext";
-import { deleteEmail,moveEmailToSpam } from "../../authApi/emailsApi";
+import { deleteEmail, moveEmailToSpam, sendEmail } from "../../authApi/emailsApi";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -12,9 +12,13 @@ import MarkEmailUnreadIcon from "@mui/icons-material/MarkEmailUnread";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import ReplyIcon from "@mui/icons-material/Reply";
 import ForwardIcon from "@mui/icons-material/Forward";
+import ReplyEmail from "./ReplyEmail";
+import ForwardEmail from "./ForwardEmail";
 import "./EmailsDetails.css";
 
 const EmailsDetails = () => {
+  const [replyOpen, setReplyOpen] = useState(false);
+  const [forwardOpen, setForwardOpen] = useState(false);
   const { emails, setEmails } = useOutletContext();
   const { id } = useParams();
   const location = useLocation();
@@ -26,7 +30,7 @@ const EmailsDetails = () => {
     (email) => String(email.id) === String(id));
 
   //If email not found
-  if (!email){
+  if (!email) {
     return (
       <p className="no-email">  No email is found </p>
     );
@@ -139,24 +143,44 @@ const EmailsDetails = () => {
         <div className="email-message">
           {email.message}
         </div>
-        {email.attachment && 
-            <div className="email-attachment">
-                <img className="email-attchment-image" src={email.attachment.data} alt={email.attachment.name} />
-                 <div className="email-attachment-name">
-                      {email.attachment.name}
-                  </div> 
+        {email.attachment &&
+          <div className="email-attachment">
+            <img className="email-attchment-image" src={email.attachment.data} alt={email.attachment.name} />
+            <div className="email-attachment-name">
+              {email.attachment.name}
             </div>
-        
+          </div>
+
         }
         <div className="email-actions">
-          <button className="email-action-btn">
-            <ReplyIcon />  Reply </button>
-          <button className="email-action-btn">
-            <ForwardIcon /> Forward </button>
+
+          <button
+            className="email-action-btn"
+            onClick={() => setReplyOpen(true)}
+          >
+            <ReplyIcon /> Reply
+          </button>
+
+          <button
+            className="email-action-btn"
+            onClick={() => setForwardOpen(true)}
+          >
+            <ForwardIcon /> Forward
+          </button>
+
         </div>
+        {replyOpen && (
+          <ReplyEmail
+            email={email}
+            loggedInUser={loggedInUser}
+            onClose={() => setReplyOpen(false)}/>
+        )}
+        {forwardOpen && (
+          <ForwardEmail email={email} loggedInUser={loggedInUser}
+            onClose={() => setForwardOpen(false)} />
+        )}
       </div>
     </div>
   );
 };
-
 export default EmailsDetails;

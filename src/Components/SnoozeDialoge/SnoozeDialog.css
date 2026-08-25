@@ -1,0 +1,53 @@
+.snooze-modal {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 360px;
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    outline: none;
+}
+
+.snooze-modal h2 {
+    margin: 0 0 15px;
+    font-size: 20px;
+    font-weight: 500;
+}
+.snooze-options {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.snooze-options button {
+    justify-content: flex-start;
+    text-transform: none;
+    color: #202124;
+}
+.custom-snooze {
+    margin-top: 15px;
+}
+
+.custom-snooze p {
+    margin: 0 0 8px;
+    font-size: 14px;
+    color: #5f6368;
+}
+
+.custom-snooze input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px;
+    border: 1px solid #dadce0;
+    border-radius: 4px;
+    font-size: 14px;
+}
+.snooze-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 20px;
+}
