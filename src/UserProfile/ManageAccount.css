@@ -1,0 +1,103 @@
+.manage-account {
+  min-height: calc(100vh - 70px);
+  display: flex;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.manage-account-card {
+  width: 650px;
+  max-width: 100%;
+  padding: 30px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+}
+
+.manage-account-header {
+  margin-bottom: 25px;
+}
+
+.manage-account-header h2 {
+  margin: 0 0 6px;
+}
+
+.manage-account-header p {
+  margin: 0;
+  color: #666;
+}
+
+.form-row {
+  display: flex;
+  gap: 20px;
+}
+
+.form-row .form-group {
+  flex: 1;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 7px;
+  font-weight: 500;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 15px;
+  box-sizing: border-box;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #1976d2;
+}
+
+.form-group input:disabled {
+  background: #f3f3f3;
+  cursor: not-allowed;
+}
+
+.email-info {
+  display: block;
+  margin-top: 6px;
+  color: #777;
+}
+
+.account-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 25px;
+}
+
+.account-actions button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.account-actions button:first-child {
+  background: #eee;
+}
+
+.account-actions button:last-child {
+  background: #1976d2;
+  color: white;
+}
+
+.submit-btn:disabled {
+  cursor: not-allowed;   
+  opacity: 0.6;      
+  background-color: #ccc; 
+  color: #888;          
+}

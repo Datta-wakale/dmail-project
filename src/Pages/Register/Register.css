@@ -116,7 +116,15 @@
     cursor: pointer;
     color: #5f6368;
 }
-
 .back-arrow:hover {
     color: #202124;
+}
+.placeicon{
+  position: relative;
+}
+.eyeicon{
+  position: absolute;
+  top: 177px;
+  right: 50px;
+  cursor: pointer;
 }

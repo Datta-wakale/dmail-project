@@ -7,8 +7,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import ArchiveIcon from "@mui/icons-material/Archive";
 import SnoozeIcon from "@mui/icons-material/Snooze";
 import MarkEmailReadIcon from "@mui/icons-material/MarkEmailRead";
-import { deleteDraft } from "../../authApi/emailsApi";
-import { toast } from "react-toastify";
+import { deleteEmail } from "../../authApi/emailsApi";
+import { restoreEmail } from "../../authApi/restoreEmail";
 import "./DraftRow.css";
 const DraftRow = ({ email }) => {
 
@@ -17,7 +17,7 @@ const DraftRow = ({ email }) => {
         setEmails,
         selectedEmails,
         setSelectedEmails,
-        setDraftToEdit
+        setDraftToEdit,showSnackbar
     } = useOutletContext();
 
     // Check selected
@@ -54,21 +54,47 @@ const DraftRow = ({ email }) => {
     };
 
     // Delete draft permanently
-    const handleDelete = async (event) => {
-        event.stopPropagation();
-        try {
-            await deleteDraft(email.id);
-            setEmails((prev) =>
-                prev.filter((item) => item.id !== email.id)
-            );
-            setSelectedEmails((prev) => prev.filter(
-                (id) => id !== email.id));
+   const handleDelete = async (event) => {
+  event.stopPropagation();
 
-        } catch (error) {
-            toast.success("unable to send")
-            console.log("unable to send ", error);
-        }
-    }
+  try {
+    await deleteEmail(email.id, "draft");
+
+    setEmails((prevEmails) =>
+      prevEmails.map((item) =>
+        item.id === email.id
+          ? {
+              ...item,
+              senderFolder: "trash",
+            }
+          : item
+      )
+    );
+
+    setSelectedEmails((prev) =>
+      prev.filter((id) => id !== email.id)
+    );
+    showSnackbar("Draft moved to Trash", async () => {
+      try {
+        const restoredEmail = await restoreEmail(
+          email.id,
+          "draft"
+        );
+        setEmails((prevEmails) =>
+          prevEmails.map((item) =>
+            item.id === email.id
+              ? restoredEmail
+              : item
+          )
+        );
+      } catch (error) {
+        console.error("Unable to undo draft delete", error);
+      }
+    });
+  } catch (error) {
+    console.error("Unable to delete draft", error);
+  }
+};
     // UI only for now
     const handleArchive = (event) => {
         event.stopPropagation();

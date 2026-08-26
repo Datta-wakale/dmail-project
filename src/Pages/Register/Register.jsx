@@ -5,6 +5,8 @@ import "./Register.css";
 import { toast } from "react-toastify";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ChooseEmail from "./ChooseEmail";
+import  IconButton  from "@mui/material/Icon";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 const Register = () => {
     const navigate = useNavigate();
 
@@ -20,7 +22,10 @@ const Register = () => {
     });
 
     const [error, setError] = useState({});
-
+    const [showPassword, setShowPassword] = useState(false);
+    const handleShowPassword = ()=> {
+        setShowPassword((show)=> !show);
+    }
     const handleChange = (event) => {
         const { name, value } = event.target;
         setUser((prev) => ({
@@ -37,24 +42,18 @@ const Register = () => {
     const handlePhoneKeyDown = (event) => {
         const allowedKeys = ["Backspace", "Delete", "ArrowLeft", "ArrowRight", "Tab",];
 
-        if (
-            !/[0-9]/.test(event.key) &&
-            !allowedKeys.includes(event.key)
-        ) {
+        if ( !/[0-9]/.test(event.key) &&
+            !allowedKeys.includes(event.key)) {
             event.preventDefault();
         }
 
-        if (
-            user.phone.length >= 10 &&
-            !allowedKeys.includes(event.key)
-        ) {
+        if ( user.phone.length >= 10 &&
+            !allowedKeys.includes(event.key) ) {
             event.preventDefault();
         }
     };
-
     const validateStep1 = () => {
         const errors = {};
-
         if (!user.fname.trim()) {
             errors.fname = "First name is required";
         }
@@ -262,10 +261,12 @@ const Register = () => {
                         <p className="step-description"> Your password must contain at least 6 characters.</p>
                         <div className="form-group"><label htmlFor="password"> Password
                         </label>
-                            <input type="password" id="password" name="password"
+                            <input type={showPassword ? "text" : "password"} id="password" name="password"
                                 placeholder="Enter password" value={user.password}
-                                onChange={handleChange} />
-
+                                onChange={handleChange} className="placeicon"/>
+                            <IconButton onClick={handleShowPassword} className="eyeicon">
+                                {showPassword ? (<VisibilityOff/>) : <Visibility/>}
+                            </IconButton>
                             {error.password && (<span className="error-msg"> {error.password}</span>)}
                         </div>
                         <div className="form-group">

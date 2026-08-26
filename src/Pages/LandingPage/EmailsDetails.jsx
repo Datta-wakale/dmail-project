@@ -1,16 +1,7 @@
 import { useContext, useState } from "react";
-import {
-  useNavigate,
-  useOutletContext,
-  useParams,
-  useLocation,
-} from "react-router-dom";
+import { useNavigate, useOutletContext, useParams, useLocation, } from "react-router-dom";
 import { UserContext } from "../../Context/UserContext";
-import {
-  deleteEmail,
-  moveEmailToSpam,
-  sendEmail,
-} from "../../authApi/emailsApi";
+import { deleteEmail, moveEmailToSpam, archiveEmail, permanentlyDeleteEmail} from "../../authApi/emailsApi";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -23,6 +14,7 @@ import SnoozeIcon from "@mui/icons-material/Snooze";
 import ReplyIcon from "@mui/icons-material/Reply";
 import ForwardIcon from "@mui/icons-material/Forward";
 import ReplyEmail from "./ReplyEmail";
+import { restoreArchivedEmail } from "../../authApi/restoreEmail";
 import ForwardEmail from "./ForwardEmail";
 import "./EmailsDetails.css";
 import { unsnoozeEmail } from "../../authApi/UnSnoozeEmail";
@@ -37,18 +29,16 @@ const EmailsDetails = () => {
   const navigate = useNavigate();
   // Find selected email
   const email = emails.find((email) => String(email.id) === String(id));
-
   // If email not found
   if (!email) {
     return <p className="no-email">No email is found</p>;
   }
-
-  // Now calculate snooze status
+  // control the snoozing
   const isSnoozed =
-    (folder === "inbox" &&
+    ((folder === "inbox" || folder === "spam") &&
       email.receiverSnoozedUntil &&
       new Date(email.receiverSnoozedUntil) > new Date()) ||
-    (folder === "sent" &&
+    ((folder === "sent" || folder === "draft") &&
       email.senderSnoozedUntil &&
       new Date(email.senderSnoozedUntil) > new Date());
   // Back button
@@ -64,62 +54,147 @@ const EmailsDetails = () => {
           if (item.id !== email.id) {
             return item;
           }
-
-          if (folder === "inbox") {
+          // Inbox / Spam
+          if (folder === "inbox" || folder === "spam") {
             return {
               ...item,
               receiverSnoozedUntil: null,
             };
           }
-
-          if (folder === "sent") {
+          // Sent / Draft
+          if (folder === "sent" || folder === "draft") {
             return {
               ...item,
               senderSnoozedUntil: null,
             };
           }
-
           return item;
         }),
       );
-
-      // Inbox snoozed email → Inbox
+      // Go back to the same folder
       if (folder === "inbox") {
         navigate("/inbox");
       }
-
-      // Sent snoozed email → Sent
+      if (folder === "spam") {
+        navigate("/spam");
+      }
       if (folder === "sent") {
         navigate("/sent");
+      }
+      if (folder === "draft") {
+        navigate("/draft");
       }
     } catch (error) {
       console.error("Unable to unsnooze email", error);
     }
   };
   // Delete email
-  const handleDelete = async () => {
+const handleDelete = async () => {
+  try {
+    // Trash → permanently delete
+    if (folder === "trash") {
+      await permanentlyDeleteEmail(email.id);
+      // Remove completely from React state
+      setEmails((prevEmails) =>
+        prevEmails.filter((item) => item.id !== email.id)
+      );
+
+      navigate(-1);
+      return;
+    }
+    // Inbox / Sent / Spam → Trash
+    await deleteEmail(email.id, folder);
+    setEmails((prevEmails) =>
+      prevEmails.map((item) => {
+        if (item.id !== email.id) {
+          return item;
+        }
+
+        // Received email
+        if (folder === "inbox" || folder === "spam") {
+          return {
+            ...item,
+            receiverFolder: "trash",
+          };
+        }
+
+        // Sent email
+        if (folder === "sent") {
+          return {
+            ...item,
+            senderFolder: "trash",
+          };
+        }
+
+        return item;
+      })
+    );
+
+    navigate(-1);
+
+  } catch (error) {
+    console.error("Unable to delete email", error);
+  }
+};
+  // const handleArchive = async () => {
+  //   try {
+  //     const originalFolder = folder;
+
+  //     const archivedEmail = await archiveEmail(
+  //       email.id,
+  //       originalFolder
+  //     );
+
+  //     setEmails((prevEmails) =>
+  //       prevEmails.map((item) =>
+  //         item.id === email.id
+  //           ? archivedEmail
+  //           : item
+  //       )
+  //     );
+
+  //     navigate(-1);
+  //   } catch (error) {
+  //     console.error("Unable to archive email", error);
+  //   }
+  // };
+  const handleArchive = async () => {
     try {
-      await deleteEmail(email.id, folder);
-      // Update emails state
+      const originalFolder = folder;
+
+      if (
+        originalFolder !== "inbox" &&
+        originalFolder !== "spam" &&
+        originalFolder !== "sent" &&
+        originalFolder !== "starred-received" &&
+        originalFolder !== "starred-sent"
+      ) {
+        console.error(
+          `Cannot archive email from folder: ${originalFolder}`
+        );
+        return;
+      }
+
+      const archivedEmail = await archiveEmail(
+        email.id,
+        originalFolder
+      );
+
       setEmails((prevEmails) =>
         prevEmails.map((item) =>
           item.id === email.id
-            ? {
-                ...item,
-                ...(folder === "inbox" && {
-                  receiverFolder: "trash",
-                }),
-                ...(folder === "sent" && {
-                  senderFolder: "trash",
-                }),
-              }
-            : item,
-        ),
+            ? archivedEmail
+            : item
+        )
       );
-      // Go back
+
       navigate(-1);
+
     } catch (error) {
-      console.error("Unable to delete email", error);
+      console.error(
+        "Unable to archive email",
+        error
+      );
     }
   };
   const handleReportSpam = async () => {
@@ -130,9 +205,9 @@ const EmailsDetails = () => {
         prevEmails.map((item) =>
           item.id === email.id
             ? {
-                ...item,
-                receiverFolder: "spam",
-              }
+              ...item,
+              receiverFolder: "spam",
+            }
             : item,
         ),
       );
@@ -153,7 +228,7 @@ const EmailsDetails = () => {
         </Tooltip>
         <div className="toolbar-right">
           <Tooltip title="Archive">
-            <IconButton>
+            <IconButton onClick={handleArchive}>
               <ArchiveIcon />
             </IconButton>
           </Tooltip>
@@ -189,13 +264,15 @@ const EmailsDetails = () => {
             <span>
               Snoozed until{" "}
               {new Date(
-                folder === "inbox"
+                folder === "inbox" || folder === "spam"
                   ? email.receiverSnoozedUntil
-                  : email.senderSnoozedUntil,
+                  : email.senderSnoozedUntil
               ).toLocaleString()}
             </span>
 
-            <button onClick={handleUnsnooze}>Unsnooze</button>
+            <button onClick={handleUnsnooze}>
+              Unsnooze
+            </button>
           </div>
         )}
         <div className="email-details-header">

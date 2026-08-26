@@ -147,7 +147,14 @@
   font-size: 14px;
   font-weight: 500;
 }
-
 .forgot-link:hover {
   text-decoration: underline;
+}
+.toggletype{
+  position: relative;
+}
+.toggle-btn{
+  position: absolute;
+  top: -40px;
+  left: 270px;
 }

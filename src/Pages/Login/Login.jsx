@@ -6,6 +6,7 @@ import { UserContext } from "../../Context/UserContext";
 import "./Login.css";
 import IconButton from "@mui/material/IconButton";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 const Login = () => {
   const { setLoggedInUser } = useContext(UserContext);
   const navigate = useNavigate();
@@ -15,7 +16,7 @@ const Login = () => {
     email: "",
     password: "",
   });
-
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState({});
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -31,6 +32,11 @@ const Login = () => {
       login: "",
     }));
   };
+
+  // handle password visibility
+  const passwordToggle = ()=> {
+     setShowPassword((visible)=> !visible);
+  }
 
   // STEP 1 - Validate Email
   const handleEmailNext = async () => {
@@ -142,9 +148,12 @@ const Login = () => {
             </div>
             <div className="signin-form-group">
               <label htmlFor="password"> Password</label>
-              <input type="password" id="password" name="password"
+              <input type={showPassword ? "text" : "password"} id="password" name="password"
                 placeholder="Enter your password" value={user.password}
-                onChange={handleChange} />
+                onChange={handleChange} className="toggletype"/>
+                <IconButton onClick={passwordToggle} className="toggle-btn">
+                    { showPassword ? <VisibilityOff/> : <Visibility/>}
+                </IconButton>
               {error.password && (<span className="signin-error"> {error.password}  </span>)}
                <Link to="/forgot-pass" className="forgot-link" > Forgot Password? </Link>
             </div>

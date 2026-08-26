@@ -87,3 +87,19 @@
   border-top: 1px solid #e5e7eb;
   padding-top: 8px;
 }
+.manage-account-link {
+  margin: 15px 0;
+  text-align: center;
+}
+
+.manage-account-link button {
+  border: none;
+  background: transparent;
+  color: #1976d2;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.manage-account-link button:hover {
+  text-decoration: underline;
+}

@@ -53,6 +53,12 @@ export const deleteEmail = async (id, folder) => {
       senderFolder: "trash",
     };
   }
+  if (folder === "draft") {
+  updatedEmail = {
+    ...email,
+    senderFolder: "trash",
+  };
+}
 
   const updateResponse = await fetch(`${apiUrl}/${id}`, {
     method: "PUT",
@@ -240,6 +246,50 @@ export const deleteDraft = async(id)=>{
 }
 
 // MOVE EMAIL TO ARCHIVE
+// export const archiveEmail = async (id, folder) => {
+//   const response = await fetch(`${apiUrl}/${id}`);
+
+//   if (!response.ok) {
+//     throw new Error("Unable to find email");
+//   }
+
+//   const email = await response.json();
+//   let updatedEmail;
+//   if ( folder === "inbox" || folder === "spam" ||
+//     folder === "starred-received") {
+//     updatedEmail = {
+//       ...email,
+//       receiverFolder: "archive",
+//     };
+//   }
+
+//   if (
+//     folder === "sent" ||
+//     folder === "starred-sent"
+//   ) {
+//     updatedEmail = {
+//       ...email,
+//       senderFolder: "archive",
+//     };
+//   }
+
+//   if (!updatedEmail) {
+//     throw new Error("Invalid folder");
+//   }
+
+//   const updateResponse = await fetch(`${apiUrl}/${id}`, {
+//     method: "PUT",
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//     body: JSON.stringify(updatedEmail),
+//   });
+
+//   if (!updateResponse.ok) {
+//     throw new Error("Unable to archive email");
+//   }
+//   return await updateResponse.json();
+// };
 export const archiveEmail = async (id, folder) => {
   const response = await fetch(`${apiUrl}/${id}`);
 
@@ -251,29 +301,25 @@ export const archiveEmail = async (id, folder) => {
 
   let updatedEmail;
 
-  if (
-    folder === "inbox" ||
-    folder === "spam" ||
-    folder === "starred-received"
-  ) {
+  // Received email
+  if (folder === "inbox" || folder === "spam" || folder === "starred-received") {
     updatedEmail = {
       ...email,
       receiverFolder: "archive",
     };
   }
 
-  if (
-    folder === "sent" ||
-    folder === "starred-sent"
-  ) {
+  // Sent email
+  if (folder === "sent" || folder === "starred-sent") {
     updatedEmail = {
       ...email,
       senderFolder: "archive",
     };
   }
 
+  // Archive is not valid for Trash or Draft
   if (!updatedEmail) {
-    throw new Error("Invalid folder");
+    throw new Error(`Cannot archive email from folder: ${folder}`);
   }
 
   const updateResponse = await fetch(`${apiUrl}/${id}`, {
@@ -287,9 +333,9 @@ export const archiveEmail = async (id, folder) => {
   if (!updateResponse.ok) {
     throw new Error("Unable to archive email");
   }
+
   return await updateResponse.json();
 };
-
 // SNOOZE EMAIL
 // export const snoozeEmail = async (id, folder, snoozedUntil) => {
 //   const response = await fetch(`${apiUrl}/${id}`);

@@ -32,7 +32,6 @@ export const checkEmailExists = async (email) => {
   return users && users.length ? users[0] : null;
 };
 
-
 // Register user
 export const registerUser = async (userData) => {
   const normalizedEmail = normalizeEmail(userData.email);
@@ -90,13 +89,34 @@ export const deleteUser = async (id) => {
 };
 
 // Update user
-export const updateUser = async (id, user) => {
+// export const updateUser = async (id, user) => {
+//   const response = await fetch(`${API_URL}/${id}`, {
+//     method: "PUT",
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//     body: JSON.stringify(user),
+//   });
+//   if (!response.ok) {
+//     throw new Error("Unable to update user");
+//   }
+//   return await response.json();
+// };
+
+// Update user
+export const updateUser = async (id, userData) => {
+  // Create a new object.
+  const updatedUser = {
+    ...userData,
+    id,
+  };
+
   const response = await fetch(`${API_URL}/${id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(user),
+    body: JSON.stringify(updatedUser),
   });
   if (!response.ok) {
     throw new Error("Unable to update user");
@@ -107,16 +127,11 @@ export const updateUser = async (id, user) => {
 // Check whether phone exists
 export const checkPhoneExists = async (phone) => {
   const phoneValue = String(phone).trim();
-
   const response = await fetch(API_URL);
-
   if (!response.ok) {
     throw new Error("Unable to fetch users");
   }
-
   const users = await response.json();
-
   return users.find(
-    (user) => String(user.phone).trim() === phoneValue
-  ) || null;
+    (user) => String(user.phone).trim() === phoneValue) || null;
 };

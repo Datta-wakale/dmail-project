@@ -9,6 +9,7 @@ import Mailtoolbar from "../Components/MailToolBar/Mailtoolbar";
 import { useState } from "react";
 import { getEmails } from "../authApi/emailsApi";
 import DmailCategories from "../Components/DmailCategories/DmailCategories";
+import ActionSnackbar from "../Components/Common/ActionSnackBar/ActionSnackBar";
 const Home = ({ sidebarOpen, search, setSearch, filterEmails }) => {
   const { loggedInUser } = useContext(UserContext);
   const [openCompose, setOpenCompose] = useState(false);
@@ -17,10 +18,15 @@ const Home = ({ sidebarOpen, search, setSearch, filterEmails }) => {
   const [selectedCategory, setSelectedCategory] = useState("primary");
   const [selectedEmails, setSelectedEmails] = useState([]);
   const [undoEmail, setUndoEmail] = useState(null);
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    action: null
+  })
   const navigate = useNavigate();
 
   // open email
-  const openSelectedMail = (id, folder)=>{
+  const openSelectedMail = (id, folder) => {
     navigate(`/email/${id}`, {
       state: {
         folder,
@@ -32,24 +38,24 @@ const Home = ({ sidebarOpen, search, setSearch, filterEmails }) => {
     const response = await getEmails();
     setEmails(response);
   }
-const handleEmailSent = (newEmail, draftId) => {
-  setEmails((prevEmails) => {
-    const updatedEmails = draftId
-      ? prevEmails.filter((email) => email.id !== draftId)
-      : prevEmails;
+  const handleEmailSent = (newEmail, draftId) => {
+    setEmails((prevEmails) => {
+      const updatedEmails = draftId
+        ? prevEmails.filter((email) => email.id !== draftId)
+        : prevEmails;
 
-    return [
-      ...updatedEmails,
-      newEmail
-    ];
-  });
-};
-const handleDraftSaved = (newDraft) => {
-  setEmails((prevEmails) => [
-    ...prevEmails,
-    newDraft
-  ]);
-};
+      return [
+        ...updatedEmails,
+        newEmail
+      ];
+    });
+  };
+  const handleDraftSaved = (newDraft) => {
+    setEmails((prevEmails) => [
+      ...prevEmails,
+      newDraft
+    ]);
+  };
   const location = useLocation();
   useEffect(() => {
     setSearch("");
@@ -57,6 +63,22 @@ const handleDraftSaved = (newDraft) => {
   useEffect(() => {
     loadEmails();
   }, []);
+
+  // snackbar action common for all 
+  const showSnackbar = (message, action = null) => {
+    setSnackbar({
+      open: true,
+      message,
+      action
+    })
+  }
+  const closeSnackbar = () => {
+    setSnackbar((prev) => ({
+      ...prev,
+      open: false
+    }))
+  }
+
   return (
     <>
       {loggedInUser ? (
@@ -66,7 +88,13 @@ const handleDraftSaved = (newDraft) => {
           <div className="mail-main">
 
             {/* TOOLBAR */}
-            <Mailtoolbar />
+            <Mailtoolbar
+              emails={emails}
+              selectedEmails={selectedEmails}
+              setSelectedEmails={setSelectedEmails}
+              loadEmails={loadEmails}
+              showSnackbar={showSnackbar}
+            />
 
 
             {(location.pathname === "/" || location.pathname === "/inbox") && (
@@ -79,26 +107,22 @@ const handleDraftSaved = (newDraft) => {
             {/* PAGE CONTENT */}
             <main className="mail-content">
               <Outlet
-                context={{ emails, setEmails, openSelectedMail, search, filterEmails, selectedCategory,selectedEmails,setSelectedEmails,undoEmail,setUndoEmail,draftToEdit,setDraftToEdit }} />
+                context={{ emails, setEmails, loadEmails, openSelectedMail, search, filterEmails, selectedCategory, selectedEmails, setSelectedEmails, undoEmail, setUndoEmail, draftToEdit, setDraftToEdit, showSnackbar, closeSnackbar }} />
             </main>
 
           </div>
-         {/* <ComposeDialog open={openCompose || !!draftToEdit} onClose={() => {
+          <ComposeDialog
+            open={openCompose || !!draftToEdit}
+            onClose={() => {
               setOpenCompose(false);
-             setDraftToEdit(null);
-           }} onEmailSent={handleEmailSent}
-          draftToEdit={draftToEdit}
-        /> */}
-        <ComposeDialog
-  open={openCompose || !!draftToEdit}
-  onClose={() => {
-    setOpenCompose(false);
-    setDraftToEdit(null);
-  }}
-  onEmailSent={handleEmailSent}
-  onDraftSaved={handleDraftSaved}
-  draftToEdit={draftToEdit}
-/>
+              setDraftToEdit(null);
+            }}
+            onEmailSent={handleEmailSent}
+            onDraftSaved={handleDraftSaved}
+            draftToEdit={draftToEdit}
+          />
+
+          <ActionSnackbar open={snackbar.open} message={snackbar.message} onAction={snackbar.action} onClose={closeSnackbar} />
         </div>
       ) : (
         // Logged-out user
@@ -107,11 +131,9 @@ const handleDraftSaved = (newDraft) => {
             <div className="home-logo">
               <span>D</span>-mail
             </div>
-
             <h1 className="home-heading">
               Welcome to D-mail
             </h1>
-
             <p className="home-info">
               Connect with people, have professional conversations,
               and share work-related files easily.

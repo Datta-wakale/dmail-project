@@ -18,7 +18,7 @@ const NavButtons = () => {
   const navigate = useNavigate();
   const handleProfileImage = (event) => {
     const file = event.target.files[0];
-    if (!file){
+    if (!file) {
       return;
     }
     const reader = new FileReader();
@@ -63,12 +63,12 @@ const NavButtons = () => {
                     <img src={profileImage}
                       alt="Profile"
                       className="profile-popup-image" />
-                     ) :
-                     (
-                    <div className="profile-default-icon">
-                      <PersonIcon />
-                    </div>
-                  )}
+                  ) :
+                    (
+                      <div className="profile-default-icon">
+                        <PersonIcon />
+                      </div>
+                    )}
                   <span className="profile-add-button">
                     <AddIcon />
                   </span>
@@ -76,6 +76,15 @@ const NavButtons = () => {
                     onChange={handleProfileImage} hidden />
                 </label>
                 <p>Add profile photo</p>
+              </div>
+              <div className="manage-account-link">
+                <button
+                  onClick={() => {
+                    setShowProfile(false);
+                    navigate("/manage-account");
+                  }}>
+                  Manage your account
+                </button>
               </div>
               <div className="profile-logout">
                 <IconButton
@@ -131,5 +140,5 @@ const NavButtons = () => {
     </>
   );
 };
-
 export default NavButtons;
+

@@ -6,65 +6,35 @@ import EmailRow from "../EmailRow.jsx/EmailRow";
 const TrashEmails = () => {
 
     const { loggedInUser } = useContext(UserContext);
-
-    const {
-        emails,
-        search,
-        filterEmails
-    } = useOutletContext();
+    const { emails, search, filterEmails } = useOutletContext();
 
     const trashedMails = emails.filter(
-        (email) =>
-            (
-                email.to === loggedInUser.email &&
-                email.receiverFolder === "trash"
-            ) ||
-            (
-                email.from === loggedInUser.email &&
-                email.senderFolder === "trash"
-            )
-    );
+        (email) => (email.to === loggedInUser.email && email.receiverFolder === "trash") ||
+            (email.from === loggedInUser.email && email.senderFolder === "trash"));
 
     const filteredEmails = [
         ...filterEmails(trashedMails, search)
     ].sort(
-        (a, b) =>
-            new Date(b.createdAt) -
-            new Date(a.createdAt)
-    );
-
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     return (
         <div className="inbox-container">
-
             <div className="email-list">
-
                 {filteredEmails.length === 0 ? (
-
                     <p className="no-email">
-
                         {search.trim()
                             ? `No emails found for "${search}"`
                             : "Trash is empty"
                         }
-
                     </p>
-
                 ) : (
-
                     filteredEmails.map((email) => (
-
                         <EmailRow
                             key={email.id}
                             email={email}
-                            folder="trash"
-                        />
-
+                            folder="trash" />
                     ))
-
                 )}
-
             </div>
-
         </div>
     );
 };

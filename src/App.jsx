@@ -18,6 +18,7 @@ import Drafts from "./Components/Drafts/Drafts.";
 import Spam from "./Components/Spam/Spam"
 import AllDmails from "./Components/AllDmails/AllDmails";
 import Snoozed from "./Snoozed/Snoozed";
+import ManageAccount from "./UserProfile/ManageAccount";
 function App() {
 
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -30,7 +31,6 @@ function App() {
     if (!search.trim()) {
       return emails;
     }
-
     const searchText = search.toLowerCase().trim();
 
     return emails.filter((email) =>
@@ -51,10 +51,10 @@ function App() {
             <Route path="/create-acc" element={<Register />} />
             <Route path="/sign-in" element={<Login />} />
             <Route path="/forgot-pass" element={<ForgotPassword />} />
-            <Route path="/forgot-dmail" element={<ForgotDmail/>}/>
+            <Route path="/forgot-dmail" element={<ForgotDmail />} />
           </Route>
 
-          <Route path="/" element={<Home sidebarOpen={sidebarOpen} search={search} setSearch={setSearch} filterEmails={filterEmails}/>} >
+          <Route path="/" element={<Home sidebarOpen={sidebarOpen} search={search} setSearch={setSearch} filterEmails={filterEmails} />} >
 
             <Route element={<ProtectedRoute />}>
               <Route index element={<Inbox />} />
@@ -64,13 +64,14 @@ function App() {
               <Route path="drafts" element={<Drafts />} />
               <Route path="trash" element={<TrashEmails />} />
               <Route path="starred" element={<StarredEmails />} />
-              <Route path="all-mail" element={<AllDmails/>}/>
+              <Route path="all-mail" element={<AllDmails />} />
               <Route path="email/:id" element={<EmailsDetails />} />
-              <Route path="snooze" element={<Snoozed/>}/>
+              <Route path="snooze" element={<Snoozed />} />
+
             </Route>
 
           </Route>
-
+          <Route path="/manage-account" element={<ManageAccount />} />
         </Routes>
       </BrowserRouter>
       <ToastContainer position="top-center" autoClose={2000} />
