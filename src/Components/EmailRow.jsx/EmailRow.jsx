@@ -141,23 +141,21 @@ const EmailRow = ({ email, folder }) => {
 
   try {
     // Trash → permanently delete
-    if (folder === "trash") {
-      await permanentlyDeleteEmail(email.id);
+  if (folder === "trash") {
+  await permanentlyDeleteEmail(email.id);
 
-      // Remove completely from React state
-      setEmails((prevEmails) =>
-        prevEmails.filter((item) => item.id !== email.id)
-      );
+  setEmails((prevEmails) =>
+    prevEmails.filter((item) => item.id !== email.id)
+  );
 
-      // Remove from selected emails
-      setSelectedEmails((prev) =>
-        prev.filter((id) => id !== email.id)
-      );
+  setSelectedEmails((prev) =>
+    prev.filter((id) => id !== email.id)
+  );
 
-      showSnackbar("Email permanently deleted");
+  showSnackbar("Email permanently deleted");
 
-      return;
-    }
+  return;
+}
 
     // Inbox / Sent / Spam → Trash
     await deleteEmail(email.id, folder);

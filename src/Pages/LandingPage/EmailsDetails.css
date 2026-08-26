@@ -165,3 +165,18 @@
 .snooze-info button:hover {
     text-decoration: underline;
 }
+
+.email-subject-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.email-folder-label {
+  background-color: #e8eaed;
+  color: #5f6368;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}

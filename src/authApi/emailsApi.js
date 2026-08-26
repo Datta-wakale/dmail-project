@@ -7,6 +7,22 @@ export const getEmails = async () => {
 };
 
 // POST Send Email
+// export const sendEmail = async (email) => {
+//   const response = await fetch(apiUrl, {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//     body: JSON.stringify({
+//       ...email,
+//       senderFolder: "sent",
+//       receiverFolder: "inbox",
+//     }),
+//   });
+//   return await response.json();
+// };
+
+// POST Send Email
 export const sendEmail = async (email) => {
   const response = await fetch(apiUrl, {
     method: "POST",
@@ -15,10 +31,14 @@ export const sendEmail = async (email) => {
     },
     body: JSON.stringify({
       ...email,
+      // New email gets a new threadId.
+      threadId: email.threadId || crypto.randomUUID(),
+
       senderFolder: "sent",
       receiverFolder: "inbox",
     }),
   });
+
   return await response.json();
 };
 
@@ -135,40 +155,116 @@ export const toggleStarEmail = async (id, starred) => {
 };
 
 // PERMANENT DELETE FROM TRASH
-export const permanentlyDeleteEmail = async (id, folder) => {
-  const response = await fetch(`${apiUrl}/${id}`);
-  if (!response.ok) {
-    throw new Error("Unable to find email");
-  }
-  const email = await response.json();
-  let updatedEmail = { ...email };
-  if (folder === "sent") {
-    updatedEmail.senderFolder = "deleted";
-  }
-  if (folder === "inbox") {
-    updatedEmail.receiverFolder = "deleted";
-  }
-  // If both sides deleted the email, remove it completely
-  if (updatedEmail.senderFolder === "deleted" && updatedEmail.receiverFolder === "deleted") {
-    const deleteResponse = await fetch(`${apiUrl}/${id}`, {
-      method: "DELETE",
-    });
-    if (!deleteResponse.ok) {
-      throw new Error("Unable to permanently delete email");
-    }
-    return true;
-  }
-  const updateResponse = await fetch(`${apiUrl}/${id}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(updatedEmail),
+// PERMANENT DELETE FROM TRASH
+// export const permanentlyDeleteEmail = async (id, folder) => {
+//   const response = await fetch(`${apiUrl}/${id}`);
+
+//   if (!response.ok) {
+//     throw new Error("Unable to find email");
+//   }
+//   const email = await response.json();
+//   let updatedEmail = { ...email };
+
+//   // Email came from Sent
+//   if (folder === "sent") {
+//     updatedEmail.senderFolder = "deleted";
+//   }
+
+//   // Email came from Inbox
+//   if (folder === "inbox") {
+//     updatedEmail.receiverFolder = "deleted";
+//   }
+
+//   // If both sides are deleted,
+//   // permanently remove the email from db.json
+//   if (
+//     updatedEmail.senderFolder === "deleted" &&
+//     updatedEmail.receiverFolder === "deleted"
+//   ) {
+//     const deleteResponse = await fetch(`${apiUrl}/${id}`, {
+//       method: "DELETE",
+//     });
+
+//     if (!deleteResponse.ok) {
+//       throw new Error("Unable to permanently delete email");
+//     }
+
+//     return true;
+//   }
+
+//   // Save the updated email
+//   const updateResponse = await fetch(`${apiUrl}/${id}`, {
+//     method: "PUT",
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//     body: JSON.stringify(updatedEmail),
+//   });
+
+//   if (!updateResponse.ok) {
+//     throw new Error("Unable to permanently delete email");
+//   }
+
+//   return await updateResponse.json();
+// };
+
+// PERMANENT DELETE FROM TRASH
+// PERMANENT DELETE FROM TRASH
+// export const permanentlyDeleteEmail = async (id, folder) => {
+//   const response = await fetch(`${apiUrl}/${id}`);
+//   if (!response.ok) {
+//     throw new Error("Unable to find email");
+//   }
+//   const email = await response.json();
+//   let updatedEmail = { ...email };
+//   // Deleted from Sent side
+//   if (folder === "sent") {
+//     updatedEmail.senderFolder = "deleted";
+//   }
+//   // Deleted from Inbox side
+//   if (folder === "inbox") {
+//     updatedEmail.receiverFolder = "deleted";
+//   }
+
+//   // permanently remove the email
+//   if (
+//     updatedEmail.senderFolder === "deleted" &&
+//     updatedEmail.receiverFolder === "deleted"
+//   ) {
+//     const deleteResponse = await fetch(`${apiUrl}/${id}`, {
+//       method: "DELETE",
+//     });
+
+//     if (!deleteResponse.ok) {
+//       throw new Error("Unable to permanently delete email");
+//     }
+//     return true;
+//   }
+//   // Save the updated email
+//   const updateResponse = await fetch(`${apiUrl}/${id}`, {
+//     method: "PUT",
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//     body: JSON.stringify(updatedEmail),
+//   });
+//   if (!updateResponse.ok) {
+//     throw new Error("Unable to permanently delete email");
+//   }
+//   return await updateResponse.json();
+// };
+
+// PERMANENT DELETE FROM TRASH
+export const permanentlyDeleteEmail = async (id) => {
+  const response = await fetch(`${apiUrl}/${id}`, {
+    method: "DELETE",
   });
-  if (!updateResponse.ok) {
+
+  if (!response.ok) {
     throw new Error("Unable to permanently delete email");
   }
-  return await updateResponse.json();
+
+  return true;
 };
 // RESTORE EMAIL FROM TRASH
 export const restoreEmail = async (id, folder) => {
