@@ -15,12 +15,22 @@ const Spam = () => {
     } = useOutletContext();
 
     // Only received spam emails
-    const spamEmails = emails.filter(
-        (email) =>
+    // const spamEmails = emails.filter(
+    //     (email) =>
+    //         email.to === loggedInUser.email &&
+    //         email.receiverFolder === "spam"
+    // );
+const spamEmails = emails.filter(
+    (email) =>
+        (
             email.to === loggedInUser.email &&
             email.receiverFolder === "spam"
-    );
-
+        ) ||
+        (
+            email.from === loggedInUser.email &&
+            email.senderFolder === "spam"
+        )
+);
     // Search + sort
     const filteredEmails = [
         ...filterEmails(spamEmails, search)

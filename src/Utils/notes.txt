@@ -1,0 +1,239 @@
+import { useState } from "react";
+import { sendEmail } from "../../authApi/emailsApi";
+import { toast } from "react-toastify";
+import "./ReplyEmail.css";
+
+const ReplyEmail = ({ email, loggedInUser, onClose }) => {
+
+    const [message, setMessage] = useState("");
+    const [sending, setSending] = useState(false);
+
+    const handleSendReply = async () => {
+
+        if (!message.trim()) {
+            return;
+        }
+
+        try {
+            setSending(true);
+
+            // Keep the original conversation id
+            const threadId = email.threadId || email.id;
+
+            const replyMessage = `${message.trim()}
+
+---------- Original message ----------
+From: ${email.from}
+To: ${email.to}
+Subject: ${email.subject}
+
+${email.message}`.trim();
+
+            const replyEmail = {
+                from: loggedInUser.email,
+                to: email.from,
+
+                subject: email.subject.startsWith("Re:")
+                    ? email.subject
+                    : `Re: ${email.subject}`,
+
+                message: replyMessage,
+                attachment: null,
+                threadId: threadId,
+            };
+
+            await sendEmail(replyEmail);
+
+            toast.success("Reply sent successfully");
+
+            setMessage("");
+            onClose();
+
+        } catch (error) {
+            console.error("Unable to send reply", error);
+            toast.error("Unable to send reply");
+        } finally {
+            setSending(false);
+        }
+    };
+
+    return (
+        <div className="reply-box">
+
+            <h3>Reply</h3>
+
+            {/* To */}
+            <div className="reply-to">
+                <label>To</label>
+
+                <input
+                    type="text"
+                    value={email.from}
+                    readOnly
+                />
+            </div>
+
+            {/* User's reply */}
+            <textarea
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder="Write your reply..."
+            />
+
+            {/* Original email preview */}
+            <div className="original-email">
+
+                <div className="original-line">
+                    ---------- Original message ----------
+                </div>
+
+                <div className="original-header">
+
+                    <div>
+                        <strong>From:</strong> {email.from}
+                    </div>
+
+                    <div>
+                        <strong>To:</strong> {email.to}
+                    </div>
+
+                    <div>
+                        <strong>Subject:</strong> {email.subject}
+                    </div>
+
+                </div>
+
+                <pre className="original-message">
+                    {email.message}
+                </pre>
+
+            </div>
+
+            {/* Buttons */}
+            <div className="reply-actions">
+
+                <button
+                    onClick={handleSendReply}
+                    disabled={sending}
+                >
+                    {sending ? "Sending..." : "Send"}
+                </button>
+
+                <button onClick={onClose}>
+                    Cancel
+                </button>
+
+            </div>
+
+        </div>
+    );
+};
+
+export default ReplyEmail;
+
+
+.reply-box {
+    width: 600px;
+    max-width: 90vw;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.reply-box h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.reply-to {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.reply-to label {
+    font-weight: 600;
+}
+
+.reply-to input {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-bottom: 1px solid #ccc;
+    outline: none;
+    background: transparent;
+}
+
+.reply-box textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: 10px;
+    box-sizing: border-box;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    resize: vertical;
+    outline: none;
+    font-family: inherit;
+    font-size: 14px;
+}
+
+.original-email {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #ddd;
+}
+
+.original-line {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+.original-header {
+    font-size: 14px;
+    line-height: 1.7;
+    color: #444;
+}
+
+.original-message {
+    margin: 15px 0 0 0;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+
+    white-space: pre-wrap;
+    word-break: break-word;
+
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.6;
+
+    background: transparent;
+}
+
+.reply-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.reply-actions button {
+    padding: 8px 18px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.reply-actions button:first-child {
+    background: #1976d2;
+    color: white;
+}
+
+.reply-actions button:last-child {
+    background: #eee;
+}
+
+.reply-actions button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}

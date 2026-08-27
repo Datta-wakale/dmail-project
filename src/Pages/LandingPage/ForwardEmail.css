@@ -1,114 +1,100 @@
 .forward-box {
-    width: 100%;
-    max-width: 720px;
-    margin-top: 20px;
-    padding: 0;
-    border: 1px solid #dadce0;
-    border-radius: 10px;
-    background: #fff;
-    box-sizing: border-box;
-    overflow: hidden;
+    width: 600px;
+    max-width: 80vw;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
 }
-
-/* Header */
 
 .forward-box h3 {
-    margin: 0;
-    padding: 14px 18px;
-    font-size: 15px;
-    font-weight: 500;
-    color: #202124;
-    border-bottom: 1px solid #eee;
+    margin-top: 0;
+    margin-bottom: 20px;
 }
 
-/* To input */
-
-.forward-box input {
-    width: 100%;
-    height: 42px;
-    padding: 0 15px;
-    border: none;
-    border-bottom: 1px solid #eee;
-    outline: none;
-    box-sizing: border-box;
-    font-size: 14px;
-    color: #202124;
-}
-
-.forward-box input::placeholder {
-    color: #80868b;
-}
-
-.forward-box input:focus {
-    border-bottom: 1px solid #1a73e8;
-}
-
-/* Message */
-
-.forward-box textarea {
-    display: block;
-    width: 100%;
-    min-height: 120px;
-    padding: 14px 15px;
-    border: none;
-    outline: none;
-    resize: vertical;
-    box-sizing: border-box;
-    font-family: inherit;
-    font-size: 14px;
-    line-height: 1.5;
-    color: #202124;
-}
-
-.forward-box textarea::placeholder {
-    color: #80868b;
-}
-
-/* Buttons container */
-
-.forward-box > div {
+.forward-to {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 10px 15px;
+    margin-bottom: 15px;
+}
+
+.forward-to label {
+    font-weight: 600;
+}
+
+.forward-to input {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-bottom: 1px solid #ccc;
+    outline: none;
+}
+
+.forward-box textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: 10px;
+    box-sizing: border-box;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    resize: vertical;
+    outline: none;
+    font-family: inherit;
+}
+
+.forwarded-preview {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #ddd;
+}
+
+.forwarded-line {
+    color: #666;
+    margin-bottom: 15px;
+    font-size: 14px;
+}
+
+.forwarded-header {
+    line-height: 1.7;
+    font-size: 14px;
+    color: #444;
+}
+
+.forwarded-message {
+    margin: 15px 0 0 0;
+    padding: 15px 0 0 0;
     border-top: 1px solid #eee;
-}
-
-/* Send button */
-
-.forward-box button:first-child {
-    padding: 9px 20px;
-    border: none;
-    border-radius: 18px;
-    background: #0b57d0;
-    color: #fff;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-family: inherit;
     font-size: 14px;
-    cursor: pointer;
-}
-
-.forward-box button:first-child:hover {
-    background: #0842a0;
-}
-
-/* Cancel button */
-
-.forward-box button:last-child {
-    padding: 9px 16px;
-    border: none;
-    border-radius: 18px;
+    line-height: 1.6;
     background: transparent;
-    color: #5f6368;
-    font-size: 14px;
+}
+
+.forward-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.forward-actions button {
+    padding: 8px 18px;
+    border: none;
+    border-radius: 5px;
     cursor: pointer;
 }
 
-.forward-box button:last-child:hover {
-    background: #f1f3f4;
+.forward-actions button:first-child {
+    background: #1976d2;
+    color: white;
 }
 
-/* Disabled */
+.forward-actions button:last-child {
+    background: #eee;
+}
 
-.forward-box button:disabled {
+.forward-actions button:disabled {
     opacity: 0.6;
     cursor: not-allowed;
 }

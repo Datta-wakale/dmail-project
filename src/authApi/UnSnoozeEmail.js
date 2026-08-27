@@ -3,18 +3,14 @@ const apiUrl = "http://localhost:3000/emails";
 
 export const unsnoozeEmail = async (id, folder) => {
   const response = await fetch(`${apiUrl}/${id}`);
-
   if (!response.ok) {
     throw new Error("Unable to find email");
   }
-
   const email = await response.json();
   let updatedEmail = { ...email };
-
   if (folder === "inbox" || folder === "spam") {
     updatedEmail.receiverSnoozedUntil = null;
   }
-
   if (folder === "sent" || folder === "draft") {
     updatedEmail.senderSnoozedUntil = null;
   }

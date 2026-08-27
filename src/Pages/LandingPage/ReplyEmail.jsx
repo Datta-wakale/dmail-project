@@ -3,7 +3,7 @@ import { sendEmail } from "../../authApi/emailsApi";
 import { toast } from "react-toastify";
 import "./ReplyEmail.css";
 
-const ReplyEmail = ({ email, loggedInUser, onClose }) => {
+const ReplyEmail = ({ email,loggedInUser, onClose }) => {
 
     const [message, setMessage] = useState("");
     const [sending, setSending] = useState(false);
@@ -16,64 +16,66 @@ const ReplyEmail = ({ email, loggedInUser, onClose }) => {
             setSending(true);
             // Keep the original conversation id
             const threadId = email.threadId || email.id;
+            const replyMessage = `${message.trim()}
+            ---------- Original message ----------
+            From: ${email.from}
+            To: ${email.to}
+            Subject: ${email.subject}
+            ${email.message}`.trim();
             const replyEmail = {
                 from: loggedInUser.email,
                 to: email.from,
-
                 subject: email.subject.startsWith("Re:")
                     ? email.subject
                     : `Re: ${email.subject}`,
-
-                message: message.trim(),
+                message: replyMessage,
                 attachment: null,
-                // NEW: conversation/thread reference
                 threadId: threadId,
             };
             await sendEmail(replyEmail);
             toast.success("Reply sent successfully");
             setMessage("");
             onClose();
-
         } catch (error) {
-
-            console.error(
-                "Unable to send reply",
-                error
-            );
-
+            console.error("Unable to send reply", error);
+            toast.error("Unable to send reply");
         } finally {
             setSending(false);
         }
     };
     return (
         <div className="reply-box">
+            <h3>Reply</h3>
+            <div className="reply-to">
+                <label>To</label>
+                <input type="text" value={email.from}
+                    readOnly />
+            </div>
+  
+            <textarea value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder="Write your reply..." />
 
-            <h3>
-                Reply to {email.from}
-            </h3>
-            <textarea
-                value={message}
-                onChange={(e) =>
-                    setMessage(e.target.value)
-                }
-                placeholder="Write your reply..."
-            />
-            <div>
+            <div className="original-email">
+                <div className="original-line">
+                    ---------- Original message ----------
+                </div>
+                <div className="original-header">
+                    <div> <strong>From:</strong> {email.from} </div>
+                    <div> <strong>To:</strong> {email.to} </div>
+                    <div> <strong>Subject:</strong> {email.subject} </div>
+                </div>
+                <pre className="original-message">
+                    {email.message}
+                </pre>
+            </div>
 
-                <button
-                    onClick={handleSendReply}
-                    disabled={sending}
-                >
-                    {sending
-                        ? "Sending..."
-                        : "Send"
-                    }
+            <div className="reply-actions">
+                <button onClick={handleSendReply}
+                    disabled={sending}>
+                    {sending ? "Sending..." : "Send"}
                 </button>
-                <button
-                    onClick={onClose}
-                >
-                    Cancel
-                </button>
+                <button onClick={onClose}>  Cancel </button>
             </div>
         </div>
     );

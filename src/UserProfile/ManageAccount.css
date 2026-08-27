@@ -101,3 +101,9 @@
   background-color: #ccc; 
   color: #888;          
 }
+.input-error {
+    display: block;
+    color: #d93025;
+    font-size: 13px;
+    margin-top: 5px;
+}

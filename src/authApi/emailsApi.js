@@ -7,22 +7,6 @@ export const getEmails = async () => {
 };
 
 // POST Send Email
-// export const sendEmail = async (email) => {
-//   const response = await fetch(apiUrl, {
-//     method: "POST",
-//     headers: {
-//       "Content-Type": "application/json",
-//     },
-//     body: JSON.stringify({
-//       ...email,
-//       senderFolder: "sent",
-//       receiverFolder: "inbox",
-//     }),
-//   });
-//   return await response.json();
-// };
-
-// POST Send Email
 export const sendEmail = async (email) => {
   const response = await fetch(apiUrl, {
     method: "POST",
@@ -36,6 +20,7 @@ export const sendEmail = async (email) => {
 
       senderFolder: "sent",
       receiverFolder: "inbox",
+      read: false,
     }),
   });
 
@@ -44,6 +29,50 @@ export const sendEmail = async (email) => {
 
 
 // MOVE EMAIL TO TRASH
+// export const deleteEmail = async (id, folder) => {
+//   const response = await fetch(`${apiUrl}/${id}`);
+
+//   if (!response.ok) {
+//     throw new Error("Unable to find email");
+//   }
+//   const email = await response.json();
+//   let updatedEmail;
+//   if (folder === "inbox") {
+//     updatedEmail = {
+//       ...email,
+//       receiverFolder: "trash",
+//     };
+//   }
+//   if(folder === "spam"){
+//     updatedEmail = {
+//       ...email,
+//       receiverFolder: "trash"
+//     }
+//   }
+//   if (folder === "sent") {
+//     updatedEmail = {
+//       ...email,
+//       senderFolder: "trash",
+//     };
+//   }
+//   if (folder === "draft") {
+//   updatedEmail = {
+//     ...email,
+//     senderFolder: "trash",
+//   };
+// }
+//   const updateResponse = await fetch(`${apiUrl}/${id}`, {
+//     method: "PUT",
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//     body: JSON.stringify(updatedEmail),
+//   });
+//   if (!updateResponse.ok) {
+//     throw new Error("Unable to move email to trash");
+//   }
+//   return await updateResponse.json();
+// };
 export const deleteEmail = async (id, folder) => {
   const response = await fetch(`${apiUrl}/${id}`);
 
@@ -55,30 +84,52 @@ export const deleteEmail = async (id, folder) => {
 
   let updatedEmail;
 
+  // Inbox → Trash
   if (folder === "inbox") {
     updatedEmail = {
       ...email,
       receiverFolder: "trash",
     };
   }
-  if(folder === "spam"){
-    updatedEmail = {
-      ...email,
-      receiverFolder: "trash"
+
+  // Spam → Trash
+  if (folder === "spam") {
+    // Received email is in Spam
+    if (email.receiverFolder === "spam") {
+      updatedEmail = {
+        ...email,
+        receiverFolder: "trash",
+      };
+    }
+
+    // Sent email is in Spam
+    else if (email.senderFolder === "spam") {
+      updatedEmail = {
+        ...email,
+        senderFolder: "trash",
+      };
     }
   }
+
+  // Sent → Trash
   if (folder === "sent") {
     updatedEmail = {
       ...email,
       senderFolder: "trash",
     };
   }
+
+  // Draft → Trash
   if (folder === "draft") {
-  updatedEmail = {
-    ...email,
-    senderFolder: "trash",
-  };
-}
+    updatedEmail = {
+      ...email,
+      senderFolder: "trash",
+    };
+  }
+
+  if (!updatedEmail) {
+    throw new Error("Unable to determine email folder");
+  }
 
   const updateResponse = await fetch(`${apiUrl}/${id}`, {
     method: "PUT",
@@ -94,9 +145,36 @@ export const deleteEmail = async (id, folder) => {
 
   return await updateResponse.json();
 };
-
 // MOVE EMAIL TO SPAM
-export const moveEmailToSpam = async (id) => {
+// export const moveEmailToSpam = async (id) => {
+//   const response = await fetch(`${apiUrl}/${id}`);
+
+//   if (!response.ok) {
+//     throw new Error("Unable to find email");
+//   }
+
+//   const email = await response.json();
+
+//   const updatedEmail = {
+//     ...email,
+//     receiverFolder: "spam",
+//   };
+
+//   const updateResponse = await fetch(`${apiUrl}/${id}`, {
+//     method: "PUT",
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//     body: JSON.stringify(updatedEmail),
+//   });
+
+//   if (!updateResponse.ok) {
+//     throw new Error("Unable to move email to spam");
+//   }
+
+//   return await updateResponse.json();
+// };
+export const moveEmailToSpam = async (id, folder) => {
   const response = await fetch(`${apiUrl}/${id}`);
 
   if (!response.ok) {
@@ -107,8 +185,24 @@ export const moveEmailToSpam = async (id) => {
 
   const updatedEmail = {
     ...email,
-    receiverFolder: "spam",
   };
+
+  // Received email
+  if (
+    folder === "inbox" ||
+    folder === "spam" ||
+    folder === "starred-received"
+  ) {
+    updatedEmail.receiverFolder = "spam";
+  }
+
+  // Sent email
+  if (
+    folder === "sent" ||
+    folder === "starred-sent"
+  ) {
+    updatedEmail.senderFolder = "spam";
+  }
 
   const updateResponse = await fetch(`${apiUrl}/${id}`, {
     method: "PUT",
@@ -124,7 +218,6 @@ export const moveEmailToSpam = async (id) => {
 
   return await updateResponse.json();
 };
-
 // STAR / UNSTAR EMAIL
 export const toggleStarEmail = async (id, starred) => {
   const response = await fetch(`${apiUrl}/${id}`);
@@ -155,116 +248,95 @@ export const toggleStarEmail = async (id, starred) => {
 };
 
 // PERMANENT DELETE FROM TRASH
-// PERMANENT DELETE FROM TRASH
-// export const permanentlyDeleteEmail = async (id, folder) => {
-//   const response = await fetch(`${apiUrl}/${id}`);
-
-//   if (!response.ok) {
-//     throw new Error("Unable to find email");
-//   }
-//   const email = await response.json();
-//   let updatedEmail = { ...email };
-
-//   // Email came from Sent
-//   if (folder === "sent") {
-//     updatedEmail.senderFolder = "deleted";
-//   }
-
-//   // Email came from Inbox
-//   if (folder === "inbox") {
-//     updatedEmail.receiverFolder = "deleted";
-//   }
-
-//   // If both sides are deleted,
-//   // permanently remove the email from db.json
-//   if (
-//     updatedEmail.senderFolder === "deleted" &&
-//     updatedEmail.receiverFolder === "deleted"
-//   ) {
-//     const deleteResponse = await fetch(`${apiUrl}/${id}`, {
-//       method: "DELETE",
-//     });
-
-//     if (!deleteResponse.ok) {
-//       throw new Error("Unable to permanently delete email");
-//     }
-
-//     return true;
-//   }
-
-//   // Save the updated email
-//   const updateResponse = await fetch(`${apiUrl}/${id}`, {
-//     method: "PUT",
-//     headers: {
-//       "Content-Type": "application/json",
-//     },
-//     body: JSON.stringify(updatedEmail),
+// export const permanentlyDeleteEmail = async (id) => {
+//   const response = await fetch(`${apiUrl}/${id}`, {
+//     method: "DELETE",
 //   });
 
-//   if (!updateResponse.ok) {
+//   if (!response.ok) {
 //     throw new Error("Unable to permanently delete email");
 //   }
 
-//   return await updateResponse.json();
+//   return true;
 // };
-
-// PERMANENT DELETE FROM TRASH
-// PERMANENT DELETE FROM TRASH
-// export const permanentlyDeleteEmail = async (id, folder) => {
-//   const response = await fetch(`${apiUrl}/${id}`);
-//   if (!response.ok) {
-//     throw new Error("Unable to find email");
-//   }
-//   const email = await response.json();
-//   let updatedEmail = { ...email };
-//   // Deleted from Sent side
-//   if (folder === "sent") {
-//     updatedEmail.senderFolder = "deleted";
-//   }
-//   // Deleted from Inbox side
-//   if (folder === "inbox") {
-//     updatedEmail.receiverFolder = "deleted";
-//   }
-
-//   // permanently remove the email
-//   if (
-//     updatedEmail.senderFolder === "deleted" &&
-//     updatedEmail.receiverFolder === "deleted"
-//   ) {
-//     const deleteResponse = await fetch(`${apiUrl}/${id}`, {
-//       method: "DELETE",
-//     });
-
-//     if (!deleteResponse.ok) {
-//       throw new Error("Unable to permanently delete email");
-//     }
-//     return true;
-//   }
-//   // Save the updated email
-//   const updateResponse = await fetch(`${apiUrl}/${id}`, {
-//     method: "PUT",
-//     headers: {
-//       "Content-Type": "application/json",
-//     },
-//     body: JSON.stringify(updatedEmail),
-//   });
-//   if (!updateResponse.ok) {
-//     throw new Error("Unable to permanently delete email");
-//   }
-//   return await updateResponse.json();
-// };
-
 // PERMANENT DELETE FROM TRASH
 export const permanentlyDeleteEmail = async (id) => {
-  const response = await fetch(`${apiUrl}/${id}`, {
-    method: "DELETE",
-  });
+  const response = await fetch(`${apiUrl}/${id}`);
 
   if (!response.ok) {
-    throw new Error("Unable to permanently delete email");
+    throw new Error("Unable to find email");
   }
 
-  return true;
+  const email = await response.json();
+
+  // If receiver's copy is in Trash
+  if (email.receiverFolder === "trash") {
+    const updatedEmail = {
+      ...email,
+      receiverFolder: "deleted",
+    };
+
+    // Delete complete record ONLY when both users
+    // have permanently deleted their copies
+    if (updatedEmail.senderFolder === "deleted") {
+      const deleteResponse = await fetch(`${apiUrl}/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!deleteResponse.ok) {
+        throw new Error("Unable to permanently delete email");
+      }
+
+      return true;
+    }
+
+    const updateResponse = await fetch(`${apiUrl}/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updatedEmail),
+    });
+
+    if (!updateResponse.ok) {
+      throw new Error("Unable to permanently delete email");
+    }
+
+    return await updateResponse.json();
+  }
+
+  // If sender's copy is in Trash
+  if (email.senderFolder === "trash") {
+    const updatedEmail = {
+      ...email,
+      senderFolder: "deleted",
+    };
+
+    // Delete complete record ONLY when both users
+    // have permanently deleted their copies
+    if (updatedEmail.receiverFolder === "deleted") {
+      const deleteResponse = await fetch(`${apiUrl}/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!deleteResponse.ok) {
+        throw new Error("Unable to permanently delete email");
+      }
+      return true;
+    }
+    const updateResponse = await fetch(`${apiUrl}/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updatedEmail),
+    });
+    if (!updateResponse.ok) {
+      throw new Error("Unable to permanently delete email");
+    }
+    return await updateResponse.json();
+  }
+  throw new Error("Email is not in Trash");
 };
 // RESTORE EMAIL FROM TRASH
 export const restoreEmail = async (id, folder) => {
@@ -341,51 +413,6 @@ export const deleteDraft = async(id)=>{
     return true;
 }
 
-// MOVE EMAIL TO ARCHIVE
-// export const archiveEmail = async (id, folder) => {
-//   const response = await fetch(`${apiUrl}/${id}`);
-
-//   if (!response.ok) {
-//     throw new Error("Unable to find email");
-//   }
-
-//   const email = await response.json();
-//   let updatedEmail;
-//   if ( folder === "inbox" || folder === "spam" ||
-//     folder === "starred-received") {
-//     updatedEmail = {
-//       ...email,
-//       receiverFolder: "archive",
-//     };
-//   }
-
-//   if (
-//     folder === "sent" ||
-//     folder === "starred-sent"
-//   ) {
-//     updatedEmail = {
-//       ...email,
-//       senderFolder: "archive",
-//     };
-//   }
-
-//   if (!updatedEmail) {
-//     throw new Error("Invalid folder");
-//   }
-
-//   const updateResponse = await fetch(`${apiUrl}/${id}`, {
-//     method: "PUT",
-//     headers: {
-//       "Content-Type": "application/json",
-//     },
-//     body: JSON.stringify(updatedEmail),
-//   });
-
-//   if (!updateResponse.ok) {
-//     throw new Error("Unable to archive email");
-//   }
-//   return await updateResponse.json();
-// };
 export const archiveEmail = async (id, folder) => {
   const response = await fetch(`${apiUrl}/${id}`);
 
@@ -432,49 +459,6 @@ export const archiveEmail = async (id, folder) => {
 
   return await updateResponse.json();
 };
-// SNOOZE EMAIL
-// export const snoozeEmail = async (id, folder, snoozedUntil) => {
-//   const response = await fetch(`${apiUrl}/${id}`);
-
-//   if (!response.ok) {
-//     throw new Error("Unable to find email");
-//   }
-//   const email = await response.json();
-//   let updatedEmail = { ...email };
-
-//   // Received email
-//   if (
-//     folder === "inbox" ||
-//     folder === "spam" ||
-//     folder === "starred-received"
-//   ) {
-//     updatedEmail.receiverSnoozedUntil = snoozedUntil;
-//   }
-
-//   // Sent email
-//   if (
-//     folder === "sent" ||
-//     folder === "starred-sent"
-//   ) {
-//     updatedEmail.senderSnoozedUntil = snoozedUntil;
-//   }
-//   if (!updatedEmail.receiverSnoozedUntil &&
-//       !updatedEmail.senderSnoozedUntil) {
-//     throw new Error("Invalid folder");
-//   }
-
-//   const updateResponse = await fetch(`${apiUrl}/${id}`, {
-//     method: "PUT",
-//     headers: {
-//       "Content-Type": "application/json",
-//     },
-//     body: JSON.stringify(updatedEmail),
-//   });
-//   if (!updateResponse.ok) {
-//     throw new Error("Unable to snooze email");
-//   }
-//   return await updateResponse.json();
-// };
 
 export const snoozeEmail = async (id, folder, snoozedUntil) => {
   const response = await fetch(`${apiUrl}/${id}`);
@@ -506,6 +490,5 @@ export const snoozeEmail = async (id, folder, snoozedUntil) => {
   if (!updateResponse.ok) {
     throw new Error("Unable to snooze email");
   }
-
   return await updateResponse.json();
 };

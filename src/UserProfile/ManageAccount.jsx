@@ -19,6 +19,9 @@ const ManageAccount = () => {
 
     const [emailLocked, setEmailLocked] = useState(false);
     const [nextEmailChangeDate, setNextEmailChangeDate] = useState("");
+    const [errors, setErrors] = useState({
+        dob: "",
+    });
 
     useEffect(() => {
         if (!loggedInUser) {
@@ -44,6 +47,29 @@ const ManageAccount = () => {
             }
         }
     }, [loggedInUser, navigate]);
+    const validateDob = (dobValue) => {
+        if (!dobValue) {
+            return "Date of birth is required";
+        }
+        const dob = new Date(dobValue);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (dob > today) {
+            return "Date of birth cannot be in future";
+        }
+        let age = today.getFullYear() - dob.getFullYear();
+        const monthDiff = today.getMonth() - dob.getMonth();
+        if (
+            monthDiff < 0 ||
+            (monthDiff === 0 && today.getDate() < dob.getDate())
+        ) {
+            age--;
+        }
+        if (age < 12) {
+            return "Age must be at least 12 years";
+        }
+        return "";
+    };
 
     const handleChange = (event) => {
         const { name, value } = event.target;
@@ -52,19 +78,40 @@ const ManageAccount = () => {
             ...prev,
             [name]: value,
         }));
+
+        if (name === "dob") {
+            const dobError = validateDob(value);
+            setErrors((prev) => ({
+                ...prev,
+                dob: dobError,
+            }));
+        }
     };
+
     const handlePhoneKeyDown = (event) => {
         const allowedKeys = ["Backspace", "Delete", "ArrowLeft",
-            "ArrowRight","Tab", ];
-        if ( !/[0-9]/.test(event.key) &&!allowedKeys.includes(event.key)) {
+            "ArrowRight", "Tab",];
+        if (!/[0-9]/.test(event.key) && !allowedKeys.includes(event.key)) {
             event.preventDefault();
         }
-        if ( formData.phone.length >= 10 && !allowedKeys.includes(event.key) ) {
+        if (formData.phone.length >= 10 && !allowedKeys.includes(event.key)) {
             event.preventDefault();
         }
     };
     const handleSubmit = async (event) => {
         event.preventDefault();
+        const dobError = validateDob(formData.dob);
+
+        if (dobError) {
+            setErrors({
+                dob: dobError,
+            });
+            return;
+        }
+
+        setErrors({
+            dob: "",
+        });
         if (!formData.fname.trim()) {
             toast.error("First name is required");
             return;
@@ -122,9 +169,9 @@ const ManageAccount = () => {
             updatedUser.emailLastChangedAt = new Date().toISOString();
         }
         try {
-            const savedUser = await updateUser(loggedInUser.id,updatedUser );
+            const savedUser = await updateUser(loggedInUser.id, updatedUser);
             setLoggedInUser(savedUser);
-            localStorage.setItem("loggedInUser", JSON.stringify(savedUser) );
+            localStorage.setItem("loggedInUser", JSON.stringify(savedUser));
             toast.success("Account updated successfully");
             navigate("/inbox");
             if (emailChanged) {
@@ -141,13 +188,14 @@ const ManageAccount = () => {
             toast.error("Unable to update account");
         }
     };
-    const hasChanges = loggedInUser &&(
+    const hasChanges = loggedInUser && (
         loggedInUser.fname !== formData.fname.trim() ||
         loggedInUser.lname !== formData.lname.trim() ||
         loggedInUser.email !== formData.email.trim().toLowerCase() ||
         (loggedInUser.phone || "") !== formData.phone.trim() ||
         (loggedInUser.dob || "") !== formData.dob
     );
+
     return (
         <div className="manage-account">
             <div className="manage-account-card">
@@ -174,7 +222,7 @@ const ManageAccount = () => {
                         <label>Email</label>
                         <input type="email" name="email"
                             value={formData.email} onChange={handleChange}
-                            disabled={emailLocked} />
+                            disabled />
                         {emailLocked && (
                             <small className="email-info">
                                 You can change your email again after{" "}
@@ -190,14 +238,27 @@ const ManageAccount = () => {
                     </div>
                     <div className="form-group">
                         <label>Date of birth</label>
-                        <input type="date"  name="dob" value={formData.dob}
-                            onChange={handleChange} />
+                        <input type="date" name="dob"
+                            value={formData.dob}
+                            onChange={handleChange}
+                            max={new Date(
+                                new Date().getFullYear() - 12,
+                                new Date().getMonth(),
+                                new Date().getDate()
+                            ).toISOString().split("T")[0]}/>
+
+                        {errors.dob && (
+                            <small className="input-error">
+                                {errors.dob}
+                            </small>
+                        )}
                     </div>
+
                     <div className="account-actions">
-                        <button type="button"  onClick={() => navigate(-1)}>
+                        <button type="button" onClick={() => navigate(-1)}>
                             Cancel
                         </button>
-                       <button type="submit" className="submit-btn" disabled={!hasChanges}>Save changes</button>
+                        <button type="submit" className="submit-btn" disabled={!hasChanges}>Save changes</button>
                     </div>
                 </form>
             </div>

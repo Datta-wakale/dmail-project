@@ -1,0 +1,524 @@
+export const moveEmail = async (id, fromFolder, toFolder) => {
+  const response = await fetch(`${apiUrl}/${id}`);
+
+  if (!response.ok) {
+    throw new Error("Unable to find email");
+  }
+
+  const email = await response.json();
+
+  let updatedEmail = { ...email };
+
+  // Email was in receiver's Trash
+  if (fromFolder === "receiver") {
+    updatedEmail.receiverFolder = toFolder;
+  }
+
+  // Email was in sender's Trash
+  if (fromFolder === "sender") {
+    updatedEmail.senderFolder = toFolder;
+  }
+
+  const updateResponse = await fetch(`${apiUrl}/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(updatedEmail),
+  });
+
+  if (!updateResponse.ok) {
+    throw new Error("Unable to move email");
+  }
+
+  return await updateResponse.json();
+}; // api 
+
+// move to component 
+import { useState } from "react";
+import IconButton from "@mui/material/IconButton";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import MoveToInboxIcon from "@mui/icons-material/MoveToInbox";
+import InboxIcon from "@mui/icons-material/Inbox";
+import SendIcon from "@mui/icons-material/Send";
+import { toast } from "react-toastify";
+
+import { moveEmail } from "../../authApi/emailsApi";
+
+import "./MoveToMenu.css";
+
+const MoveToMenu = ({ email, trashType, onMove }) => {
+    const [anchorEl, setAnchorEl] = useState(null);
+
+    const open = Boolean(anchorEl);
+
+    const handleOpen = (event) => {
+        event.stopPropagation();
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
+
+    const handleMove = async (toFolder) => {
+        try {
+            const fromFolder =
+                trashType === "sender"
+                    ? "sender"
+                    : "receiver";
+
+            await moveEmail(
+                email.id,
+                fromFolder,
+                toFolder
+            );
+
+            toast.success(
+                `Moved to ${toFolder}`
+            );
+
+            handleClose();
+
+            if (onMove) {
+                onMove(email.id);
+            }
+
+        } catch (error) {
+            console.error("Unable to move email", error);
+
+            toast.error("Unable to move email");
+
+            handleClose();
+        }
+    };
+
+    return (
+        <>
+            <IconButton
+                onClick={handleOpen}
+                title="Move to"
+                size="small"
+            >
+                <MoveToInboxIcon fontSize="small" />
+            </IconButton>
+
+            <Menu
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose}
+            >
+                <MenuItem
+                    onClick={() => handleMove("inbox")}
+                >
+                    <InboxIcon
+                        fontSize="small"
+                        style={{ marginRight: 10 }}
+                    />
+
+                    Move to Inbox
+                </MenuItem>
+
+                {trashType === "sender" && (
+                    <MenuItem
+                        onClick={() => handleMove("sent")}
+                    >
+                        <SendIcon
+                            fontSize="small"
+                            style={{ marginRight: 10 }}
+                        />
+
+                        Move to Sent
+                    </MenuItem>
+                )}
+            </Menu>
+        </>
+    );
+};
+
+export default MoveToMenu;
+
+//.move-to-menu {
+    display: flex;
+    align-items: center;
+}
+
+// add this in trash mails
+const getTrashType = (email) => {
+    if (
+        email.to === loggedInUser.email &&
+        email.receiverFolder === "trash"
+    ) {
+        return "receiver";
+    }
+
+    if (
+        email.from === loggedInUser.email &&
+        email.senderFolder === "trash"
+    ) {
+        return "sender";
+    }
+
+    return null;
+};
+
+
+// inside email row 
+<MoveToMenu
+    email={email}
+    trashType={getTrashType(email)}
+    onMove={(id) => {
+        setEmails((prevEmails) =>
+            prevEmails.filter(
+                (item) => item.id !== id
+            )
+        );
+    }}
+/>
+
+import { useLocation, useNavigate } from "react-router-dom";
+import "./AddressNotFound.css";
+
+const AddressNotFound = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const email = location.state?.email;
+
+  // If someone opens the page directly without an email
+  if (!email) {
+    navigate("/");
+    return null;
+  }
+
+  return (
+    <div className="address-not-found-page">
+
+      {/* Header */}
+      <header className="address-not-found-header">
+        <div className="address-not-found-logo">
+          <span className="address-not-found-logo-icon">D</span>
+          <span className="address-not-found-logo-text">DMail</span>
+        </div>
+      </header>
+
+      {/* Content */}
+      <main className="address-not-found-main">
+        <div className="address-not-found-card">
+
+          {/* Error title */}
+          <div className="address-not-found-title">
+            <div className="address-not-found-error-icon">
+              !
+            </div>
+
+            <h1>Address not found</h1>
+          </div>
+
+          {/* Message */}
+          <p className="address-not-found-message">
+            Your message wasn't delivered to
+          </p>
+
+          <p className="address-not-found-email">
+            {email}
+          </p>
+
+          <p className="address-not-found-message">
+            because the address couldn't be found, or is unable
+            to receive email. Please check the recipient's
+            email address and try again.
+          </p>
+
+          {/* Details */}
+          <div className="address-not-found-details">
+
+            <div className="address-not-found-details-header">
+              Details
+            </div>
+
+            <div className="address-not-found-details-body">
+
+              <p>
+                <strong>Address:</strong> {email}
+              </p>
+
+              <p>
+                <strong>Error:</strong> Recipient address not found
+              </p>
+
+              <p>
+                <strong>Status:</strong> Delivery failed
+              </p>
+
+            </div>
+
+          </div>
+
+          {/* Actions */}
+          <div className="address-not-found-actions">
+
+            <button
+              className="address-not-found-primary"
+              onClick={() => navigate(-1)}
+            >
+              Go back
+            </button>
+
+            <button
+              className="address-not-found-secondary"
+              onClick={() => navigate("/")}
+            >
+              Go to DMail
+            </button>
+
+          </div>
+
+        </div>
+      </main>
+
+    </div>
+  );
+};
+
+export default AddressNotFound;
+
+.address-not-found-page {
+  min-height: 100vh;
+  width: 100%;
+  background: #ffffff;
+  color: #202124;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Header */
+
+.address-not-found-header {
+  height: 64px;
+  padding: 0 32px;
+  border-bottom: 1px solid #dadce0;
+
+  display: flex;
+  align-items: center;
+}
+
+.address-not-found-logo {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.address-not-found-logo-icon {
+  width: 34px;
+  height: 34px;
+
+  border-radius: 50%;
+
+  background: #1a73e8;
+  color: #ffffff;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 19px;
+  font-weight: 600;
+}
+
+.address-not-found-logo-text {
+  font-size: 22px;
+  color: #5f6368;
+}
+
+/* Main */
+
+.address-not-found-main {
+  min-height: calc(100vh - 65px);
+
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+
+  padding-top: 70px;
+}
+
+/* Card */
+
+.address-not-found-card {
+  width: 680px;
+  padding: 40px 48px;
+}
+
+/* Title */
+
+.address-not-found-title {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+
+  margin-bottom: 30px;
+}
+
+.address-not-found-title h1 {
+  margin: 0;
+
+  font-size: 28px;
+  font-weight: 400;
+
+  color: #202124;
+}
+
+.address-not-found-error-icon {
+  width: 42px;
+  height: 42px;
+
+  border-radius: 50%;
+
+  background: #d93025;
+  color: #ffffff;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 25px;
+  font-weight: bold;
+}
+
+/* Message */
+
+.address-not-found-message {
+  margin: 10px 0;
+
+  font-size: 15px;
+  line-height: 1.6;
+
+  color: #5f6368;
+}
+
+.address-not-found-email {
+  margin: 16px 0;
+
+  font-size: 15px;
+  font-weight: 600;
+
+  color: #202124;
+
+  word-break: break-word;
+}
+
+/* Details */
+
+.address-not-found-details {
+  margin-top: 30px;
+
+  border: 1px solid #dadce0;
+  border-radius: 8px;
+
+  overflow: hidden;
+}
+
+.address-not-found-details-header {
+  padding: 14px 18px;
+
+  background: #f8f9fa;
+
+  border-bottom: 1px solid #dadce0;
+
+  font-size: 14px;
+  font-weight: 500;
+
+  color: #3c4043;
+}
+
+.address-not-found-details-body {
+  padding: 18px;
+}
+
+.address-not-found-details-body p {
+  margin: 10px 0;
+
+  font-size: 14px;
+  line-height: 1.5;
+
+  color: #5f6368;
+}
+
+.address-not-found-details-body strong {
+  color: #3c4043;
+}
+
+/* Buttons */
+
+.address-not-found-actions {
+  display: flex;
+  gap: 12px;
+
+  margin-top: 32px;
+}
+
+.address-not-found-primary,
+.address-not-found-secondary {
+  padding: 10px 20px;
+
+  border-radius: 4px;
+
+  font-size: 14px;
+  font-weight: 500;
+
+  cursor: pointer;
+}
+
+.address-not-found-primary {
+  border: none;
+
+  background: #1a73e8;
+  color: #ffffff;
+}
+
+.address-not-found-primary:hover {
+  background: #1765cc;
+}
+
+.address-not-found-secondary {
+  border: 1px solid #dadce0;
+
+  background: #ffffff;
+  color: #1a73e8;
+}
+
+.address-not-found-secondary:hover {
+  background: #f8f9fa;
+}
+
+/* Mobile */
+
+@media (max-width: 700px) {
+
+  .address-not-found-header {
+    padding: 0 18px;
+  }
+
+  .address-not-found-main {
+    padding-top: 30px;
+  }
+
+  .address-not-found-card {
+    width: 100%;
+    padding: 30px 24px;
+  }
+
+  .address-not-found-title h1 {
+    font-size: 23px;
+  }
+
+  .address-not-found-actions {
+    flex-direction: column;
+  }
+
+  .address-not-found-primary,
+  .address-not-found-secondary {
+    width: 100%;
+  }
+}

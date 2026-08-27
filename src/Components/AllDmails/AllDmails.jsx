@@ -38,18 +38,15 @@ const AllDmails = () => {
                             : "No emails available"
                         }
                     </p>
-
                 ) : (
                     filteredEmails.map((email) => (
-                        <EmailRow
-                            key={email.id}
+                        <EmailRow key={email.id}
                             email={email}
                             folder={
                                 email.from === loggedInUser.email
                                     ? "sent"
                                     : "inbox"
-                            }
-                        />
+                            } />
                     ))
                 )}
             </div>

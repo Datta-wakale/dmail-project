@@ -1,12 +1,14 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { registerUser, checkEmailExists } from "../../authApi/authApi";
 import "./Register.css";
 import { toast } from "react-toastify";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ChooseEmail from "./ChooseEmail";
-import  IconButton  from "@mui/material/Icon";
+import IconButton from "@mui/material/Icon";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { UserContext } from "../../Context/UserContext";
+
 const Register = () => {
     const navigate = useNavigate();
 
@@ -23,8 +25,9 @@ const Register = () => {
 
     const [error, setError] = useState({});
     const [showPassword, setShowPassword] = useState(false);
-    const handleShowPassword = ()=> {
-        setShowPassword((show)=> !show);
+    const {setLoggedInUser} = useContext(UserContext);
+    const handleShowPassword = () => {
+        setShowPassword((show) => !show);
     }
     const handleChange = (event) => {
         const { name, value } = event.target;
@@ -42,13 +45,13 @@ const Register = () => {
     const handlePhoneKeyDown = (event) => {
         const allowedKeys = ["Backspace", "Delete", "ArrowLeft", "ArrowRight", "Tab",];
 
-        if ( !/[0-9]/.test(event.key) &&
+        if (!/[0-9]/.test(event.key) &&
             !allowedKeys.includes(event.key)) {
             event.preventDefault();
         }
 
-        if ( user.phone.length >= 10 &&
-            !allowedKeys.includes(event.key) ) {
+        if (user.phone.length >= 10 &&
+            !allowedKeys.includes(event.key)) {
             event.preventDefault();
         }
     };
@@ -88,7 +91,24 @@ const Register = () => {
         if (!user.dob) {
             errors.dob = "Date of birth is required";
         }
-
+        else {
+            const dob = new Date(user.dob);
+            const today = new Date();
+            today.setHours(0);
+            if (dob > today) {
+                errors.dob = "Date of birth cannot be in future";
+            }
+            else {
+                let age = today.getFullYear() - dob.getFullYear();
+                const monthDiff = today.getMonth() - dob.getMonth();
+                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+                    age--;
+                }
+                if(age < 12){
+                    errors.dob = "age must be greater than 12 years";
+                }
+            }
+        }
         setError(errors);
 
         return Object.keys(errors).length === 0;
@@ -105,9 +125,7 @@ const Register = () => {
         if (!user.confirmPassword) {
             errors.confirmPassword =
                 "Confirm password is required";
-        } else if (
-            user.password !== user.confirmPassword
-        ) {
+        } else if ( user.password !== user.confirmPassword ) {
             errors.confirmPassword =
                 "Passwords do not match";
         }
@@ -183,14 +201,17 @@ const Register = () => {
 
         try {
             await registerUser(newUser);
-            toast.success("Account Created successfully")
-            navigate("/sign-in");
+            toast.success("Account Created successfully");
+            setLoggedInUser("loggedInUser");
+            navigate("/inbox");
         } catch (err) {
             console.error(err);
             toast.error("Registration failed. Please try again.");
         }
     };
 
+    const today = new Date();
+    const maxDob = today.toISOString().split("T")[0];
     return (
         <div className="form-container">
             <div className="formcard">
@@ -233,28 +254,49 @@ const Register = () => {
                         error={error}
                         setError={setError}
                         handleChange={handleChange}
-                        handleNext={handleNext}/>
+                        handleNext={handleNext} />
                 )}
                 {step === 3 && (
                     <>
                         <h2>Basic information</h2>
+
                         <p className="step-description">
-                            Enter your date of birth </p>
+                            Enter your date of birth
+                        </p>
+
                         <div className="form-group">
-                            <label htmlFor="dob"> Date of Birth </label>
-                            <input type="date" id="dob" name="dob"
-                                value={user.dob} onChange={handleChange} />
+                            <label htmlFor="dob">
+                                Date of Birth
+                            </label>
+
+                            <input
+                                type="date"
+                                id="dob"
+                                name="dob"
+                                value={user.dob}
+                                onChange={handleChange}
+                                max={maxDob}
+                            />
+
                             {error.dob && (
-                                <span className="error-msg">{error.dob}</span>
+                                <span className="error-msg">
+                                    {error.dob}
+                                </span>
                             )}
                         </div>
-                        <div className="button-row">
 
-                            <button type="button" className="register-btn" onClick={handleNext} > Next
+                        <div className="button-row">
+                            <button
+                                type="button"
+                                className="register-btn"
+                                onClick={handleNext}
+                            >
+                                Next
                             </button>
                         </div>
                     </>
                 )}
+
                 {step === 4 && (
                     <>
                         <h2>Create a password</h2>
@@ -263,9 +305,9 @@ const Register = () => {
                         </label>
                             <input type={showPassword ? "text" : "password"} id="password" name="password"
                                 placeholder="Enter password" value={user.password}
-                                onChange={handleChange} className="placeicon"/>
+                                onChange={handleChange} className="placeicon" />
                             <IconButton onClick={handleShowPassword} className="eyeicon">
-                                {showPassword ? (<VisibilityOff/>) : <Visibility/>}
+                                {showPassword ? (<VisibilityOff />) : <Visibility />}
                             </IconButton>
                             {error.password && (<span className="error-msg"> {error.password}</span>)}
                         </div>

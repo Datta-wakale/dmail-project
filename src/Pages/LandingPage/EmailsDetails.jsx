@@ -1,33 +1,32 @@
-import { useContext, useState } from "react";
-import {
-  useNavigate,
-  useOutletContext,
-  useParams,
-  useLocation,
-} from "react-router-dom";
+import { useContext, useState, useEffect } from "react";
+import { useNavigate, useOutletContext, useParams, useLocation, } from "react-router-dom";
 import { UserContext } from "../../Context/UserContext";
-import { deleteEmail, moveEmailToSpam,archiveEmail,
-  permanentlyDeleteEmail,
-} from "../../authApi/emailsApi";
+import { deleteEmail, moveEmailToSpam, archiveEmail,permanentlyDeleteEmail,} from "../../authApi/emailsApi";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArchiveIcon from "@mui/icons-material/Archive";
 import ReportIcon from "@mui/icons-material/Report";
 import DeleteIcon from "@mui/icons-material/Delete";
+import MarkEmailReadIcon from "@mui/icons-material/MarkEmailRead";
 import MarkEmailUnreadIcon from "@mui/icons-material/MarkEmailUnread";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import SnoozeIcon from "@mui/icons-material/Snooze";
 import ReplyIcon from "@mui/icons-material/Reply";
 import ForwardIcon from "@mui/icons-material/Forward";
 import ReplyEmail from "./ReplyEmail";
-import { restoreArchivedEmail } from "../../authApi/restoreEmail";
 import ForwardEmail from "./ForwardEmail";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
 import "./EmailsDetails.css";
 import { unsnoozeEmail } from "../../authApi/UnSnoozeEmail";
+import { updateEmail } from "../../authApi/updateEmail";
+
 const EmailsDetails = () => {
   const [replyOpen, setReplyOpen] = useState(false);
   const [forwardOpen, setForwardOpen] = useState(false);
+  const [moreAnchorEl, setMoreAnchorEl] = useState(null);
+  const moreOpen = Boolean(moreAnchorEl);
   const { emails, setEmails } = useOutletContext();
   const { id } = useParams();
   const location = useLocation();
@@ -35,25 +34,50 @@ const EmailsDetails = () => {
   const { loggedInUser } = useContext(UserContext);
   const navigate = useNavigate();
   // Find selected email
+  
   const email = emails.find((email) => String(email.id) === String(id));
-    // If email not found
+    useEffect(() => {
+    const markAsRead = async () => {
+      if (!email || email.read) {
+        return;
+      }
+      try {
+        await updateEmail(email.id, {
+          ...email,
+          read: true,
+        });
+
+        setEmails((prevEmails) =>
+          prevEmails.map((item) =>
+            item.id === email.id
+              ? { ...item, read: true }
+              : item
+          )
+        );
+      } catch (error) {
+        console.error("Unable to mark email as read", error);
+      }
+    };
+    markAsRead();
+  }, [email?.id]);
+  // If email not found
   if (!email) {
     return <p className="no-email">No email is found</p>;
   }
- const threadId = email.threadId || email.id;
+  const threadId = email.threadId || email.id;
 
-const conversationEmails = emails
-  .filter((item) => {
-    const itemThreadId = item.threadId || item.id;
+  const conversationEmails = emails
+    .filter((item) => {
+      const itemThreadId = item.threadId || item.id;
 
-    return String(itemThreadId) === String(threadId);
-  })
-  .sort((a, b) => {
-    return (
-      new Date(a.createdAt || a.date) -
-      new Date(b.createdAt || b.date)
-    );
-  });
+      return String(itemThreadId) === String(threadId);
+    })
+    .sort((a, b) => {
+      return (
+        new Date(a.createdAt || a.date) -
+        new Date(b.createdAt || b.date)
+      );
+    });
 
   // control the snoozing
   const isSnoozed =
@@ -114,17 +138,15 @@ const conversationEmails = emails
   const handleDelete = async () => {
     try {
       // Trash → permanently delete
-   if (folder === "trash") {
-  await permanentlyDeleteEmail(email.id);
+      if (folder === "trash") {
+        await permanentlyDeleteEmail(email.id);
 
-  setEmails((prevEmails) =>
-    prevEmails.filter((item) => item.id !== email.id)
-  );
-
-  navigate(-1);
-  return;
-}
-      // Inbox / Sent / Spam → Trash
+        setEmails((prevEmails) =>
+          prevEmails.filter((item) => item.id !== email.id));
+        navigate(-1);
+        return;
+      }
+      // Inbox / Sent / Spam  Trash
       await deleteEmail(email.id, folder);
       setEmails((prevEmails) =>
         prevEmails.map((item) => {
@@ -174,7 +196,6 @@ const conversationEmails = emails
       }
 
       const archivedEmail = await archiveEmail(email.id, originalFolder);
-
       setEmails((prevEmails) =>
         prevEmails.map((item) => (item.id === email.id ? archivedEmail : item)),
       );
@@ -186,17 +207,14 @@ const conversationEmails = emails
   };
   const handleReportSpam = async () => {
     try {
-      await moveEmailToSpam(email.id);
+      const spamEmail = await moveEmailToSpam(email.id, folder);
 
       setEmails((prevEmails) =>
         prevEmails.map((item) =>
           item.id === email.id
-            ? {
-                ...item,
-                receiverFolder: "spam",
-              }
-            : item,
-        ),
+            ? spamEmail
+            : item
+        )
       );
 
       navigate(-1);
@@ -204,200 +222,232 @@ const conversationEmails = emails
       console.error("Unable to report email as spam", error);
     }
   };
+  const handleMoreClick = (event) => {
+    setMoreAnchorEl(event.currentTarget);
+  };
 
+  const handleMoreClose = () => {
+    setMoreAnchorEl(null);
+  };
 
-   return (
-  <div className="email-details-container">
-    <div className="email-details-toolbar">
+  const handleReplyFromMenu = () => {
+    setMoreAnchorEl(null);
+    setReplyOpen(true);
+  };
 
-      <Tooltip title="Back">
-        <IconButton onClick={handleBack}>
-          <ArrowBackIcon />
-        </IconButton>
-      </Tooltip>
+  const handleForwardFromMenu = () => {
+    setMoreAnchorEl(null);
+    setForwardOpen(true);
+  };
+  const handleMarkAsRead = async () => {
+    try {
+      await updateEmail(email.id, {
+        ...email,
+        read: true,
+      });
 
-      <div className="toolbar-right">
+      setEmails((prevEmails) =>
+        prevEmails.map((item) =>
+          item.id === email.id
+            ? { ...item, read: true }
+            : item
+        )
+      );
+      setMoreAnchorEl(null);
+    } catch (error) {
+      console.error("Unable to mark email as read", error);
+    }
+  };
+  const handleMarkAsUnread = async () => {
+    try {
+      await updateEmail(email.id, {
+        ...email,
+        read: false,
+      });
 
-        <Tooltip title="Archive">
-          <IconButton onClick={handleArchive}>
-            <ArchiveIcon />
+      setEmails((prevEmails) =>
+        prevEmails.map((item) =>
+          item.id === email.id
+            ? { ...item, read: false }
+            : item
+        )
+      );
+    } catch (error) {
+      console.error("Unable to mark email as unread", error);
+    }
+  };
+
+  return (
+    <div className="email-details-container">
+      <div className="email-details-toolbar">
+        <Tooltip title="Back">
+          <IconButton onClick={handleBack}>
+            <ArrowBackIcon />
           </IconButton>
         </Tooltip>
+        <div className="toolbar-right">
+          <Tooltip title="Archive">
+            <IconButton onClick={handleArchive}>
+              <ArchiveIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Report spam">
+            <IconButton onClick={handleReportSpam}>
+              <ReportIcon />
+            </IconButton>
+          </Tooltip>
 
-        <Tooltip title="Report spam">
-          <IconButton onClick={handleReportSpam}>
-            <ReportIcon />
-          </IconButton>
-        </Tooltip>
+          <Tooltip title="Delete">
+            <IconButton onClick={handleDelete}>
+              <DeleteIcon />
+            </IconButton>
+          </Tooltip>
 
-        <Tooltip title="Delete">
-          <IconButton onClick={handleDelete}>
-            <DeleteIcon />
-          </IconButton>
-        </Tooltip>
+          <Tooltip title={email.read ? "Mark as unread" : "Mark as read"}>
+            <IconButton
+              onClick={email.read ? handleMarkAsUnread : handleMarkAsRead} >
+              {email.read ? (
+                <MarkEmailUnreadIcon />
+              ) : (
+                <MarkEmailReadIcon />
+              )}
+            </IconButton>
+          </Tooltip>
 
-        <Tooltip title="Mark as unread">
-          <IconButton>
-            <MarkEmailUnreadIcon />
-          </IconButton>
-        </Tooltip>
 
-        <Tooltip title="More">
-          <IconButton>
-            <MoreVertIcon />
-          </IconButton>
-        </Tooltip>
-
-      </div>
-
-    </div>
-
-    <div className="email-details-content">
-
-     <div className="email-subject-row">
-
-  <h1 className="email-details-subject">
-    {email.subject}
-  </h1>
-
-  <span className="email-folder-label">
-    {folder === "inbox" && "Inbox"}
-    {folder === "sent" && "Sent"}
-    {folder === "spam" && "Spam"}
-    {folder === "trash" && "Trash"}
-    {folder === "draft" && "Draft"}
-    {folder === "starred-received" && "Starred"}
-    {folder === "starred-sent" && "Starred"}
-  </span>
-
-</div>
-
-      {isSnoozed && (
-        <div className="snooze-info">
-          <SnoozeIcon fontSize="small" />
-          <span>
-            Snoozed until{" "}
-            {new Date(
-              folder === "inbox" || folder === "spam"
-                ? email.receiverSnoozedUntil
-                : email.senderSnoozedUntil
-            ).toLocaleString()}
-          </span>
-
-          <button onClick={handleUnsnooze}>
-            Unsnooze
-          </button>
-
-        </div>
-      )}
-
-      <div className="conversation-container">
-
-        {conversationEmails.map((conversationEmail) => (
-
-          <div
-            className="conversation-email"
-            key={conversationEmail.id}
+          <Tooltip title="More">
+            <IconButton onClick={handleMoreClick}>
+              <MoreVertIcon />
+            </IconButton>
+          </Tooltip>
+          <Menu
+            anchorEl={moreAnchorEl}
+            open={moreOpen}
+            onClose={handleMoreClose}
           >
+            <MenuItem onClick={handleMarkAsRead}>
+              Mark as read
+            </MenuItem>
+            <MenuItem onClick={handleReplyFromMenu} disabled = { folder === "trash"}> 
+              Reply
+            </MenuItem>
+            <MenuItem onClick={handleForwardFromMenu} disabled = {folder === "trash"}>
+              Forward
+            </MenuItem>
+            <MenuItem onClick={() => {
+                handleMoreClose();
+                handleDelete();
+              }}>
+              Delete
+            </MenuItem>
 
-            {/* Header */}
-            <div className="email-details-header">
-
-              <div className="email-avatar">
-                {conversationEmail.from
-                  ?.charAt(0)
-                  .toUpperCase()}
-              </div>
-
-              <div className="email-sender-info">
-
-                <div className="sender-name">
-                  {conversationEmail.from}
-                </div>
-
-                <div className="receiver-info">
-                  to {conversationEmail.to}
-                </div>
-
-              </div>
-
-              <div className="email-details-date">
-                {conversationEmail.date || "Today"}
-              </div>
-
-            </div>
-
-            <div className="email-message">
-              {conversationEmail.message}
-            </div>
-
-            {conversationEmail.attachment && (
-
-              <div className="email-attachment">
-
-                <img
-                  className="email-attchment-image"
-                  src={conversationEmail.attachment.data}
-                  alt={conversationEmail.attachment.name}
-                />
-
-                <div className="email-attachment-name">
-                  {conversationEmail.attachment.name}
-                </div>
-
-              </div>
-
-            )}
-
+          </Menu>
+        </div>
+      </div>
+      <div className="email-details-content">
+        <div className="email-subject-row">
+          <h1 className="email-details-subject">
+            {email.subject}
+          </h1>
+          <span className="email-folder-label">
+            {folder === "inbox" && "Inbox"}
+            {folder === "sent" && "Sent"}
+            {folder === "spam" && "Spam"}
+            {folder === "trash" && "Trash"}
+            {folder === "draft" && "Draft"}
+            {folder === "starred-received" && "Starred"}
+            {folder === "starred-sent" && "Starred"}
+          </span>
+        </div>
+        {isSnoozed && (
+          <div className="snooze-info">
+            <SnoozeIcon fontSize="small" />
+            <span>
+              Snoozed until{" "}
+              {new Date(
+                folder === "inbox" || folder === "spam"
+                  ? email.receiverSnoozedUntil
+                  : email.senderSnoozedUntil
+              ).toLocaleString()}
+            </span>
+            <button onClick={handleUnsnooze}>
+              Unsnooze
+            </button>
           </div>
-
-        ))}
-
+        )}
+        <div className="conversation-container">
+          {conversationEmails.map((conversationEmail) => (
+            <div
+              className="conversation-email"
+              key={conversationEmail.id} >
+              {/* Header */}
+              <div className="email-details-header">
+                <div className="email-avatar">
+                  {conversationEmail.from
+                    ?.charAt(0)
+                    .toUpperCase()}
+                </div>
+                <div className="email-sender-info">
+                  <div className="sender-name">
+                    {conversationEmail.from === loggedInUser.email
+                      ? "me" : conversationEmail.from}
+                  </div>
+                  <div className="receiver-info">
+                    to{" "}
+                    {conversationEmail.to === loggedInUser.email
+                      ? "me"
+                      : conversationEmail.to}
+                  </div>
+                </div>
+                <div className="email-details-date">
+                  {conversationEmail.date || "Today"}
+                </div>
+              </div>
+              <div className="email-message">
+                {conversationEmail.message}
+              </div>
+              {conversationEmail.attachment && (
+                <div className="email-attachment">
+                  <img
+                    className="email-attchment-image"
+                    src={conversationEmail.attachment.data}
+                    alt={conversationEmail.attachment.name} />
+                  <div className="email-attachment-name">
+                    {conversationEmail.attachment.name}
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+        <div className="email-actions">
+          <button
+            className="email-action-btn" disabled={folder === "trash"}
+            onClick={() => setReplyOpen(true)}>
+            <ReplyIcon />
+            Reply
+          </button>
+          <button className="email-action-btn" disabled={folder === "trash"}
+            onClick={() => setForwardOpen(true)}>
+            <ForwardIcon />
+            Forward
+          </button>
+        </div>
+        {replyOpen && (
+          <ReplyEmail
+            email={email}
+            loggedInUser={loggedInUser}
+            onClose={() => setReplyOpen(false)} />
+        )}
+        {/* Forward */}
+        {forwardOpen && (
+          <ForwardEmail
+            email={email}
+            loggedInUser={loggedInUser}
+            onClose={() => setForwardOpen(false)} />
+        )}
       </div>
-
-      <div className="email-actions">
-
-        <button
-          className="email-action-btn"
-          onClick={() => setReplyOpen(true)}
-        >
-          <ReplyIcon />
-          Reply
-        </button>
-
-        <button
-          className="email-action-btn"
-          onClick={() => setForwardOpen(true)}
-        >
-          <ForwardIcon />
-          Forward
-        </button>
-
-      </div>
-
-
-      {/* Reply */}
-      {replyOpen && (
-        <ReplyEmail
-          email={email}
-          loggedInUser={loggedInUser}
-          onClose={() => setReplyOpen(false)}
-        />
-      )}
-
-
-      {/* Forward */}
-      {forwardOpen && (
-        <ForwardEmail
-          email={email}
-          loggedInUser={loggedInUser}
-          onClose={() => setForwardOpen(false)}
-        />
-      )}
-
     </div>
-
-  </div>
-);
+  );
 };
 export default EmailsDetails;

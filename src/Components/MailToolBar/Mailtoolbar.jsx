@@ -8,8 +8,9 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useState } from "react";
 
 import "./Mailtoolbar.css";
+import { updateEmail } from "../../authApi/updateEmail";
 
-const Mailtoolbar = ({emails,selectedEmails, setSelectedEmails, loadEmails,showSnackbar,}) => {
+const Mailtoolbar = ({ emails, selectedEmails, setSelectedEmails, loadEmails, showSnackbar, }) => {
   const [moreAnchorEl, setMoreAnchorEl] = useState(null);
   const moreOpen = Boolean(moreAnchorEl);
   // Select all visible emails
@@ -20,13 +21,13 @@ const Mailtoolbar = ({emails,selectedEmails, setSelectedEmails, loadEmails,showS
       setSelectedEmails([]);
     }
   };
- // refresh
+  // refresh
   const handleRefresh = async () => {
     try {
       showSnackbar("Refreshing...");
       console.log("before calling");
-       await loadEmails();
-       console.log("load-dmail is loaded");
+      await loadEmails();
+      console.log("load-dmail is loaded");
       showSnackbar("Loading");
     } catch (error) {
       console.error("Unable to refresh dmails", error);
@@ -40,9 +41,37 @@ const Mailtoolbar = ({emails,selectedEmails, setSelectedEmails, loadEmails,showS
   const handleMoreClose = () => {
     setMoreAnchorEl(null);
   };
+  const handleSelectFromMenu = () => {
+    setSelectedEmails(emails.map((email) => email.id));
+    handleMoreClose();
+    showSnackbar("All dmails are selected");
+  }
+
   const allSelected = emails.length > 0 && selectedEmails.length === emails.length;
   console.log("allSelected :: ", allSelected);
-  
+
+ const handleMarkAllAsRead = async () => {
+  try {
+    await Promise.all(
+      emails
+        .filter((email) => !email.read)
+        .map((email) =>
+          updateEmail(email.id, {
+            ...email,
+            read: true,
+          })
+        )
+    );
+    await loadEmails();
+    handleMoreClose();
+    showSnackbar("All emails marked as read");
+  } catch (error) {
+    console.error("Unable to mark all emails as read:", error);
+    showSnackbar("Unable to mark emails as read");
+  }
+};
+
+
   return (
     <div className="mail-toolbar">
       <Tooltip title="Select">
@@ -52,7 +81,7 @@ const Mailtoolbar = ({emails,selectedEmails, setSelectedEmails, loadEmails,showS
             selectedEmails.length < emails.length
           }
           onChange={handleSelectAll} />
-     </Tooltip>
+      </Tooltip>
 
       {/* Refresh */}
       <Tooltip title="Refresh">
@@ -71,12 +100,12 @@ const Mailtoolbar = ({emails,selectedEmails, setSelectedEmails, loadEmails,showS
       {/* More menu */}
       <Menu anchorEl={moreAnchorEl} open={moreOpen}
         onClose={handleMoreClose}>
-        <MenuItem onClick={handleMoreClose}>
+        <MenuItem onClick={handleMarkAllAsRead}>
           Mark all as read
         </MenuItem>
-       <MenuItem onClick={handleMoreClose}>
+        <MenuItem onClick={handleSelectFromMenu}>
           Select All
-       </MenuItem>
+        </MenuItem>
       </Menu>
     </div>
   );

@@ -4,7 +4,7 @@ const Logo = () => {
  const navigate = useNavigate();
 
  const handleLogoClick=()=> {
-    navigate("/");
+    navigate("/inbox");
  }
 
   return (
