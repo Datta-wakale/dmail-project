@@ -1,7 +1,7 @@
 import { useContext, useState, useEffect } from "react";
 import { useNavigate, useOutletContext, useParams, useLocation, } from "react-router-dom";
 import { UserContext } from "../../Context/UserContext";
-import { deleteEmail, moveEmailToSpam, archiveEmail,permanentlyDeleteEmail,} from "../../authApi/emailsApi";
+import { deleteEmail, moveEmailToSpam, archiveEmail, permanentlyDeleteEmail, } from "../../authApi/emailsApi";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -19,6 +19,7 @@ import ForwardEmail from "./ForwardEmail";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import "./EmailsDetails.css";
+import MoveToMenu from "../../Components/MoveTo/MoveTo";
 import { unsnoozeEmail } from "../../authApi/UnSnoozeEmail";
 import { updateEmail } from "../../authApi/updateEmail";
 
@@ -27,16 +28,16 @@ const EmailsDetails = () => {
   const [forwardOpen, setForwardOpen] = useState(false);
   const [moreAnchorEl, setMoreAnchorEl] = useState(null);
   const moreOpen = Boolean(moreAnchorEl);
-  const { emails, setEmails } = useOutletContext();
+  const { emails, setEmails, loadEmails } = useOutletContext();
   const { id } = useParams();
   const location = useLocation();
   const folder = location.state?.folder || "inbox";
   const { loggedInUser } = useContext(UserContext);
   const navigate = useNavigate();
   // Find selected email
-  
+
   const email = emails.find((email) => String(email.id) === String(id));
-    useEffect(() => {
+  useEffect(() => {
     const markAsRead = async () => {
       if (!email || email.read) {
         return;
@@ -65,10 +66,12 @@ const EmailsDetails = () => {
     return <p className="no-email">No email is found</p>;
   }
   const threadId = email.threadId || email.id;
-
+  console.log("ORIGINAL THREAD ID:", threadId);
   const conversationEmails = emails
     .filter((item) => {
       const itemThreadId = item.threadId || item.id;
+       console.log("ITEM:", item.id, "THREAD:", itemThreadId,"MATCH:",
+      String(itemThreadId) === String(threadId) );
 
       return String(itemThreadId) === String(threadId);
     })
@@ -78,7 +81,7 @@ const EmailsDetails = () => {
         new Date(b.createdAt || b.date)
       );
     });
-
+console.log( "conversations Emails:",conversationEmails);
   // control the snoozing
   const isSnoozed =
     ((folder === "inbox" || folder === "spam") &&
@@ -276,15 +279,54 @@ const EmailsDetails = () => {
       console.error("Unable to mark email as unread", error);
     }
   };
-
+  const getTrashType = (email) => {
+    if (email.to === loggedInUser.email && email.receiverFolder === "trash") {
+      return "receiver";
+    }
+    if (email.from === loggedInUser.email && email.senderFolder === "trash") {
+      return "sender";
+    }
+    return null;
+  };
   return (
     <div className="email-details-container">
       <div className="email-details-toolbar">
-        <Tooltip title="Back">
-          <IconButton onClick={handleBack}>
-            <ArrowBackIcon />
-          </IconButton>
-        </Tooltip>
+        <div className="toolbar-left">
+          <Tooltip title="Back">
+            <IconButton onClick={handleBack}>
+              <ArrowBackIcon />
+            </IconButton>
+          </Tooltip>
+
+          <MoveToMenu
+            email={email}
+            folder={folder}
+            trashType={getTrashType(email)}
+            loggedInUser={loggedInUser}
+            onMove={(updatedEmail, toFolder) => {
+
+              setEmails((prevEmails) =>
+                prevEmails.map((item) =>
+                  String(item.id) === String(updatedEmail.id)
+                    ? updatedEmail
+                    : item
+                )
+              );
+
+              if (folder === "trash") {
+                navigate(`/${toFolder}`);
+              } else {
+                navigate(-1);
+              }
+            }}
+          />
+
+
+
+
+
+        </div>
+
         <div className="toolbar-right">
           <Tooltip title="Archive">
             <IconButton onClick={handleArchive}>
@@ -328,16 +370,16 @@ const EmailsDetails = () => {
             <MenuItem onClick={handleMarkAsRead}>
               Mark as read
             </MenuItem>
-            <MenuItem onClick={handleReplyFromMenu} disabled = { folder === "trash"}> 
+            <MenuItem onClick={handleReplyFromMenu} disabled={folder === "trash"}>
               Reply
             </MenuItem>
-            <MenuItem onClick={handleForwardFromMenu} disabled = {folder === "trash"}>
+            <MenuItem onClick={handleForwardFromMenu} disabled={folder === "trash"}>
               Forward
             </MenuItem>
             <MenuItem onClick={() => {
-                handleMoreClose();
-                handleDelete();
-              }}>
+              handleMoreClose();
+              handleDelete();
+            }}>
               Delete
             </MenuItem>
 
@@ -377,10 +419,8 @@ const EmailsDetails = () => {
         )}
         <div className="conversation-container">
           {conversationEmails.map((conversationEmail) => (
-            <div
-              className="conversation-email"
+            <div className="conversation-email"
               key={conversationEmail.id} >
-              {/* Header */}
               <div className="email-details-header">
                 <div className="email-avatar">
                   {conversationEmail.from
@@ -434,10 +474,42 @@ const EmailsDetails = () => {
           </button>
         </div>
         {replyOpen && (
-          <ReplyEmail
-            email={email}
-            loggedInUser={loggedInUser}
-            onClose={() => setReplyOpen(false)} />
+          // <ReplyEmail
+          //   email={email}
+          //   loggedInUser={loggedInUser}
+          //   onClose={() => setReplyOpen(false)}
+          //   onReplySent={(newReply) => {
+          //     setEmails((prevEmails) => {
+          //       const updatedEmails = [...prevEmails, newReply];
+          //       console.log("UPDATED EMAILS:: 482", updatedEmails);
+          //       return updatedEmails;
+          //     });
+          //   }}
+
+         <ReplyEmail
+  email={email}
+  loggedInUser={loggedInUser}
+  onClose={() => setReplyOpen(false)}
+  onReplySent={(newReply) => {
+    if (!newReply?.id) {
+      console.error("Invalid reply received:", newReply);
+      return;
+    }
+
+    setEmails((prevEmails) => {
+      const exists = prevEmails.some(
+        (item) => String(item.id) === String(newReply.id)
+      );
+
+      if (exists) {
+        return prevEmails;
+      }
+
+      return [...prevEmails, newReply];
+    });
+  }}
+/>
+
         )}
         {/* Forward */}
         {forwardOpen && (

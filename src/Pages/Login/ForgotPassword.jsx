@@ -4,6 +4,8 @@ import { checkEmailExists, updateUser} from "../../authApi/authApi";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import OtpDialog from "./OtpDialog";
+import IconButton from "@mui/material/IconButton";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import "./ForgotPassword.css";
 
 const ForgotPassword = () => {
@@ -23,6 +25,7 @@ const ForgotPassword = () => {
   const [error, setError] = useState("");
   const [generatedOtp, setGeneratedOtp] = useState("");
   const [openOtpDialog, setOpenOtpDialog] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   // HANDLE INPUT
   const handleChange = (event) => {
@@ -34,6 +37,9 @@ const ForgotPassword = () => {
     setError("");
   };
 
+  const handleShowPassword = ()=> {
+      setShowPassword((toggle)=> !toggle);
+  }
 
   const handleEmailSubmit = async (event) => {
     event.preventDefault();
@@ -198,14 +204,20 @@ const ForgotPassword = () => {
             <form onSubmit={handlePasswordSubmit}>
               <div className="forgot-form-group">
                 <label>New Password</label>
-                <input type="password"  name="newPassword"  placeholder="Enter new password"  value={user.newPassword}
-                  onChange={handleChange}/>
+                <input type={showPassword ? "text" : "password"}  name="newPassword"  placeholder="Enter new password"  value={user.newPassword}
+                  onChange={handleChange} className="icon-input"/>
+                  <IconButton onClick={handleShowPassword} className="eye-icon">
+                    { showPassword ? <VisibilityOff/> : <Visibility/>}
+                </IconButton>
               </div>
               <div className="forgot-form-group">
                 <label>Confirm Password</label>
                 <input  type="password" name="confirmPassword"
                   placeholder="Confirm new password" value={user.confirmPassword}
                   onChange={handleChange}/>
+                   <IconButton onClick={handleShowPassword} className="eye-icon">
+                    { showPassword ? <VisibilityOff/> : <Visibility/>}
+                </IconButton>
               </div>
               {error && ( <span className="forgot-error"> {error}  </span> )}
               <button type="submit" className="forgot-btn"  > Reset Password </button>

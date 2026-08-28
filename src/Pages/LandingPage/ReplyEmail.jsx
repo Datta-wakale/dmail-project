@@ -3,7 +3,7 @@ import { sendEmail } from "../../authApi/emailsApi";
 import { toast } from "react-toastify";
 import "./ReplyEmail.css";
 
-const ReplyEmail = ({ email,loggedInUser, onClose }) => {
+const ReplyEmail = ({ email, loggedInUser, onClose, onReplySent }) => {
 
     const [message, setMessage] = useState("");
     const [sending, setSending] = useState(false);
@@ -32,7 +32,17 @@ const ReplyEmail = ({ email,loggedInUser, onClose }) => {
                 attachment: null,
                 threadId: threadId,
             };
-            await sendEmail(replyEmail);
+            // await sendEmail(replyEmail);
+            // toast.success("Reply sent successfully");
+            // setMessage("");
+            // onClose();
+            const newReply = await sendEmail(replyEmail);
+            console.log("NEW REPLY:", newReply);
+            console.log("NEW REPLY ID:", newReply?.id);
+            console.log("NEW REPLY THREAD:", newReply?.threadId);
+            if (newReply?.id) {
+                onReplySent(newReply);
+            }
             toast.success("Reply sent successfully");
             setMessage("");
             onClose();
@@ -51,7 +61,7 @@ const ReplyEmail = ({ email,loggedInUser, onClose }) => {
                 <input type="text" value={email.from}
                     readOnly />
             </div>
-  
+
             <textarea value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="Write your reply..." />

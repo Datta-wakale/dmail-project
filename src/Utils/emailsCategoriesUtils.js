@@ -4,41 +4,26 @@ const getEmailCategory = (email) => {
   `.toLowerCase();
 
   // Promotions
-  if (
-    text.includes("offer") ||
-    text.includes("discount") ||
-    text.includes("sale") ||
-    text.includes("coupon") ||
-    text.includes("deal") ||
-    text.includes("shopping") ||
-    text.includes("buy now")
-  ) {
+  if (text.includes("offer") || text.includes("discount") ||
+    text.includes("sale") || text.includes("coupon") ||
+    text.includes("deal") || text.includes("shopping") ||
+    text.includes("buy now")) {
     return "promotions";
   }
 
   // Social
-  if (
-    text.includes("instagram") ||
-    text.includes("facebook") ||
-    text.includes("linkedin") ||
-    text.includes("twitter") ||
-    text.includes("follow") ||
-    text.includes("comment") ||
-    text.includes("friend")
-  ) {
+  if ( text.includes("instagram") || text.includes("facebook") ||
+   text.includes("linkedin") || text.includes("twitter") ||
+    text.includes("follow") || text.includes("comment") ||
+    text.includes("friend")) {
     return "social";
   }
 
   // Updates
-  if (
-    text.includes("otp") ||
-    text.includes("verification") ||
-    text.includes("notification") ||
-    text.includes("alert") ||
-    text.includes("password") ||
-    text.includes("security") ||
-    text.includes("update")
-  ) {
+  if ( text.includes("otp") || text.includes("verification") ||
+    text.includes("notification") || text.includes("alert") ||
+    text.includes("password") || text.includes("security") ||
+    text.includes("update") ) {
     return "updates";
   }
   // Everything else

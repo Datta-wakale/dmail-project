@@ -178,3 +178,16 @@
   font-size: 12px;
   font-weight: 500;
 }
+.email-details-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.email-details-toolbar > .MuiIconButton-root {
+  margin-right: 4px;
+}
+.toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}

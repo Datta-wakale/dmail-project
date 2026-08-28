@@ -94,9 +94,10 @@ const Home = ({ sidebarOpen, search, setSearch, filterEmails }) => {
               setSelectedEmails={setSelectedEmails}
               loadEmails={loadEmails}
               showSnackbar={showSnackbar}
+              folder={location.pathname.replace("/", "") || "inbox"}
+              setEmails={setEmails}
             />
-
-
+            
             {(location.pathname === "/" || location.pathname === "/inbox") && (
               <DmailCategories
                 selectedCategory={selectedCategory}

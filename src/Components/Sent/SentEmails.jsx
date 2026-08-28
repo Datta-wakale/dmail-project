@@ -31,38 +31,26 @@ const SentEmails = () => {
 
     return (
         <div className="sent-container">
-
             <div className="email-list">
-
                 {filteredEmails.length === 0 ? (
-
                     <p className="no-email">
-
                         {search.trim()
                             ? `No dmails found for "${search}"`
                             : "No sent dmails available"
                         }
-
                     </p>
-
                 ) : (
-
                     filteredEmails.map((email) => (
-
                         <EmailRow
                             key={email.id}
                             email={email}
                             folder="sent"
                         />
-
                     ))
-
                 )}
-
             </div>
 
         </div>
     );
 };
-
 export default SentEmails;

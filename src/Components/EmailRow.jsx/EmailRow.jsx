@@ -16,7 +16,6 @@ import { restoreEmail } from "../../authApi/restoreEmail";
 import { unsnoozeEmail } from "../../authApi/UnSnoozeEmail";
 import "./EmailRow.css";
 // import { restoreEmail } from "../../authApi/emailsApi";
-import MoveToMenu from "../MoveTo/MoveTo";
 import SnoozeDialog from "../SnoozeDialoge/SnoozeDialog";
 import { updateEmail } from "../../authApi/updateEmail";
 const EmailRow = ({ email, folder }) => {
@@ -331,23 +330,7 @@ const EmailRow = ({ email, folder }) => {
       console.error("Unable to mark as unread:", error);
     }
   };
-const getTrashType = (email) => {
-    if (
-        email.to === loggedInUser.email &&
-        email.receiverFolder === "trash"
-    ) {
-        return "receiver";
-    }
-
-    if (
-        email.from === loggedInUser.email &&
-        email.senderFolder === "trash"
-    ) {
-        return "sender";
-    }
-
-    return null;
-};
+  
   const isSnoozed =
     ((folder === "inbox" || folder === "spam") && email.receiverSnoozedUntil &&
       new Date(email.receiverSnoozedUntil) > new Date()) || ((folder === "sent" || folder === "draft")
@@ -439,19 +422,7 @@ const getTrashType = (email) => {
         open={snoozeOpen}
         onClose={() => setSnoozeOpen(false)}
         onSnooze={handleConfirmSnooze} />
-        <MoveToMenu
-    email={email}
-    trashType={getTrashType(email)}
-    onMove={(id) => {
-        setEmails((prevEmails) =>
-            prevEmails.filter(
-                (item) => item.id !== id
-            )
-        );
-    }}
-/>
     </>
   );
 };
-
 export default EmailRow;
