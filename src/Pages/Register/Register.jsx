@@ -200,9 +200,15 @@ const Register = () => {
         };
 
         try {
-            await registerUser(newUser);
+            const createdUser = await registerUser(newUser);
+            if (!createdUser) {
+                toast.error("Registration failed. Please try again.");
+                return;
+            }
+
+            setLoggedInUser(createdUser);
+            localStorage.setItem("loggedInUser", JSON.stringify(createdUser));
             toast.success("Account Created successfully");
-            setLoggedInUser("loggedInUser");
             navigate("/inbox");
         } catch (err) {
             console.error(err);

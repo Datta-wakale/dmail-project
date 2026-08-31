@@ -10,19 +10,19 @@ import ArchiveIcon from "@mui/icons-material/Archive";
 import SnoozeIcon from "@mui/icons-material/Snooze";
 import MarkEmailReadIcon from "@mui/icons-material/MarkEmailRead";
 import MarkEmailUnreadIcon from "@mui/icons-material/MarkEmailUnread";
-import { deleteEmail, toggleStarEmail, permanentlyDeleteEmail, archiveEmail, snoozeEmail, } from "../../authApi/emailsApi";
+import { deleteEmail, toggleStarEmail, permanentlyDeleteEmail, archiveEmail, snoozeEmail } from "../../authApi/emailsApi";
 import { restoreArchivedEmail } from "../../authApi/restoreEmail";
 import { restoreEmail } from "../../authApi/restoreEmail";
 import { unsnoozeEmail } from "../../authApi/UnSnoozeEmail";
+import { formatMailDate, getReceiverDisplayLabel, getSenderDisplayLabel } from "../../Utils/mailUtils";
 import "./EmailRow.css";
-// import { restoreEmail } from "../../authApi/emailsApi";
 import SnoozeDialog from "../SnoozeDialoge/SnoozeDialog";
 import { updateEmail } from "../../authApi/updateEmail";
 const EmailRow = ({ email, folder }) => {
   const { loggedInUser } = useContext(UserContext);
-  const { emails, setEmails, openSelectedMail, selectedEmails,
+  const { setEmails, openSelectedMail, selectedEmails,
     setSelectedEmails,
-    setUndoEmail, showSnackbar } = useOutletContext();
+    showSnackbar } = useOutletContext();
 
   // Check whether this email is selected
   const isSelected = selectedEmails.includes(email.id);
@@ -337,6 +337,10 @@ const EmailRow = ({ email, folder }) => {
         && email.senderSnoozedUntil && new Date(email.senderSnoozedUntil) > new Date());
   const canArchive = folder === "inbox" || folder === "spam" || folder === "sent" ||
     folder === "starred-received" || folder === "starred-sent";
+  const displaySender = getSenderDisplayLabel(email, loggedInUser.email);
+  const displayReceiver = getReceiverDisplayLabel(email, loggedInUser.email);
+  const formattedDate = formatMailDate(email.createdAt || email.date);
+
   return (
     <>
       <div
@@ -362,11 +366,7 @@ const EmailRow = ({ email, folder }) => {
 
         {/* Sender */}
         <div className={`email-sender ${!email.read ? "unread" : ""}`}>
-          {email.from === loggedInUser.email && email.to === loggedInUser.email
-            ? "me"
-            : folder === "sent"
-              ? email.to
-              : email.from}
+          {folder === "sent" ? displayReceiver : displaySender}
         </div>
         {/* Subject + Message */}
         <div className={`email-content ${!email.read ? "unread" : ""}`}>
@@ -385,7 +385,7 @@ const EmailRow = ({ email, folder }) => {
               hour: "numeric",
               minute: "2-digit",
             })}`
-            : email.date || "Today"}
+            : formattedDate}
         </div>
         {/* Hover Actions */}
         <div
@@ -411,7 +411,6 @@ const EmailRow = ({ email, folder }) => {
               <MarkEmailReadIcon />
             )}
           </IconButton>
-
 
           <IconButton title="Delete" onClick={handleDelete}>
             <DeleteIcon />

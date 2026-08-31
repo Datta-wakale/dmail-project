@@ -8,6 +8,10 @@ export const getEmails = async () => {
 
 // POST Send Email
 export const sendEmail = async (email) => {
+  const normalizedTo = Array.isArray(email.to)
+    ? email.to.join(", ")
+    : String(email.to ?? "").trim();
+
   const response = await fetch(apiUrl, {
     method: "POST",
     headers: {
@@ -15,16 +19,65 @@ export const sendEmail = async (email) => {
     },
     body: JSON.stringify({
       ...email,
+      to: normalizedTo,
       // New email gets a new threadId.
       threadId: email.threadId || crypto.randomUUID(),
-
-      senderFolder: "sent",
-      receiverFolder: "inbox",
-      read: false,
+ 
+      senderFolder: email.senderFolder || "sent",
+      receiverFolder: email.receiverFolder || "inbox",
+      read: email.read ?? false,
     }),
   });
 
   return await response.json();
+};
+
+export const createWelcomeEmail = async (user) => {
+  if (!user?.email) {
+    return null;
+  }
+
+  const existingEmails = await getEmails();
+  const alreadyExists = existingEmails.some((mail) => {
+    const normalizedTo = String(mail.to || "")
+      .split(/[;,]/)
+      .map((value) => value.trim().toLowerCase())
+      .filter(Boolean);
+
+    return (
+      mail.subject === "Welcome to D-mail" &&
+      normalizedTo.includes(String(user.email).trim().toLowerCase())
+    );
+  });
+
+  if (alreadyExists) {
+    return existingEmails.find((mail) => {
+      const normalizedTo = String(mail.to || "")
+        .split(/[;,]/)
+        .map((value) => value.trim().toLowerCase())
+        .filter(Boolean);
+
+      return (
+        mail.subject === "Welcome to D-mail" &&
+        normalizedTo.includes(String(user.email).trim().toLowerCase())
+      );
+    });
+  }
+
+  const welcomeEmail = {
+    from: "dmail-team@dmail.com",
+    to: user.email,
+    subject: "Welcome to D-mail",
+    message: `Hi ${user.fname || "there"},\n\nWelcome to D-mail! We are excited to have you here. Your inbox is ready, and this is your first welcome message from the D-mail team.\n\nStart exploring your inbox and enjoy a cleaner, smarter way to stay connected.\n\nBest regards,\nD-mail Team`,
+    attachment: null,
+    createdAt: new Date().toISOString(),
+    senderFolder: "sent",
+    receiverFolder: "inbox",
+    read: false,
+    welcome: true,
+  };
+
+  return await sendEmail(welcomeEmail);
 };
 
 
@@ -396,6 +449,26 @@ export const saveDraft = async (draftData) => {
 
     if (!response.ok) {
         throw new Error("Unable to save draft");
+    }
+
+    return await response.json();
+};
+
+export const updateDraft = async (id, draftData) => {
+    const response = await fetch(`${apiUrl}/${id}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            ...draftData,
+            id,
+            senderFolder: "draft",
+        }),
+    });
+
+    if (!response.ok) {
+        throw new Error("Unable to update draft");
     }
 
     return await response.json();

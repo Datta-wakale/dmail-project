@@ -2,15 +2,17 @@ import { useContext } from "react";
 import { useOutletContext } from "react-router-dom";
 import { UserContext } from "../../Context/UserContext";
 import EmailRow from "../EmailRow.jsx/EmailRow";
+import { matchesAnyRecipient } from "../../Utils/mailUtils";
 
 const TrashEmails = () => {
+  const { loggedInUser } = useContext(UserContext);
+  const { emails, search, filterEmails } = useOutletContext();
 
-    const { loggedInUser } = useContext(UserContext);
-    const { emails, search, filterEmails } = useOutletContext();
-
-    const trashedMails = emails.filter(
-        (email) => (email.to === loggedInUser.email && email.receiverFolder === "trash") ||
-            (email.from === loggedInUser.email && email.senderFolder === "trash"));
+  const trashedMails = emails.filter(
+    (email) =>
+      (matchesAnyRecipient(email.to, loggedInUser.email) && email.receiverFolder === "trash") ||
+      (email.from === loggedInUser.email && email.senderFolder === "trash")
+  );
 
     const filteredEmails = [
         ...filterEmails(trashedMails, search)

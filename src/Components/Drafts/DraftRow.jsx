@@ -9,15 +9,16 @@ import SnoozeIcon from "@mui/icons-material/Snooze";
 import MarkEmailReadIcon from "@mui/icons-material/MarkEmailRead";
 import { deleteEmail } from "../../authApi/emailsApi";
 import { restoreEmail } from "../../authApi/restoreEmail";
+import { formatMailDate } from "../../Utils/mailUtils";
 import "./DraftRow.css";
 const DraftRow = ({ email }) => {
 
     const {
-        emails,
         setEmails,
         selectedEmails,
         setSelectedEmails,
-        setDraftToEdit,showSnackbar
+        setDraftToEdit,
+        showSnackbar,
     } = useOutletContext();
 
     // Check selected
@@ -113,6 +114,8 @@ const DraftRow = ({ email }) => {
         console.log("mark as read:", email.id);
     }
 
+    const formattedDate = formatMailDate(email.createdAt || email.date);
+
     return (
 
         <div className={`email-row ${isSelected
@@ -141,7 +144,7 @@ const DraftRow = ({ email }) => {
                 </span>
             </div>
             <div className="email-date">
-                {email.date || "Today"}
+                {formattedDate}
             </div>
 
             {/* Hover Actions */}

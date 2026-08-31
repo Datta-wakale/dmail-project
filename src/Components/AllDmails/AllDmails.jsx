@@ -2,6 +2,7 @@ import { useContext } from "react";
 import { useOutletContext } from "react-router-dom";
 import { UserContext } from "../../Context/UserContext";
 import EmailRow from "../EmailRow.jsx/EmailRow";
+import { matchesAnyRecipient } from "../../Utils/mailUtils";
 
 const AllDmails = () => {
     const { loggedInUser } = useContext(UserContext);
@@ -11,14 +12,11 @@ const AllDmails = () => {
         filterEmails
     } = useOutletContext();
 
-    // Show all emails related to logged-in user
     const allMails = emails.filter((email) => {
-        // Sent by logged-in user
         if (email.from === loggedInUser.email) {
             return email.senderFolder !== "trash";
         }
-        // Received by logged-in user
-        if (email.to === loggedInUser.email) {
+        if (matchesAnyRecipient(email.to, loggedInUser.email)) {
             return email.receiverFolder !== "trash";
         }
         return false;

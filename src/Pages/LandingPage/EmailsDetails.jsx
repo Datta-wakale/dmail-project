@@ -1,5 +1,6 @@
 import { useContext, useState, useEffect } from "react";
 import { useNavigate, useOutletContext, useParams, useLocation, } from "react-router-dom";
+import { toast } from "react-toastify";
 import { UserContext } from "../../Context/UserContext";
 import { deleteEmail, moveEmailToSpam, archiveEmail, permanentlyDeleteEmail, } from "../../authApi/emailsApi";
 import IconButton from "@mui/material/IconButton";
@@ -22,13 +23,14 @@ import "./EmailsDetails.css";
 import MoveToMenu from "../../Components/MoveTo/MoveTo";
 import { unsnoozeEmail } from "../../authApi/UnSnoozeEmail";
 import { updateEmail } from "../../authApi/updateEmail";
+import { canUseReplyOrForward, formatMailDate, getReceiverDisplayLabel, getSenderDisplayLabel, matchesAnyRecipient } from "../../Utils/mailUtils";
 
 const EmailsDetails = () => {
   const [replyOpen, setReplyOpen] = useState(false);
   const [forwardOpen, setForwardOpen] = useState(false);
   const [moreAnchorEl, setMoreAnchorEl] = useState(null);
   const moreOpen = Boolean(moreAnchorEl);
-  const { emails, setEmails, loadEmails } = useOutletContext();
+  const { emails, setEmails } = useOutletContext();
   const { id } = useParams();
   const location = useLocation();
   const folder = location.state?.folder || "inbox";
@@ -38,10 +40,11 @@ const EmailsDetails = () => {
 
   const email = emails.find((email) => String(email.id) === String(id));
   useEffect(() => {
+    if (!email || email.read) {
+      return;
+    }
+
     const markAsRead = async () => {
-      if (!email || email.read) {
-        return;
-      }
       try {
         await updateEmail(email.id, {
           ...email,
@@ -59,8 +62,9 @@ const EmailsDetails = () => {
         console.error("Unable to mark email as read", error);
       }
     };
+
     markAsRead();
-  }, [email?.id]);
+  }, [email, setEmails]);
   // If email not found
   if (!email) {
     return <p className="no-email">No email is found</p>;
@@ -131,7 +135,7 @@ console.log( "conversations Emails:",conversationEmails);
         navigate("/sent");
       }
       if (folder === "draft") {
-        navigate("/draft");
+        navigate("/drafts");
       }
     } catch (error) {
       console.error("Unable to unsnooze email", error);
@@ -234,11 +238,31 @@ console.log( "conversations Emails:",conversationEmails);
   };
 
   const handleReplyFromMenu = () => {
+    if (!loggedInUser?.email) {
+      toast.error("Please sign in to reply to email.");
+      return;
+    }
+
+    if (!canUseReplyOrForward(email, loggedInUser.email)) {
+      setMoreAnchorEl(null);
+      toast.error("This email is in Trash. Move it to Inbox to reply.");
+      return;
+    }
     setMoreAnchorEl(null);
     setReplyOpen(true);
   };
 
   const handleForwardFromMenu = () => {
+    if (!loggedInUser?.email) {
+      toast.error("Please sign in to forward email.");
+      return;
+    }
+
+    if (!canUseReplyOrForward(email, loggedInUser.email)) {
+      setMoreAnchorEl(null);
+      toast.error("This email is in Trash. Move it to Inbox to forward.");
+      return;
+    }
     setMoreAnchorEl(null);
     setForwardOpen(true);
   };
@@ -280,7 +304,7 @@ console.log( "conversations Emails:",conversationEmails);
     }
   };
   const getTrashType = (email) => {
-    if (email.to === loggedInUser.email && email.receiverFolder === "trash") {
+    if (matchesAnyRecipient(email.to, loggedInUser.email) && email.receiverFolder === "trash") {
       return "receiver";
     }
     if (email.from === loggedInUser.email && email.senderFolder === "trash") {
@@ -288,6 +312,25 @@ console.log( "conversations Emails:",conversationEmails);
     }
     return null;
   };
+
+  const handleReplyClick = () => {
+    if (!canUseReplyOrForward(email, loggedInUser.email)) {
+      toast.error("This email is in Trash. Move it to Inbox to reply.");
+      return;
+    }
+
+    setReplyOpen(true);
+  };
+
+  const handleForwardClick = () => {
+    if (!canUseReplyOrForward(email, loggedInUser.email)) {
+      toast.error("This email is in Trash. Move it to Inbox to forward.");
+      return;
+    }
+
+    setForwardOpen(true);
+  };
+
   return (
     <div className="email-details-container">
       <div className="email-details-toolbar">
@@ -370,10 +413,10 @@ console.log( "conversations Emails:",conversationEmails);
             <MenuItem onClick={handleMarkAsRead}>
               Mark as read
             </MenuItem>
-            <MenuItem onClick={handleReplyFromMenu} disabled={folder === "trash"}>
+            <MenuItem onClick={handleReplyFromMenu} disabled={!canUseReplyOrForward(email, loggedInUser.email)}>
               Reply
             </MenuItem>
-            <MenuItem onClick={handleForwardFromMenu} disabled={folder === "trash"}>
+            <MenuItem onClick={handleForwardFromMenu} disabled={!canUseReplyOrForward(email, loggedInUser.email)}>
               Forward
             </MenuItem>
             <MenuItem onClick={() => {
@@ -429,18 +472,14 @@ console.log( "conversations Emails:",conversationEmails);
                 </div>
                 <div className="email-sender-info">
                   <div className="sender-name">
-                    {conversationEmail.from === loggedInUser.email
-                      ? "me" : conversationEmail.from}
+                    {getSenderDisplayLabel(conversationEmail, loggedInUser.email)}
                   </div>
                   <div className="receiver-info">
-                    to{" "}
-                    {conversationEmail.to === loggedInUser.email
-                      ? "me"
-                      : conversationEmail.to}
+                    to {getReceiverDisplayLabel(conversationEmail, loggedInUser.email)}
                   </div>
                 </div>
                 <div className="email-details-date">
-                  {conversationEmail.date || "Today"}
+                  {formatMailDate(conversationEmail.createdAt || conversationEmail.date)}
                 </div>
               </div>
               <div className="email-message">
@@ -462,13 +501,16 @@ console.log( "conversations Emails:",conversationEmails);
         </div>
         <div className="email-actions">
           <button
-            className="email-action-btn" disabled={folder === "trash"}
-            onClick={() => setReplyOpen(true)}>
+            className="email-action-btn"
+            disabled={!canUseReplyOrForward(email, loggedInUser.email)}
+            onClick={handleReplyClick}>
             <ReplyIcon />
             Reply
           </button>
-          <button className="email-action-btn" disabled={folder === "trash"}
-            onClick={() => setForwardOpen(true)}>
+          <button
+            className="email-action-btn"
+            disabled={!canUseReplyOrForward(email, loggedInUser.email)}
+            onClick={handleForwardClick}>
             <ForwardIcon />
             Forward
           </button>

@@ -3,21 +3,25 @@ import "./ChooseEmail.css";
 
 const DOMAIN = "@dmail.com";
 
-const ChooseEmail = ({ fname, lname, email, setUser, error, setError, handleChange,
-    handleNext, }) => {
+const ChooseEmail = ({ fname, lname, email, setUser, error, setError, handleNext }) => {
 
     // generate dmail for user suggestion
     const suggestions = useMemo(() => {
         const firstName = fname.trim().toLowerCase();
         const lastName = lname.trim().toLowerCase();
-        const randomNumber = Math.floor(100 + Math.random() * 1000);
+        const baseSeed = Array.from(`${firstName}${lastName}`).reduce(
+            (total, char) => total + char.charCodeAt(0),
+            0
+        );
+        const deterministicNumber = 100 + (baseSeed % 900);
+
         return [
             `${firstName}${lastName}`,
             `${firstName}.${lastName}`,
-            `${firstName}${randomNumber}`,
+            `${firstName}${deterministicNumber}`,
             `${firstName}${new Date().getFullYear()}`,
         ];
-    }, [fname,lname]);
+    }, [fname, lname]);
 
    // When the user types in the input, auto-append the domain if missing.
     // const handleEmailInput = (e) => {

@@ -1,29 +1,57 @@
 import { useState } from "react";
 import { sendEmail } from "../../authApi/emailsApi";
 import { toast } from "react-toastify";
+import { canUseReplyOrForward, splitRecipients, joinRecipients } from "../../Utils/mailUtils";
+import { checkEmailExists } from "../../authApi/authApi";
 import "./ForwardEmail.css";
 
-const ForwardEmail = ({
-    email,
-    loggedInUser,
-    onClose
-}) => {
+const ForwardEmail = ({ email, loggedInUser, onClose }) => {
+ const [to, setTo] = useState("");
+ const [message, setMessage] = useState("");
+ const [sending, setSending] = useState(false);
 
-    const [to, setTo] = useState("");
-    const [message, setMessage] = useState("");
-    const [sending, setSending] = useState(false);
+ const handleSendForward = async () => {
+   if (!loggedInUser?.email) {
+     toast.error("Please sign in to forward this email.");
+     return;
+   }
 
-    const handleSendForward = async () => {
+   if (!canUseReplyOrForward(email, loggedInUser.email)) {
+     toast.error("This email is in Trash. Move it to Inbox to forward.");
+     return;
+   }
 
-        if (!to.trim()) {
-            toast.error("Please enter recipient email");
-            return;
-        }
+   if (!to.trim()) {
+     toast.error("Please enter recipient email");
+     return;
+   }
 
-        try {
-            setSending(true);
+   try {
+     setSending(true);
+     const recipients = splitRecipients(to);
+     if (!recipients.length) {
+       toast.error("Please enter valid recipient email(s)");
+       return;
+     }
 
-            const forwardedMessage = `${message.trim()}
+     const invalidRecipients = [];
+     const validRecipients = [];
+
+     for (const recipient of recipients) {
+       const userExists = await checkEmailExists(recipient);
+       if (!userExists) {
+         invalidRecipients.push(recipient);
+       } else {
+         validRecipients.push(userExists.email);
+       }
+     }
+
+     if (invalidRecipients.length) {
+       toast.error(`Address not found: ${invalidRecipients.join(", ")}`);
+       return;
+     }
+
+     const forwardedMessage = `${message.trim()}
 
 ---------- Forwarded message ----------
 From: ${email.from}
@@ -32,77 +60,70 @@ Subject: ${email.subject}
 
 ${email.message}`.trim();
 
-            const forwardEmail = {
-                from: loggedInUser.email,
-                to: to.trim(),
-                subject: email.subject.startsWith("Fwd:")
-                    ? email.subject
-                    : `Fwd: ${email.subject}`,
-                message: forwardedMessage,
-                attachment: email.attachment || null,
-            };
+     const forwardEmail = {
+       from: loggedInUser.email,
+       to: joinRecipients(validRecipients),
+       subject: email.subject.startsWith("Fwd:") ? email.subject : `Fwd: ${email.subject}`,
+       message: forwardedMessage,
+       attachment: email.attachment || null,
+     };
 
-            await sendEmail(forwardEmail);
-            toast.success("Forward sent successfully");
-            setTo("");
-            setMessage("");
+     await sendEmail(forwardEmail);
+     toast.success("Forward sent successfully");
+     setTo("");
+     setMessage("");
+     onClose();
+   } catch (error) {
+     console.error("Unable to forward email", error);
+     toast.error("Unable to forward email");
+   } finally {
+     setSending(false);
+   }
+ };
 
-            onClose();
+ return (
+   <div className="forward-box">
+     <h3>Forward email</h3>
+     <div className="forward-to">
+       <label>To</label>
+       <input
+         type="text"
+         value={to}
+         onChange={(e) => setTo(e.target.value)}
+         placeholder="Recipient email(s)"
+       />
+     </div>
 
-        } catch (error) {
-            console.error("Unable to forward email", error);
-            toast.error("Unable to forward email");
-        } finally {
-            setSending(false);
-        }
-    };
+     <textarea
+       value={message}
+       onChange={(e) => setMessage(e.target.value)}
+       placeholder="Write your message..."
+     />
 
-    return (
-        <div className="forward-box">
-            <h3>Forward email</h3>
-            <div className="forward-to">
-                <label>To</label>
+     <div className="forwarded-preview">
+       <div className="forwarded-line">---------- Forwarded message ----------</div>
+       <div className="forwarded-header">
+         <div>
+           <strong>From:</strong> {email.from}
+         </div>
+         <div>
+           <strong>To:</strong> {email.to}
+         </div>
+         <div>
+           <strong>Subject:</strong> {email.subject}
+         </div>
+       </div>
+       <pre className="forwarded-message">{email.message}</pre>
+     </div>
 
-                <input type="text"  value={to}
-                    onChange={(e) => setTo(e.target.value)}
-                    placeholder="Recipient email" />
-            </div>
-
-            <textarea
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                placeholder="Write your message..."/>
-            <div className="forwarded-preview">
-                <div className="forwarded-line">
-                    ---------- Forwarded message ----------
-                </div>
-                <div className="forwarded-header">
-                    <div>  <strong>From:</strong> {email.from}  </div>
-                    <div>
-                        <strong>To:</strong> {email.to}
-                    </div>
-                    <div>
-                        <strong>Subject:</strong> {email.subject}
-                    </div>
-                </div>
-                <pre className="forwarded-message">
-                    {email.message}
-                </pre>
-            </div>
-            <div className="forward-actions">
-                <button onClick={handleSendForward}
-                    disabled={sending} >
-                    {sending ? "Sending..." : "Send"}
-                </button>
-
-                <button onClick={onClose}>
-                    Cancel
-                </button>
-
-            </div>
-
-        </div>
-    );
+     <div className="forward-actions">
+       <button onClick={handleSendForward} disabled={sending}>
+         {sending ? "Sending..." : "Send"}
+       </button>
+       <button onClick={onClose}>Cancel</button>
+     </div>
+   </div>
+ );
 };
 
 export default ForwardEmail;

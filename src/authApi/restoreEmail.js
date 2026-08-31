@@ -11,7 +11,7 @@ export const restoreEmail = async (id, folder) => {
 
   let updatedEmail = { ...email };
 
-  // Inbox → Undo → Inbox
+  // Inbox  Undo  Inbox
   if (folder === "inbox") {
     updatedEmail.receiverFolder = "inbox";
   }

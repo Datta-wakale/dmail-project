@@ -6,26 +6,31 @@ import { UserContext } from "../../Context/UserContext";
 import SearchBar from "./SearchBar";
 import MenuIcon from "@mui/icons-material/Menu";
 import IconButton from "@mui/material/IconButton"
-const Header = ({ sidebarOpen,handleToggleSidebar, search, setSearch}) => {
+const Header = ({ sidebarOpen, handleToggleSidebar, search, setSearch, searchFilter, setSearchFilter }) => {
+  const { loggedInUser } = useContext(UserContext);
 
-    const {loggedInUser} = useContext(UserContext)
   return (
     <header className="header-container">
-        <div className="header-left">
-
+      <div className="header-left">
         {loggedInUser && (
           <IconButton
             onClick={handleToggleSidebar}
-            className={`menu-toggle ${
-              sidebarOpen ? "menu-open" : ""
-            }`}>
+            className={`menu-toggle ${sidebarOpen ? "menu-open" : ""}`}
+          >
             <MenuIcon />
           </IconButton>
         )}
         <Logo />
-        </div>
-      
-      {loggedInUser && <SearchBar search={search} setSearch={setSearch}/>}
+      </div>
+
+      {loggedInUser && (
+        <SearchBar
+          search={search}
+          setSearch={setSearch}
+          searchFilter={searchFilter}
+          setSearchFilter={setSearchFilter}
+        />
+      )}
       <NavButtons />
     </header>
   );

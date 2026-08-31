@@ -1,5 +1,3 @@
-import bcrypt from "bcryptjs";
-
 const API_URL = "http://localhost:3000/users";
 // Normalize email to ensure it includes the dmail domain
 const normalizeEmail = (email) => {

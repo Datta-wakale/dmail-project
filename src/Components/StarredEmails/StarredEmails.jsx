@@ -2,6 +2,7 @@ import { useContext } from "react";
 import { useOutletContext } from "react-router-dom";
 import { UserContext } from "../../Context/UserContext";
 import EmailRow from "../EmailRow.jsx/EmailRow";
+import { matchesAnyRecipient } from "../../Utils/mailUtils";
 
 const StarredEmails = () => {
 
@@ -13,13 +14,12 @@ const StarredEmails = () => {
         filterEmails
     } = useOutletContext();
 
-    // Get all starred emails related to logged-in user
     const starredEmails = emails.filter(
         (email) =>
             email.starred === true &&
             (
                 email.from === loggedInUser.email ||
-                email.to === loggedInUser.email
+                matchesAnyRecipient(email.to, loggedInUser.email)
             )
     );
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Header from "./Components/Header/Header";
 import Home from "./Pages/Home";
@@ -26,25 +26,61 @@ function App() {
     setSidebarOpen((prev) => !prev);
   };
   const [search, setSearch] = useState("");
+  const [searchFilter, setSearchFilter] = useState("all");
 
-  const filterEmails = (emails, search) => {
-    if (!search.trim()) {
-      return emails;
+  const filterEmails = (emails, search, folderFilter = searchFilter) => {
+    const trimmedSearch = search?.trim() || "";
+    const filteredByText = !trimmedSearch
+      ? emails
+      : emails.filter((email) =>
+          (email.sender || email.from || "")
+            .toLowerCase()
+            .includes(trimmedSearch.toLowerCase()) ||
+          (email.receiver || email.to || "")
+            .toLowerCase()
+            .includes(trimmedSearch.toLowerCase()) ||
+          (email.subject || "").toLowerCase().includes(trimmedSearch.toLowerCase()) ||
+          (email.message || "").toLowerCase().includes(trimmedSearch.toLowerCase())
+        );
+
+    if (folderFilter === "all") {
+      return filteredByText;
     }
-    const searchText = search.toLowerCase().trim();
 
-    return emails.filter((email) =>
-      email.sender?.toLowerCase().includes(searchText) ||
-      email.receiver?.toLowerCase().includes(searchText) ||
-      email.subject?.toLowerCase().includes(searchText) ||
-      email.message?.toLowerCase().includes(searchText)
-    );
+    return filteredByText.filter((email) => {
+      if (folderFilter === "inbox") {
+        return email.receiverFolder === "inbox" || (email.to && email.to.includes("@"));
+      }
+      if (folderFilter === "sent") {
+        return email.senderFolder === "sent" || email.from === email.from;
+      }
+      if (folderFilter === "trash") {
+        return email.receiverFolder === "trash" || email.senderFolder === "trash";
+      }
+      if (folderFilter === "starred") {
+        return Boolean(email.starred);
+      }
+      if (folderFilter === "spam") {
+        return email.receiverFolder === "spam" || email.senderFolder === "spam";
+      }
+      if (folderFilter === "drafts") {
+        return email.senderFolder === "draft";
+      }
+      return true;
+    });
   };
 
   return (
     <>
       <BrowserRouter>
-        <Header sidebarOpen={sidebarOpen} handleToggleSidebar={handleToggleSidebar} search={search} setSearch={setSearch} />
+        <Header
+          sidebarOpen={sidebarOpen}
+          handleToggleSidebar={handleToggleSidebar}
+          search={search}
+          setSearch={setSearch}
+          searchFilter={searchFilter}
+          setSearchFilter={setSearchFilter}
+        />
 
         <Routes>
           <Route element={<PublicRoute />}>
@@ -54,7 +90,7 @@ function App() {
             <Route path="/forgot-dmail" element={<ForgotDmail />} />
           </Route>
 
-          <Route path="/" element={<Home sidebarOpen={sidebarOpen} search={search} setSearch={setSearch} filterEmails={filterEmails} />} >
+          <Route path="/" element={<Home sidebarOpen={sidebarOpen} search={search} setSearch={setSearch} filterEmails={filterEmails} searchFilter={searchFilter} />} >
 
             <Route element={<ProtectedRoute />}>
               <Route index element={<Inbox />} />

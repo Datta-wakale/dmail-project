@@ -1,36 +1,19 @@
 import { useContext } from "react";
 import { useOutletContext } from "react-router-dom";
 import { UserContext } from "../../Context/UserContext";
-
 import EmailRow from "../EmailRow.jsx/EmailRow";
+import { matchesAnyRecipient } from "../../Utils/mailUtils";
 
 const Spam = () => {
+ const { loggedInUser } = useContext(UserContext);
 
-    const { loggedInUser } = useContext(UserContext);
+ const { emails, search, filterEmails } = useOutletContext();
 
-    const {
-        emails,
-        search,
-        filterEmails
-    } = useOutletContext();
-
-    // Only received spam emails
-    // const spamEmails = emails.filter(
-    //     (email) =>
-    //         email.to === loggedInUser.email &&
-    //         email.receiverFolder === "spam"
-    // );
-const spamEmails = emails.filter(
-    (email) =>
-        (
-            email.to === loggedInUser.email &&
-            email.receiverFolder === "spam"
-        ) ||
-        (
-            email.from === loggedInUser.email &&
-            email.senderFolder === "spam"
-        )
-);
+ const spamEmails = emails.filter(
+   (email) =>
+     (matchesAnyRecipient(email.to, loggedInUser.email) && email.receiverFolder === "spam") ||
+     (email.from === loggedInUser.email && email.senderFolder === "spam")
+ );
     // Search + sort
     const filteredEmails = [
         ...filterEmails(spamEmails, search)

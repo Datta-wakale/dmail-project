@@ -4,21 +4,13 @@ import { UserContext } from "../../Context/UserContext";
 import EmailRow from "../EmailRow.jsx/EmailRow";
 
 const SentEmails = () => {
+  const { loggedInUser } = useContext(UserContext);
 
-    const { loggedInUser } = useContext(UserContext);
+  const { emails, search, filterEmails } = useOutletContext();
 
-    const {
-        emails,
-        search,
-        filterEmails
-    } = useOutletContext();
-
-    // Get only sent mails
-    const sentEmails = emails.filter(
-        (email) =>
-            email.from === loggedInUser.email &&
-            email.senderFolder === "sent"
-    );
+  const sentEmails = emails.filter(
+    (email) => email.from === loggedInUser.email && email.senderFolder === "sent"
+  );
 
     // Search + sort
     const filteredEmails = [

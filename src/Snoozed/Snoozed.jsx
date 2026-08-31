@@ -2,27 +2,22 @@ import { useContext } from "react";
 import { useOutletContext } from "react-router-dom";
 import { UserContext } from "../Context/UserContext";
 import EmailRow from "../Components/EmailRow.jsx/EmailRow";
+import { matchesAnyRecipient } from "../Utils/mailUtils";
 
 const Snoozed = () => {
     const { loggedInUser } = useContext(UserContext);
-    const { emails, search,
-        filterEmails
-    } = useOutletContext();
+    const { emails, search, filterEmails } = useOutletContext();
 
     const now = new Date();
 
-    // Get snoozed emails that belong to logged-in user
     const snoozedEmails = emails.filter((email) => {
-
-        // Received email snooze
-        if (email.to === loggedInUser.email) {
+        if (matchesAnyRecipient(email.to, loggedInUser.email)) {
             return (
                 email.receiverSnoozedUntil &&
                 new Date(email.receiverSnoozedUntil) > now
             );
         }
 
-        // Sent email snooze
         if (email.from === loggedInUser.email) {
             return (
                 email.senderSnoozedUntil &&

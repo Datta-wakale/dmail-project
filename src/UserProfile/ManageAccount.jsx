@@ -9,16 +9,14 @@ const ManageAccount = () => {
     const { loggedInUser, setLoggedInUser } = useContext(UserContext);
     const navigate = useNavigate();
 
-    const [formData, setFormData] = useState({
-        fname: "",
-        lname: "",
-        email: "",
-        phone: "",
-        dob: "",
-    });
+    const [formData, setFormData] = useState(() => ({
+        fname: loggedInUser?.fname || "",
+        lname: loggedInUser?.lname || "",
+        email: loggedInUser?.email || "",
+        phone: loggedInUser?.phone || "",
+        dob: loggedInUser?.dob || "",
+    }));
 
-    const [emailLocked, setEmailLocked] = useState(false);
-    const [nextEmailChangeDate, setNextEmailChangeDate] = useState("");
     const [errors, setErrors] = useState({
         dob: "",
     });
@@ -26,27 +24,20 @@ const ManageAccount = () => {
     useEffect(() => {
         if (!loggedInUser) {
             navigate("/sign-in");
-            return;
-        }
-        setFormData({
-            fname: loggedInUser.fname || "",
-            lname: loggedInUser.lname || "",
-            email: loggedInUser.email || "",
-            phone: loggedInUser.phone || "",
-            dob: loggedInUser.dob || "",
-        });
-
-        if (loggedInUser.emailLastChangedAt) {
-            const lastChanged = new Date(loggedInUser.emailLastChangedAt);
-
-            const nextChange = new Date(lastChanged);
-            nextChange.setDate(nextChange.getDate() + 30);
-            if (new Date() < nextChange) {
-                setEmailLocked(true);
-                setNextEmailChangeDate(nextChange.toLocaleDateString());
-            }
         }
     }, [loggedInUser, navigate]);
+
+    const nextEmailChangeDate = loggedInUser?.emailLastChangedAt
+        ? (() => {
+            const lastChanged = new Date(loggedInUser.emailLastChangedAt);
+            const nextChange = new Date(lastChanged);
+            nextChange.setDate(nextChange.getDate() + 30);
+
+            return new Date() < nextChange ? nextChange.toLocaleDateString() : "";
+        })()
+        : "";
+
+    const emailLocked = Boolean(loggedInUser?.emailLastChangedAt && nextEmailChangeDate);
     const validateDob = (dobValue) => {
         if (!dobValue) {
             return "Date of birth is required";
@@ -174,15 +165,6 @@ const ManageAccount = () => {
             localStorage.setItem("loggedInUser", JSON.stringify(savedUser));
             toast.success("Account updated successfully");
             navigate("/inbox");
-            if (emailChanged) {
-                const nextChange = new Date();
-                nextChange.setDate(nextChange.getDate() + 30);
-
-                setEmailLocked(true);
-                setNextEmailChangeDate(
-                    nextChange.toLocaleDateString()
-                );
-            }
         } catch (error) {
             console.error(error);
             toast.error("Unable to update account");

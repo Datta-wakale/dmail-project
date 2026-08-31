@@ -14,13 +14,15 @@ import MarkEmailReadIcon from "@mui/icons-material/MarkEmailRead";
 import MarkEmailUnreadIcon from "@mui/icons-material/MarkEmailUnread";
 import SnoozeIcon from "@mui/icons-material/Snooze";
 import MoveToMenu from "../MoveTo/MoveTo";
-import { deleteEmail, archiveEmail, moveEmailToSpam } from "../../authApi/emailsApi";
+import SnoozeDialog from "../SnoozeDialoge/SnoozeDialog";
+import { deleteEmail, archiveEmail, moveEmailToSpam, snoozeEmail } from "../../authApi/emailsApi";
 import { updateEmail } from "../../authApi/updateEmail";
 import "./Mailtoolbar.css";
 
 const Mailtoolbar = ({ emails, selectedEmails, setSelectedEmails, loadEmails, showSnackbar, folder, setEmails, }) => {
   const [moreAnchorEl, setMoreAnchorEl] = useState(null);
   const [selectAnchorEl, setSelectAnchorEl] = useState(null);
+  const [snoozeOpen, setSnoozeOpen] = useState(false);
   const selectedCount = selectedEmails.length;
   const hasSelection = selectedCount > 0;
   const { loggedInUser } = useContext(UserContext);
@@ -166,6 +168,25 @@ const Mailtoolbar = ({ emails, selectedEmails, setSelectedEmails, loadEmails, sh
       showSnackbar(read ? "Emails marked as read" : "Emails marked as unread");
     } catch (error) {
       console.error("Unable to update selected emails", error);
+    }
+  };
+
+  const handleSnoozeSelected = async (snoozedUntil) => {
+    try {
+      await Promise.all(
+        selectedEmails.map((id) => {
+          const email = emails.find((item) => String(item.id) === String(id));
+          const resolvedFolder = email?.from === loggedInUser?.email ? "sent" : "inbox";
+          return snoozeEmail(id, resolvedFolder, snoozedUntil);
+        })
+      );
+
+      setSelectedEmails([]);
+      setSnoozeOpen(false);
+      showSnackbar("Emails snoozed");
+    } catch (error) {
+      console.error("Unable to snooze selected emails", error);
+      showSnackbar("Unable to snooze emails");
     }
   };
 
@@ -327,12 +348,18 @@ const Mailtoolbar = ({ emails, selectedEmails, setSelectedEmails, loadEmails, sh
     }}
 />
           <Tooltip title="Snooze">
-            <IconButton>
+            <IconButton onClick={() => setSnoozeOpen(true)}>
               <SnoozeIcon />
             </IconButton>
           </Tooltip>
         </>
       )}
+
+      <SnoozeDialog
+        open={snoozeOpen}
+        onClose={() => setSnoozeOpen(false)}
+        onSnooze={handleSnoozeSelected}
+      />
 
     </div>
   );

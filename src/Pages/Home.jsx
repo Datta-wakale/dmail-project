@@ -7,10 +7,10 @@ import SideBar from "../Components/SideBar/SideBar";
 import ComposeDialog from "../Components/ComposeDialog/ComposeDialog";
 import Mailtoolbar from "../Components/MailToolBar/Mailtoolbar";
 import { useState } from "react";
-import { getEmails } from "../authApi/emailsApi";
+import { createWelcomeEmail, getEmails } from "../authApi/emailsApi";
 import DmailCategories from "../Components/DmailCategories/DmailCategories";
 import ActionSnackbar from "../Components/Common/ActionSnackBar/ActionSnackBar";
-const Home = ({ sidebarOpen, search, setSearch, filterEmails }) => {
+const Home = ({ sidebarOpen, search, setSearch, filterEmails, searchFilter }) => {
   const { loggedInUser } = useContext(UserContext);
   const [openCompose, setOpenCompose] = useState(false);
   const [emails, setEmails] = useState([]);
@@ -36,8 +36,24 @@ const Home = ({ sidebarOpen, search, setSearch, filterEmails }) => {
 
   const loadEmails = async () => {
     const response = await getEmails();
+
+    if (loggedInUser && !response.some((email) => {
+      const normalizedTo = String(email.to || "")
+        .split(/[;,]/)
+        .map((value) => value.trim().toLowerCase())
+        .filter(Boolean);
+
+      return email.subject === "Welcome to D-mail" && normalizedTo.includes(String(loggedInUser.email).trim().toLowerCase());
+    })) {
+      const welcomeEmail = await createWelcomeEmail(loggedInUser);
+      if (welcomeEmail) {
+        setEmails([...response, welcomeEmail]);
+        return;
+      }
+    }
+
     setEmails(response);
-  }
+  };
   const handleEmailSent = (newEmail, draftId) => {
     setEmails((prevEmails) => {
       const updatedEmails = draftId
@@ -51,18 +67,68 @@ const Home = ({ sidebarOpen, search, setSearch, filterEmails }) => {
     });
   };
   const handleDraftSaved = (newDraft) => {
-    setEmails((prevEmails) => [
-      ...prevEmails,
-      newDraft
-    ]);
+    setEmails((prevEmails) => {
+      const draftExists = prevEmails.some((email) => String(email.id) === String(newDraft?.id));
+
+      if (!draftExists) {
+        return [
+          ...prevEmails,
+          newDraft
+        ];
+      }
+
+      return prevEmails.map((email) =>
+        String(email.id) === String(newDraft?.id)
+          ? { ...email, ...newDraft }
+          : email
+      );
+    });
   };
   const location = useLocation();
   useEffect(() => {
-    setSearch("");
-  }, [location.pathname]);
+    const timer = setTimeout(() => {
+      setSearch("");
+    }, 0);
+
+    return () => clearTimeout(timer);
+  }, [location.pathname, setSearch]);
+
   useEffect(() => {
-    loadEmails();
-  }, []);
+    let isMounted = true;
+
+    const fetchEmails = async () => {
+      try {
+        const response = await getEmails();
+
+        if (loggedInUser && !response.some((email) => {
+          const normalizedTo = String(email.to || "")
+            .split(/[;,]/)
+            .map((value) => value.trim().toLowerCase())
+            .filter(Boolean);
+
+          return email.subject === "Welcome to D-mail" && normalizedTo.includes(String(loggedInUser.email).trim().toLowerCase());
+        })) {
+          const welcomeEmail = await createWelcomeEmail(loggedInUser);
+          if (welcomeEmail && isMounted) {
+            setEmails([...response, welcomeEmail]);
+            return;
+          }
+        }
+
+        if (isMounted) {
+          setEmails(response);
+        }
+      } catch (error) {
+        console.error("Unable to load emails", error);
+      }
+    };
+
+    fetchEmails();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [loggedInUser]);
 
   // snackbar action common for all 
   const showSnackbar = (message, action = null) => {
@@ -108,7 +174,7 @@ const Home = ({ sidebarOpen, search, setSearch, filterEmails }) => {
             {/* PAGE CONTENT */}
             <main className="mail-content">
               <Outlet
-                context={{ emails, setEmails, loadEmails, openSelectedMail, search, filterEmails, selectedCategory, selectedEmails, setSelectedEmails, undoEmail, setUndoEmail, draftToEdit, setDraftToEdit, showSnackbar, closeSnackbar }} />
+                context={{ emails, setEmails, loadEmails, openSelectedMail, search, filterEmails, searchFilter, selectedCategory, selectedEmails, setSelectedEmails, undoEmail, setUndoEmail, draftToEdit, setDraftToEdit, showSnackbar, closeSnackbar }} />
             </main>
 
           </div>

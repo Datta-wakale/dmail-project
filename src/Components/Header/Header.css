@@ -124,8 +124,17 @@
   color: #5f6368;
   font-size: 13px;
 }
+.search-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 620px;
+}
+
 .search-bar {
-  width: 400px;
+  flex: 1;
+  min-width: 240px;
 }
 
 .search-bar input {
@@ -141,6 +150,18 @@
 .search-bar input:focus {
   border-color: #4f46e5;
   box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
+}
+
+.search-filter {
+  min-width: 120px;
+  height: 42px;
+  border: 1px solid #d0d5dd;
+  border-radius: 8px;
+  background: white;
+  padding: 0 12px;
+  font-size: 14px;
+  color: #344054;
+  outline: none;
 }
 .header-left {
   display: flex;
