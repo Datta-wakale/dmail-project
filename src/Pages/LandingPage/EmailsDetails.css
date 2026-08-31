@@ -191,3 +191,29 @@
   align-items: center;
   gap: 4px;
 }
+
+.conversation-email {
+  border-bottom: 1px solid #eee;
+  padding: 18px 0;
+}
+
+.email-details-date {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.email-attachment {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0 15px 54px;
+  padding: 8px 12px;
+  border: 1px solid #dadce0;
+  border-radius: 6px;
+}
+
+.email-attachment-name a {
+  color: #1967d2;
+  text-decoration: none;
+}

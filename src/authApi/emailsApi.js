@@ -1,4 +1,5 @@
 const apiUrl = "http://localhost:3000/emails";
+const welcomeEmailRequests = new Map();
 
 // GET All Emails
 export const getEmails = async () => {
@@ -37,21 +38,15 @@ export const createWelcomeEmail = async (user) => {
     return null;
   }
 
-  const existingEmails = await getEmails();
-  const alreadyExists = existingEmails.some((mail) => {
-    const normalizedTo = String(mail.to || "")
-      .split(/[;,]/)
-      .map((value) => value.trim().toLowerCase())
-      .filter(Boolean);
+  const emailKey = String(user.email).trim().toLowerCase();
+  const existingRequest = welcomeEmailRequests.get(emailKey);
+  if (existingRequest) {
+    return existingRequest;
+  }
 
-    return (
-      mail.subject === "Welcome to D-mail" &&
-      normalizedTo.includes(String(user.email).trim().toLowerCase())
-    );
-  });
-
-  if (alreadyExists) {
-    return existingEmails.find((mail) => {
+  const request = (async () => {
+    const existingEmails = await getEmails();
+    const existingWelcomeEmail = existingEmails.find((mail) => {
       const normalizedTo = String(mail.to || "")
         .split(/[;,]/)
         .map((value) => value.trim().toLowerCase())
@@ -59,25 +54,36 @@ export const createWelcomeEmail = async (user) => {
 
       return (
         mail.subject === "Welcome to D-mail" &&
-        normalizedTo.includes(String(user.email).trim().toLowerCase())
+        normalizedTo.includes(emailKey)
       );
     });
+
+    if (existingWelcomeEmail) {
+      return existingWelcomeEmail;
+    }
+
+    const welcomeEmail = {
+      from: "dmail-team@dmail.com",
+      to: user.email,
+      subject: "Welcome to D-mail",
+      message: `Hi ${user.fname || "there"},\n\nWelcome to D-mail! We are excited to have you here. Your inbox is ready, and this is your first welcome message from the D-mail team.\n\nStart exploring your inbox and enjoy a cleaner, smarter way to stay connected.\n\nBest regards,\nD-mail Team`,
+      attachment: null,
+      createdAt: new Date().toISOString(),
+      senderFolder: "sent",
+      receiverFolder: "inbox",
+      read: false,
+      welcome: true,
+    };
+
+    return await sendEmail(welcomeEmail);
+  })();
+
+  welcomeEmailRequests.set(emailKey, request);
+  try {
+    return await request;
+  } finally {
+    welcomeEmailRequests.delete(emailKey);
   }
-
-  const welcomeEmail = {
-    from: "dmail-team@dmail.com",
-    to: user.email,
-    subject: "Welcome to D-mail",
-    message: `Hi ${user.fname || "there"},\n\nWelcome to D-mail! We are excited to have you here. Your inbox is ready, and this is your first welcome message from the D-mail team.\n\nStart exploring your inbox and enjoy a cleaner, smarter way to stay connected.\n\nBest regards,\nD-mail Team`,
-    attachment: null,
-    createdAt: new Date().toISOString(),
-    senderFolder: "sent",
-    receiverFolder: "inbox",
-    read: false,
-    welcome: true,
-  };
-
-  return await sendEmail(welcomeEmail);
 };
 
 

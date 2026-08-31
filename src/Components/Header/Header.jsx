@@ -31,10 +31,9 @@ const Header = ({ sidebarOpen, handleToggleSidebar, search, setSearch, searchFil
           setSearchFilter={setSearchFilter}
         />
       )}
-      <NavButtons />
+      <NavButtons key={loggedInUser?.email || "logged-out"} />
     </header>
   );
 };
 
 export default Header;
-

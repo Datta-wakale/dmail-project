@@ -78,6 +78,19 @@
     margin-top: 20px;
 }
 
+.attachment-button {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    color: #5f6368;
+}
+
+.forward-attachment {
+    margin-top: 8px;
+    color: #5f6368;
+    font-size: 13px;
+}
+
 .forward-actions button {
     padding: 8px 18px;
     border: none;

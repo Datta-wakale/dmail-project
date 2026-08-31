@@ -2,7 +2,7 @@ import NavButtons from "../Components/Header/NavButtons";
 import { UserContext } from "../Context/UserContext";
 import "./Home.css";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
-import { useContext, useEffect } from "react";
+import { useCallback, useContext, useEffect } from "react";
 import SideBar from "../Components/SideBar/SideBar";
 import ComposeDialog from "../Components/ComposeDialog/ComposeDialog";
 import Mailtoolbar from "../Components/MailToolBar/Mailtoolbar";
@@ -34,26 +34,31 @@ const Home = ({ sidebarOpen, search, setSearch, filterEmails, searchFilter }) =>
     });
   };
 
-  const loadEmails = async () => {
-    const response = await getEmails();
+  const loadEmails = useCallback(async () => {
+    try {
+      const response = await getEmails();
 
-    if (loggedInUser && !response.some((email) => {
-      const normalizedTo = String(email.to || "")
-        .split(/[;,]/)
-        .map((value) => value.trim().toLowerCase())
-        .filter(Boolean);
+      if (loggedInUser && !response.some((email) => {
+        const normalizedTo = String(email.to || "")
+          .split(/[;,]/)
+          .map((value) => value.trim().toLowerCase())
+          .filter(Boolean);
 
-      return email.subject === "Welcome to D-mail" && normalizedTo.includes(String(loggedInUser.email).trim().toLowerCase());
-    })) {
-      const welcomeEmail = await createWelcomeEmail(loggedInUser);
-      if (welcomeEmail) {
-        setEmails([...response, welcomeEmail]);
-        return;
+        return email.subject === "Welcome to D-mail" &&
+          normalizedTo.includes(String(loggedInUser.email).trim().toLowerCase());
+      })) {
+        const welcomeEmail = await createWelcomeEmail(loggedInUser);
+        if (welcomeEmail) {
+          setEmails([...response, welcomeEmail]);
+          return;
+        }
       }
-    }
 
-    setEmails(response);
-  };
+      setEmails(response);
+    } catch (error) {
+      console.error("Unable to load emails", error);
+    }
+  }, [loggedInUser]);
   const handleEmailSent = (newEmail, draftId) => {
     setEmails((prevEmails) => {
       const updatedEmails = draftId
@@ -94,41 +99,8 @@ const Home = ({ sidebarOpen, search, setSearch, filterEmails, searchFilter }) =>
   }, [location.pathname, setSearch]);
 
   useEffect(() => {
-    let isMounted = true;
-
-    const fetchEmails = async () => {
-      try {
-        const response = await getEmails();
-
-        if (loggedInUser && !response.some((email) => {
-          const normalizedTo = String(email.to || "")
-            .split(/[;,]/)
-            .map((value) => value.trim().toLowerCase())
-            .filter(Boolean);
-
-          return email.subject === "Welcome to D-mail" && normalizedTo.includes(String(loggedInUser.email).trim().toLowerCase());
-        })) {
-          const welcomeEmail = await createWelcomeEmail(loggedInUser);
-          if (welcomeEmail && isMounted) {
-            setEmails([...response, welcomeEmail]);
-            return;
-          }
-        }
-
-        if (isMounted) {
-          setEmails(response);
-        }
-      } catch (error) {
-        console.error("Unable to load emails", error);
-      }
-    };
-
-    fetchEmails();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [loggedInUser]);
+    loadEmails();
+  }, [loadEmails]);
 
   // snackbar action common for all 
   const showSnackbar = (message, action = null) => {

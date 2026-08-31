@@ -16,9 +16,10 @@ const NavButtons = () => {
   const [profileImage, setProfileImage] = useState(
     localStorage.getItem(`profileImage_${loggedInUser?.email}`) || null);
   const navigate = useNavigate();
+
   const handleProfileImage = (event) => {
     const file = event.target.files[0];
-    if (!file) {
+    if (!file || !loggedInUser?.email) {
       return;
     }
     const reader = new FileReader();
@@ -141,4 +142,3 @@ const NavButtons = () => {
   );
 };
 export default NavButtons;
-

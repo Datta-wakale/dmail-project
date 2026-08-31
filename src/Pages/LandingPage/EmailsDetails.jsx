@@ -2,7 +2,7 @@ import { useContext, useState, useEffect } from "react";
 import { useNavigate, useOutletContext, useParams, useLocation, } from "react-router-dom";
 import { toast } from "react-toastify";
 import { UserContext } from "../../Context/UserContext";
-import { deleteEmail, moveEmailToSpam, archiveEmail, permanentlyDeleteEmail, } from "../../authApi/emailsApi";
+import { deleteEmail, moveEmailToSpam, archiveEmail, permanentlyDeleteEmail, snoozeEmail, toggleStarEmail } from "../../authApi/emailsApi";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -15,6 +15,9 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import SnoozeIcon from "@mui/icons-material/Snooze";
 import ReplyIcon from "@mui/icons-material/Reply";
 import ForwardIcon from "@mui/icons-material/Forward";
+import AttachFileIcon from "@mui/icons-material/AttachFile";
+import StarIcon from "@mui/icons-material/Star";
+import StarBorderIcon from "@mui/icons-material/StarBorder";
 import ReplyEmail from "./ReplyEmail";
 import ForwardEmail from "./ForwardEmail";
 import Menu from "@mui/material/Menu";
@@ -23,19 +26,33 @@ import "./EmailsDetails.css";
 import MoveToMenu from "../../Components/MoveTo/MoveTo";
 import { unsnoozeEmail } from "../../authApi/UnSnoozeEmail";
 import { updateEmail } from "../../authApi/updateEmail";
-import { canUseReplyOrForward, formatMailDate, getReceiverDisplayLabel, getSenderDisplayLabel, matchesAnyRecipient } from "../../Utils/mailUtils";
+import SnoozeDialog from "../../Components/SnoozeDialoge/SnoozeDialog";
+import { canUseReplyOrForward, formatMailDate, getReceiverDisplayLabel, getSenderDisplayLabel, matchesAnyRecipient, normalizeEmailAddress } from "../../Utils/mailUtils";
 
 const EmailsDetails = () => {
   const [replyOpen, setReplyOpen] = useState(false);
   const [forwardOpen, setForwardOpen] = useState(false);
+  const [replyTarget, setReplyTarget] = useState(null);
+  const [forwardTarget, setForwardTarget] = useState(null);
   const [moreAnchorEl, setMoreAnchorEl] = useState(null);
+  const [messageMenu, setMessageMenu] = useState(null);
+  const [snoozeOpen, setSnoozeOpen] = useState(false);
   const moreOpen = Boolean(moreAnchorEl);
-  const { emails, setEmails } = useOutletContext();
+  const { emails, setEmails, showSnackbar } = useOutletContext();
   const { id } = useParams();
   const location = useLocation();
   const folder = location.state?.folder || "inbox";
   const { loggedInUser } = useContext(UserContext);
   const navigate = useNavigate();
+  const notify = showSnackbar || ((message) => toast.info(message));
+  const undoUpdate = (snapshot, message) => notify(message, async () => {
+    try {
+      const restored = await updateEmail(snapshot.id, snapshot);
+      setEmails((items) => items.map((item) => item.id === restored.id ? restored : item));
+    } catch (error) {
+      toast.error("Unable to undo action");
+    }
+  });
   // Find selected email
 
   const email = emails.find((email) => String(email.id) === String(id));
@@ -70,14 +87,28 @@ const EmailsDetails = () => {
     return <p className="no-email">No email is found</p>;
   }
   const threadId = email.threadId || email.id;
-  console.log("ORIGINAL THREAD ID:", threadId);
+  const isMessageInCurrentFolder = (item) => {
+    const isReceivedByUser = matchesAnyRecipient(item.to, loggedInUser?.email);
+    const isSentByUser = normalizeEmailAddress(item.from) === normalizeEmailAddress(loggedInUser?.email);
+
+    if (folder === "trash") {
+      return (isReceivedByUser && item.receiverFolder === "trash") ||
+        (isSentByUser && item.senderFolder === "trash");
+    }
+
+    if (folder === "sent" || folder === "inbox" || folder === "spam") {
+      return !((isReceivedByUser && item.receiverFolder === "trash") ||
+        (isSentByUser && item.senderFolder === "trash"));
+    }
+
+    return true;
+  };
+
   const conversationEmails = emails
     .filter((item) => {
       const itemThreadId = item.threadId || item.id;
-       console.log("ITEM:", item.id, "THREAD:", itemThreadId,"MATCH:",
-      String(itemThreadId) === String(threadId) );
-
-      return String(itemThreadId) === String(threadId);
+      return String(itemThreadId) === String(threadId) &&
+        isMessageInCurrentFolder(item);
     })
     .sort((a, b) => {
       return (
@@ -85,7 +116,6 @@ const EmailsDetails = () => {
         new Date(b.createdAt || b.date)
       );
     });
-console.log( "conversations Emails:",conversationEmails);
   // control the snoozing
   const isSnoozed =
     ((folder === "inbox" || folder === "spam") &&
@@ -100,6 +130,7 @@ console.log( "conversations Emails:",conversationEmails);
   };
   const handleUnsnooze = async () => {
     try {
+      const previous = { ...email };
       await unsnoozeEmail(email.id, folder);
 
       setEmails((prevEmails) =>
@@ -137,6 +168,10 @@ console.log( "conversations Emails:",conversationEmails);
       if (folder === "draft") {
         navigate("/drafts");
       }
+      notify("Email unsnoozed", async () => {
+        const restored = await updateEmail(previous.id, previous);
+        setEmails((items) => items.map((item) => item.id === restored.id ? restored : item));
+      });
     } catch (error) {
       console.error("Unable to unsnooze email", error);
     }
@@ -144,12 +179,14 @@ console.log( "conversations Emails:",conversationEmails);
   // Delete email
   const handleDelete = async () => {
     try {
+      const previous = { ...email };
       // Trash → permanently delete
       if (folder === "trash") {
         await permanentlyDeleteEmail(email.id);
 
         setEmails((prevEmails) =>
           prevEmails.filter((item) => item.id !== email.id));
+        notify("Email permanently deleted");
         navigate(-1);
         return;
       }
@@ -182,6 +219,7 @@ console.log( "conversations Emails:",conversationEmails);
       );
 
       navigate(-1);
+      undoUpdate(previous, "Email moved to Trash");
     } catch (error) {
       console.error("Unable to delete email", error);
     }
@@ -189,6 +227,7 @@ console.log( "conversations Emails:",conversationEmails);
 
   const handleArchive = async () => {
     try {
+      const previous = { ...email };
       const originalFolder = folder;
 
       if (
@@ -208,12 +247,14 @@ console.log( "conversations Emails:",conversationEmails);
       );
 
       navigate(-1);
+      undoUpdate(previous, "Email archived");
     } catch (error) {
       console.error("Unable to archive email", error);
     }
   };
   const handleReportSpam = async () => {
     try {
+      const previous = { ...email };
       const spamEmail = await moveEmailToSpam(email.id, folder);
 
       setEmails((prevEmails) =>
@@ -225,6 +266,7 @@ console.log( "conversations Emails:",conversationEmails);
       );
 
       navigate(-1);
+      undoUpdate(previous, "Email moved to Spam");
     } catch (error) {
       console.error("Unable to report email as spam", error);
     }
@@ -245,10 +287,11 @@ console.log( "conversations Emails:",conversationEmails);
 
     if (!canUseReplyOrForward(email, loggedInUser.email)) {
       setMoreAnchorEl(null);
-      toast.error("This email is in Trash. Move it to Inbox to reply.");
+      notify("This email is in Trash. Move it to Inbox to reply.");
       return;
     }
     setMoreAnchorEl(null);
+    setReplyTarget(email);
     setReplyOpen(true);
   };
 
@@ -260,14 +303,16 @@ console.log( "conversations Emails:",conversationEmails);
 
     if (!canUseReplyOrForward(email, loggedInUser.email)) {
       setMoreAnchorEl(null);
-      toast.error("This email is in Trash. Move it to Inbox to forward.");
+      notify("This email is in Trash. Move it to Inbox to forward.");
       return;
     }
     setMoreAnchorEl(null);
+    setForwardTarget(email);
     setForwardOpen(true);
   };
   const handleMarkAsRead = async () => {
     try {
+      const previous = { ...email };
       await updateEmail(email.id, {
         ...email,
         read: true,
@@ -281,12 +326,15 @@ console.log( "conversations Emails:",conversationEmails);
         )
       );
       setMoreAnchorEl(null);
+      notify("Email marked as read", () => updateEmail(previous.id, previous).then((restored) =>
+        setEmails((items) => items.map((item) => item.id === restored.id ? restored : item))));
     } catch (error) {
       console.error("Unable to mark email as read", error);
     }
   };
   const handleMarkAsUnread = async () => {
     try {
+      const previous = { ...email };
       await updateEmail(email.id, {
         ...email,
         read: false,
@@ -299,6 +347,8 @@ console.log( "conversations Emails:",conversationEmails);
             : item
         )
       );
+      notify("Email marked as unread", () => updateEmail(previous.id, previous).then((restored) =>
+        setEmails((items) => items.map((item) => item.id === restored.id ? restored : item))));
     } catch (error) {
       console.error("Unable to mark email as unread", error);
     }
@@ -315,20 +365,77 @@ console.log( "conversations Emails:",conversationEmails);
 
   const handleReplyClick = () => {
     if (!canUseReplyOrForward(email, loggedInUser.email)) {
-      toast.error("This email is in Trash. Move it to Inbox to reply.");
+      notify("This email is in Trash. Move it to Inbox to reply.");
       return;
     }
 
+    setReplyTarget(email);
     setReplyOpen(true);
   };
 
   const handleForwardClick = () => {
     if (!canUseReplyOrForward(email, loggedInUser.email)) {
-      toast.error("This email is in Trash. Move it to Inbox to forward.");
+      notify("This email is in Trash. Move it to Inbox to forward.");
       return;
     }
 
+    setForwardTarget(email);
     setForwardOpen(true);
+  };
+
+  const handleSnooze = async (snoozedUntil) => {
+    const previous = { ...email };
+    try {
+      const ownerFolder = email.from === loggedInUser?.email ? "sent" : "inbox";
+      const updated = await snoozeEmail(email.id, ownerFolder, snoozedUntil);
+      setEmails((items) => items.map((item) => item.id === email.id ? updated : item));
+      setSnoozeOpen(false);
+      notify("Email snoozed", async () => {
+        const restored = await updateEmail(previous.id, previous);
+        setEmails((items) => items.map((item) => item.id === restored.id ? restored : item));
+      });
+      navigate(-1);
+    } catch (error) {
+      toast.error("Unable to snooze email");
+    }
+  };
+
+  const handleStar = async (item) => {
+    try {
+      const updated = await toggleStarEmail(item.id, !item.starred);
+      setEmails((items) => items.map((mail) => mail.id === item.id ? updated : mail));
+    } catch (error) {
+      toast.error("Unable to update star");
+    }
+  };
+
+  const handleMessageAction = async (action, item) => {
+    setMessageMenu(null);
+    if (action === "reply") {
+      if (!canUseReplyOrForward(item, loggedInUser?.email)) return notify("This email is in Trash. Move it to Inbox to reply.");
+      setReplyTarget(item);
+      setReplyOpen(true);
+    } else if (action === "forward") {
+      if (!canUseReplyOrForward(item, loggedInUser?.email)) return notify("This email is in Trash. Move it to Inbox to forward.");
+      setForwardTarget(item);
+      setForwardOpen(true);
+    } else if (action === "unread" || action === "read") {
+      const previous = { ...item };
+      const updated = await updateEmail(item.id, { ...item, read: action === "read" });
+      setEmails((items) => items.map((mail) => mail.id === item.id ? updated : mail));
+      notify(action === "read" ? "Email marked as read" : "Email marked as unread", async () => {
+        const restored = await updateEmail(previous.id, previous);
+        setEmails((items) => items.map((mail) => mail.id === restored.id ? restored : mail));
+      });
+    } else if (action === "delete") {
+      const previous = { ...item };
+      const itemFolder = normalizeEmailAddress(item.from) === normalizeEmailAddress(loggedInUser?.email)
+        ? "sent"
+        : "inbox";
+      const updated = await deleteEmail(item.id, itemFolder);
+      setEmails((items) => items.map((mail) => mail.id === item.id ? updated : mail));
+      undoUpdate(previous, "Email moved to Trash");
+    }
   };
 
   return (
@@ -347,6 +454,7 @@ console.log( "conversations Emails:",conversationEmails);
             trashType={getTrashType(email)}
             loggedInUser={loggedInUser}
             onMove={(updatedEmail, toFolder) => {
+              const previous = { ...email };
 
               setEmails((prevEmails) =>
                 prevEmails.map((item) =>
@@ -361,6 +469,10 @@ console.log( "conversations Emails:",conversationEmails);
               } else {
                 navigate(-1);
               }
+              notify(`Email moved to ${toFolder}`, async () => {
+                const restored = await updateEmail(previous.id, previous);
+                setEmails((items) => items.map((item) => item.id === restored.id ? restored : item));
+              });
             }}
           />
 
@@ -385,6 +497,11 @@ console.log( "conversations Emails:",conversationEmails);
           <Tooltip title="Delete">
             <IconButton onClick={handleDelete}>
               <DeleteIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Snooze">
+            <IconButton onClick={() => setSnoozeOpen(true)}>
+              <SnoozeIcon />
             </IconButton>
           </Tooltip>
 
@@ -413,10 +530,10 @@ console.log( "conversations Emails:",conversationEmails);
             <MenuItem onClick={handleMarkAsRead}>
               Mark as read
             </MenuItem>
-            <MenuItem onClick={handleReplyFromMenu} disabled={!canUseReplyOrForward(email, loggedInUser.email)}>
+            <MenuItem onClick={handleReplyFromMenu}>
               Reply
             </MenuItem>
-            <MenuItem onClick={handleForwardFromMenu} disabled={!canUseReplyOrForward(email, loggedInUser.email)}>
+            <MenuItem onClick={handleForwardFromMenu}>
               Forward
             </MenuItem>
             <MenuItem onClick={() => {
@@ -480,6 +597,17 @@ console.log( "conversations Emails:",conversationEmails);
                 </div>
                 <div className="email-details-date">
                   {formatMailDate(conversationEmail.createdAt || conversationEmail.date)}
+                  <IconButton
+                    size="small"
+                    aria-label={conversationEmail.starred ? "Unstar email" : "Star email"}
+                    onClick={() => handleStar(conversationEmail)}
+                  >
+                    {conversationEmail.starred ? <StarIcon color="warning" /> : <StarBorderIcon />}
+                  </IconButton>
+                  <IconButton size="small" aria-label="More actions"
+                    onClick={(event) => setMessageMenu({ anchorEl: event.currentTarget, email: conversationEmail })}>
+                    <MoreVertIcon />
+                  </IconButton>
                 </div>
               </div>
               <div className="email-message">
@@ -487,51 +615,55 @@ console.log( "conversations Emails:",conversationEmails);
               </div>
               {conversationEmail.attachment && (
                 <div className="email-attachment">
-                  <img
-                    className="email-attchment-image"
-                    src={conversationEmail.attachment.data}
-                    alt={conversationEmail.attachment.name} />
+                  {conversationEmail.attachment.type?.startsWith("image/") ? (
+                    <img className="email-attchment-image"
+                      src={conversationEmail.attachment.data}
+                      alt={conversationEmail.attachment.name} />
+                  ) : <AttachFileIcon />}
                   <div className="email-attachment-name">
-                    {conversationEmail.attachment.name}
+                    <a href={conversationEmail.attachment.data}
+                      download={conversationEmail.attachment.name}>
+                      {conversationEmail.attachment.name}
+                    </a>
                   </div>
                 </div>
               )}
             </div>
           ))}
         </div>
+        <Menu
+          anchorEl={messageMenu?.anchorEl}
+          open={Boolean(messageMenu)}
+          onClose={() => setMessageMenu(null)}
+        >
+          {messageMenu?.email && <>
+            <MenuItem onClick={() => handleMessageAction("reply", messageMenu.email)}>Reply</MenuItem>
+            <MenuItem onClick={() => handleMessageAction("forward", messageMenu.email)}>Forward</MenuItem>
+            <MenuItem onClick={() => handleMessageAction("delete", messageMenu.email)}>Delete</MenuItem>
+            <MenuItem onClick={() => handleMessageAction(messageMenu.email.read ? "unread" : "read", messageMenu.email)}>
+              Mark as {messageMenu.email.read ? "unread" : "read"}
+            </MenuItem>
+          </>}
+        </Menu>
         <div className="email-actions">
           <button
             className="email-action-btn"
-            disabled={!canUseReplyOrForward(email, loggedInUser.email)}
             onClick={handleReplyClick}>
             <ReplyIcon />
             Reply
           </button>
           <button
             className="email-action-btn"
-            disabled={!canUseReplyOrForward(email, loggedInUser.email)}
             onClick={handleForwardClick}>
             <ForwardIcon />
             Forward
           </button>
         </div>
         {replyOpen && (
-          // <ReplyEmail
-          //   email={email}
-          //   loggedInUser={loggedInUser}
-          //   onClose={() => setReplyOpen(false)}
-          //   onReplySent={(newReply) => {
-          //     setEmails((prevEmails) => {
-          //       const updatedEmails = [...prevEmails, newReply];
-          //       console.log("UPDATED EMAILS:: 482", updatedEmails);
-          //       return updatedEmails;
-          //     });
-          //   }}
-
          <ReplyEmail
-  email={email}
+  email={replyTarget || email}
   loggedInUser={loggedInUser}
-  onClose={() => setReplyOpen(false)}
+  onClose={() => { setReplyOpen(false); setReplyTarget(null); }}
   onReplySent={(newReply) => {
     if (!newReply?.id) {
       console.error("Invalid reply received:", newReply);
@@ -556,10 +688,15 @@ console.log( "conversations Emails:",conversationEmails);
         {/* Forward */}
         {forwardOpen && (
           <ForwardEmail
-            email={email}
+            email={forwardTarget || email}
             loggedInUser={loggedInUser}
-            onClose={() => setForwardOpen(false)} />
+            onClose={() => { setForwardOpen(false); setForwardTarget(null); }} />
         )}
+        <SnoozeDialog
+          open={snoozeOpen}
+          onClose={() => setSnoozeOpen(false)}
+          onSnooze={handleSnooze}
+        />
       </div>
     </div>
   );

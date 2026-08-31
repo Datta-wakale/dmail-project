@@ -2,11 +2,25 @@ import { useState } from "react";
 import { sendEmail } from "../../authApi/emailsApi";
 import { toast } from "react-toastify";
 import { canUseReplyOrForward } from "../../Utils/mailUtils";
+import AttachFileIcon from "@mui/icons-material/AttachFile";
 import "./ReplyEmail.css";
 
 const ReplyEmail = ({ email, loggedInUser, onClose, onReplySent }) => {
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
+  const [attachment, setAttachment] = useState(null);
+
+  const handleAttachment = (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    if (file.size > 70 * 1024) {
+      toast.error("Attachment is too large (upto 70kb)");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => setAttachment({ name: file.name, type: file.type, data: reader.result });
+    reader.readAsDataURL(file);
+  };
 
   const handleSendReply = async () => {
     if (!loggedInUser?.email) {
@@ -38,7 +52,7 @@ const ReplyEmail = ({ email, loggedInUser, onClose, onReplySent }) => {
         to: email.from,
         subject: email.subject.startsWith("Re:") ? email.subject : `Re: ${email.subject}`,
         message: replyMessage,
-        attachment: null,
+        attachment,
         threadId,
       };
 
@@ -71,6 +85,7 @@ const ReplyEmail = ({ email, loggedInUser, onClose, onReplySent }) => {
         onChange={(e) => setMessage(e.target.value)}
         placeholder="Write your reply..."
       />
+      {attachment && <div className="reply-attachment">{attachment.name}</div>}
 
       <div className="original-email">
         <div className="original-line">---------- Original message ----------</div>
@@ -89,6 +104,10 @@ const ReplyEmail = ({ email, loggedInUser, onClose, onReplySent }) => {
       </div>
 
       <div className="reply-actions">
+        <label className="attachment-button">
+          <AttachFileIcon />
+          <input type="file" onChange={handleAttachment} hidden />
+        </label>
         <button onClick={handleSendReply} disabled={sending}>
           {sending ? "Sending..." : "Send"}
         </button>

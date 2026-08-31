@@ -4,11 +4,24 @@ import { toast } from "react-toastify";
 import { canUseReplyOrForward, splitRecipients, joinRecipients } from "../../Utils/mailUtils";
 import { checkEmailExists } from "../../authApi/authApi";
 import "./ForwardEmail.css";
+import AttachFileIcon from "@mui/icons-material/AttachFile";
 
 const ForwardEmail = ({ email, loggedInUser, onClose }) => {
  const [to, setTo] = useState("");
  const [message, setMessage] = useState("");
  const [sending, setSending] = useState(false);
+ const [attachment, setAttachment] = useState(null);
+ const handleAttachment = (event) => {
+   const file = event.target.files?.[0];
+   if (!file) return;
+   if (file.size > 70 * 1024) {
+     toast.error("Attachment is too large (upto 70kb)");
+     return;
+   }
+   const reader = new FileReader();
+   reader.onload = () => setAttachment({ name: file.name, type: file.type, data: reader.result });
+   reader.readAsDataURL(file);
+ };
 
  const handleSendForward = async () => {
    if (!loggedInUser?.email) {
@@ -65,7 +78,7 @@ ${email.message}`.trim();
        to: joinRecipients(validRecipients),
        subject: email.subject.startsWith("Fwd:") ? email.subject : `Fwd: ${email.subject}`,
        message: forwardedMessage,
-       attachment: email.attachment || null,
+       attachment: attachment || email.attachment || null,
      };
 
      await sendEmail(forwardEmail);
@@ -99,6 +112,7 @@ ${email.message}`.trim();
        onChange={(e) => setMessage(e.target.value)}
        placeholder="Write your message..."
      />
+     {attachment && <div className="forward-attachment">{attachment.name}</div>}
 
      <div className="forwarded-preview">
        <div className="forwarded-line">---------- Forwarded message ----------</div>
@@ -117,6 +131,10 @@ ${email.message}`.trim();
      </div>
 
      <div className="forward-actions">
+       <label className="attachment-button">
+         <AttachFileIcon />
+         <input type="file" onChange={handleAttachment} hidden />
+       </label>
        <button onClick={handleSendForward} disabled={sending}>
          {sending ? "Sending..." : "Send"}
        </button>
