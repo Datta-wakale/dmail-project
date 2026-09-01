@@ -23,11 +23,15 @@ export const splitRecipients = (value) => {
 };
 
 export const matchesAnyRecipient = (recipients, targetEmail) => {
-  const target = normalizeEmailAddress(targetEmail);
-  if (!target) {
+  const targets = typeof targetEmail === "object" && targetEmail
+    ? getUserEmailAddresses(targetEmail)
+    : [normalizeEmailAddress(targetEmail)];
+  if (!targets.length || !recipients) {
     return false;
   }
-  return splitRecipients(recipients).includes(target);
+  return splitRecipients(recipients).some((recipient) =>
+    targets.includes(recipient)
+  );
 };
 
 export const isEmailInTrash = (email, currentUserEmail) => {
@@ -126,4 +130,42 @@ export const getReceiverDisplayLabel = (email, currentUserEmail) => {
     return "me";
   }
   return email.to || "Unknown recipient";
+};
+
+// for edit email utility functions
+
+export const getUserEmailAddresses = (user) => {
+    if (!user) {
+        return [];
+    }
+
+    const currentEmail = normalizeEmailAddress(
+        user.email
+    );
+
+    const aliases = Array.isArray(user.emailAliases)
+        ? user.emailAliases.map((email) =>
+            normalizeEmailAddress(email)
+        )
+        : [];
+
+    return [
+        ...new Set(
+            [currentEmail, ...aliases].filter(Boolean)
+        ),
+    ];
+};
+
+
+export const isEmailForUser = (email, user) => {
+    const normalizedEmail =
+        normalizeEmailAddress(email);
+
+    if (!normalizedEmail || !user) {
+        return false;
+    }
+
+    return getUserEmailAddresses(user).includes(
+        normalizedEmail
+    );
 };

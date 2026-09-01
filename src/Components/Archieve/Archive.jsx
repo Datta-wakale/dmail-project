@@ -14,7 +14,7 @@ const Archive = () => {
     const isSentByUser = normalizeEmailAddress(email.from) === userEmail;
     console.log("isSentByUser ::15", isSentByUser);
 
-    const isReceivedByUser = matchesAnyRecipient(email.to, loggedInUser?.email);
+    const isReceivedByUser = matchesAnyRecipient(email.to, loggedInUser);
     console.log("isReceivedByUser ::18", isReceivedByUser);
     if (isSentByUser) {
       return email.senderFolder === "archive";

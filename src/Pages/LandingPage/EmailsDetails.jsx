@@ -28,7 +28,7 @@ import MoveToMenu from "../../Components/MoveTo/MoveTo";
 import { unsnoozeEmail } from "../../authApi/UnSnoozeEmail";
 import { updateEmail } from "../../authApi/updateEmail";
 import SnoozeDialog from "../../Components/SnoozeDialoge/SnoozeDialog";
-import { canUseReplyOrForward, formatMailDate, getReceiverDisplayLabel, getSenderDisplayLabel, matchesAnyRecipient, normalizeEmailAddress } from "../../Utils/mailUtils";
+import { canUseReplyOrForward, formatMailDate, getReceiverDisplayLabel, getSenderDisplayLabel, isEmailForUser, matchesAnyRecipient, normalizeEmailAddress } from "../../Utils/mailUtils";
 import { restoreSpamEmail} from "../../authApi/restoreEmail";
 import { restoreArchivedEmail } from "../../authApi/restoreEmail";
 const EmailsDetails = () => {
@@ -90,7 +90,7 @@ const EmailsDetails = () => {
   const threadId = email.threadId || email.id;
   const isMessageInCurrentFolder = (item) => {
     const isReceivedByUser = matchesAnyRecipient(item.to, loggedInUser?.email);
-    const isSentByUser = normalizeEmailAddress(item.from) === normalizeEmailAddress(loggedInUser?.email);
+    const isSentByUser = isEmailForUser(item.from, loggedInUser);
 
     if (folder === "trash") {
       return (isReceivedByUser && item.receiverFolder === "trash") ||
@@ -496,7 +496,7 @@ const handleNotSpam = async () => {
     if (matchesAnyRecipient(email.to, loggedInUser.email) && email.receiverFolder === "trash") {
       return "receiver";
     }
-    if (email.from === loggedInUser.email && email.senderFolder === "trash") {
+    if (isEmailForUser(email.from, loggedInUser) && email.senderFolder === "trash") {
       return "sender";
     }
     return null;

@@ -2,7 +2,7 @@ import { useContext } from "react";
 import { useOutletContext } from "react-router-dom";
 import { UserContext } from "../Context/UserContext";
 import EmailRow from "../Components/EmailRow.jsx/EmailRow";
-import { matchesAnyRecipient } from "../Utils/mailUtils";
+import { isEmailForUser, matchesAnyRecipient } from "../Utils/mailUtils";
 
 const Snoozed = () => {
     const { loggedInUser } = useContext(UserContext);
@@ -11,14 +11,14 @@ const Snoozed = () => {
     const now = new Date();
     
     const snoozedEmails = emails.filter((email) => {
-        if (matchesAnyRecipient(email.to, loggedInUser.email)) {
+        if (matchesAnyRecipient(email.to, loggedInUser)) {
             return (
                 email.receiverSnoozedUntil &&
                 new Date(email.receiverSnoozedUntil) > now
             );
         }
 
-        if (email.from === loggedInUser.email) {
+        if (isEmailForUser(email.from, loggedInUser)) {
             return (
                 email.senderSnoozedUntil &&
                 new Date(email.senderSnoozedUntil) > now
@@ -51,7 +51,7 @@ const Snoozed = () => {
                             key={email.id}
                             email={email}
                             folder={
-                                email.from === loggedInUser.email
+                                isEmailForUser(email.from, loggedInUser)
                                     ? "sent"
                                     : "inbox"
                             }

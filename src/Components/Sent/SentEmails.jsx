@@ -2,6 +2,7 @@ import { useContext } from "react";
 import { useOutletContext } from "react-router-dom";
 import { UserContext } from "../../Context/UserContext";
 import EmailRow from "../EmailRow.jsx/EmailRow";
+import { isEmailForUser } from "../../Utils/mailUtils";
 
 const SentEmails = () => {
   const { loggedInUser } = useContext(UserContext);
@@ -9,7 +10,7 @@ const SentEmails = () => {
   const { emails, search, filterEmails } = useOutletContext();
 
   const sentEmails = emails.filter(
-    (email) => email.from === loggedInUser.email && email.senderFolder === "sent"
+    (email) => isEmailForUser(email.from, loggedInUser) && email.senderFolder === "sent"
   );
 
     // Search + sort

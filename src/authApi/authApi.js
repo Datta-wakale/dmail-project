@@ -20,18 +20,48 @@ export const getUsers = async () => {
 };
 
 // Check whether email exists (returns the user object or null)
+// export const checkEmailExists = async (email) => {
+//   const normalized = normalizeEmail(email);
+//   const response = await fetch(`${API_URL}?email=${encodeURIComponent(normalized)}`);
+
+//   if (!response.ok) {
+//     throw new Error("Unable to check email");
+//   }
+//   const users = await response.json();
+//   // json-server returns an array for query; return the first match or null
+//   return users && users.length ? users[0] : null;
+// };
+
 export const checkEmailExists = async (email) => {
-  const normalized = normalizeEmail(email);
-  const response = await fetch(`${API_URL}?email=${encodeURIComponent(normalized)}`);
+    const normalizedEmail = String(email || "")
+        .trim()
+        .toLowerCase();
 
-  if (!response.ok) {
-    throw new Error("Unable to check email");
-  }
-  const users = await response.json();
-  // json-server returns an array for query; return the first match or null
-  return users && users.length ? users[0] : null;
+    if (!normalizedEmail) {
+        return false;
+    }
+
+    const users = await getUsers();
+
+    return users.some((user) => {
+        const currentEmail = String(user.email || "")
+            .trim()
+            .toLowerCase();
+
+        const aliases = Array.isArray(user.emailAliases)
+            ? user.emailAliases.map((alias) =>
+                String(alias)
+                    .trim()
+                    .toLowerCase()
+            )
+            : [];
+
+        return (
+            currentEmail === normalizedEmail ||
+            aliases.includes(normalizedEmail)
+        );
+    });
 };
-
 
 // Register user
 export const registerUser = async (userData) => {

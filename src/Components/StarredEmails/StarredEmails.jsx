@@ -2,7 +2,7 @@ import { useContext } from "react";
 import { useOutletContext } from "react-router-dom";
 import { UserContext } from "../../Context/UserContext";
 import EmailRow from "../EmailRow.jsx/EmailRow";
-import { matchesAnyRecipient } from "../../Utils/mailUtils";
+import { isEmailForUser, matchesAnyRecipient } from "../../Utils/mailUtils";
 
 const StarredEmails = () => {
 
@@ -18,8 +18,8 @@ const StarredEmails = () => {
         (email) =>
             email.starred === true &&
             (
-                email.from === loggedInUser.email ||
-                matchesAnyRecipient(email.to, loggedInUser.email)
+                isEmailForUser(email.from, loggedInUser) ||
+                matchesAnyRecipient(email.to, loggedInUser)
             )
     );
 
@@ -56,7 +56,7 @@ const StarredEmails = () => {
                             key={email.id}
                             email={email}
                             folder={
-                                email.from === loggedInUser.email
+                                isEmailForUser(email.from, loggedInUser)
                                     ? "sent"
                                     : "inbox"
                             }

@@ -3,9 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { UserContext } from "../Context/UserContext";
 import { updateUser, checkEmailExists } from "../authApi/authApi";
+import EmailChangeDialog from "./EmailChangeDialog";
 import "./ManageAccount.css"
 
+const MAX_EMAIL_CHANGE_ATTEMPTS = 2;
+const EMAIL_CHANGE_DAYS = 30;
 const ManageAccount = () => {
+    const [emailDialogOpen, setEmailDialogOpen] = useState(false);
+    const [emailEditingEnabled, setEmailEditingEnabled] = useState(false);
     const { loggedInUser, setLoggedInUser } = useContext(UserContext);
     const navigate = useNavigate();
 
@@ -17,8 +22,11 @@ const ManageAccount = () => {
         dob: loggedInUser?.dob || "",
     }));
 
+
+
     const [errors, setErrors] = useState({
         dob: "",
+        email: "",
     });
 
     useEffect(() => {
@@ -27,16 +35,70 @@ const ManageAccount = () => {
         }
     }, [loggedInUser, navigate]);
 
-    const nextEmailChangeDate = loggedInUser?.emailLastChangedAt
-        ? (() => {
-            const lastChanged = new Date(loggedInUser.emailLastChangedAt);
-            const nextChange = new Date(lastChanged);
-            nextChange.setDate(nextChange.getDate() + 30);
-            return new Date() < nextChange ? nextChange.toLocaleDateString() : "";
-        })()
-        : "";
+    const getEmailChangeInfo = () => {
+        if (!loggedInUser) {
+            return {
+                attemptsLeft: MAX_EMAIL_CHANGE_ATTEMPTS,
+                locked: false,
+                nextDate: "",
+            };
+        }
 
-    const emailLocked = Boolean(loggedInUser?.emailLastChangedAt && nextEmailChangeDate);
+        let attemptsLeft =
+            typeof loggedInUser.emailChangeAttempts === "number"
+                ? loggedInUser.emailChangeAttempts
+                : MAX_EMAIL_CHANGE_ATTEMPTS;
+
+        const startedAt =
+            loggedInUser.emailChangeWindowStartedAt;
+
+        // User has never changed email
+        if (!startedAt) {
+            return {
+                attemptsLeft,
+                locked: attemptsLeft <= 0,
+                nextDate: "",
+            };
+        }
+
+        const startDate = new Date(startedAt);
+
+        const nextDate = new Date(startDate);
+
+        nextDate.setDate(
+            nextDate.getDate() + EMAIL_CHANGE_DAYS
+        );
+
+        // 30 days completed
+        if (new Date() >= nextDate) {
+            return {
+                attemptsLeft: MAX_EMAIL_CHANGE_ATTEMPTS,
+                locked: false,
+                nextDate: "",
+            };
+        }
+
+        return {
+            attemptsLeft,
+            locked: attemptsLeft <= 0,
+            nextDate: nextDate.toLocaleDateString(),
+        };
+    };
+
+    const emailChangeInfo = getEmailChangeInfo();
+    const validateEmail = (value) => {
+        const email = String(value || "").trim();
+
+        if (!email) {
+            return "Email is required";
+        }
+
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            return "Enter a valid email";
+        }
+
+        return "";
+    };
     const validateDob = (dobValue) => {
         if (!dobValue) {
             return "Date of birth is required";
@@ -71,11 +133,52 @@ const ManageAccount = () => {
 
         if (name === "dob") {
             const dobError = validateDob(value);
+
             setErrors((prev) => ({
                 ...prev,
                 dob: dobError,
             }));
         }
+
+        if (name === "email") {
+            const emailError = validateEmail(value);
+
+            setErrors((prev) => ({
+                ...prev,
+                email: emailError,
+            }));
+        }
+    };
+    const handleEmailFocus = () => {
+        const info = getEmailChangeInfo();
+
+        if (info.locked) {
+            return;
+        }
+
+        if (emailEditingEnabled) {
+            return;
+        }
+
+        setEmailDialogOpen(true);
+    };
+
+    const handleEmailDialogCancel = () => {
+        setEmailDialogOpen(false);
+        setEmailEditingEnabled(false);
+        setFormData((prev) => ({
+            ...prev,
+            email: loggedInUser?.email || "",
+        }));
+        setErrors((prev) => ({
+            ...prev,
+            email: "",
+        }));
+    };
+
+    const handleEmailDialogContinue = () => {
+        setEmailDialogOpen(false);
+        setEmailEditingEnabled(true);
     };
 
     const handlePhoneKeyDown = (event) => {
@@ -88,6 +191,7 @@ const ManageAccount = () => {
             event.preventDefault();
         }
     };
+
     const handleSubmit = async (event) => {
         event.preventDefault();
         const dobError = validateDob(formData.dob);
@@ -114,27 +218,69 @@ const ManageAccount = () => {
             toast.error("Email is required");
             return;
         }
-        const oldEmail = loggedInUser.email.toLowerCase();
-        const newEmail = formData.email.trim().toLowerCase();
-        // Email format
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)) {
-            toast.error("Enter a valid email");
+        const oldEmail =
+            loggedInUser.email.trim().toLowerCase();
+
+        const newEmail =
+            formData.email.trim().toLowerCase();
+
+        const emailChanged =
+            oldEmail !== newEmail;
+
+
+        // Validate email format
+        const emailError = validateEmail(newEmail);
+
+        if (emailError) {
+            setErrors((prev) => ({
+                ...prev,
+                email: emailError,
+            }));
+
             return;
         }
-        // Check only when email actually changes
-        const emailChanged = oldEmail !== newEmail;
+
+
+        // Only do email-change checks when email actually changes
         if (emailChanged) {
-            // Check whether another user already has this email
-            const emailExists = await checkEmailExists(newEmail);
-            if (emailExists) {
-                toast.error("This email is already in use");
+
+            // Check whether email already exists
+            try {
+                const emailExists =
+                    await checkEmailExists(newEmail);
+
+                if (emailExists) {
+                    setErrors((prev) => ({
+                        ...prev,
+                        email: "This email is already in use",
+                    }));
+
+                    return;
+                }
+            } catch (error) {
+                console.error(error);
+
+                setErrors((prev) => ({
+                    ...prev,
+                    email: "Unable to verify email",
+                }));
+
                 return;
             }
-            // 30-day email change restriction
-            if (emailLocked) {
-                toast.error(
-                    `Email can be changed again after ${nextEmailChangeDate}`
-                );
+
+
+            // Check remaining attempts
+            const info =
+                getEmailChangeInfo();
+
+            if (info.locked) {
+                setErrors((prev) => ({
+                    ...prev,
+                    email:
+                        `You have used all 2 email change attempts. ` +
+                        `You can change your email again after ${info.nextDate}.`,
+                }));
+
                 return;
             }
         }
@@ -149,14 +295,34 @@ const ManageAccount = () => {
         /*  Create a NEW object.  loggedInUser is NOT mutated.*/
         const updatedUser = {
             ...loggedInUser,
+
             fname: formData.fname.trim(),
             lname: formData.lname.trim(),
             email: newEmail,
             phone: formData.phone.trim(),
             dob: formData.dob,
         };
+
+
         if (emailChanged) {
-            updatedUser.emailLastChangedAt = new Date().toISOString();
+
+            const info =
+                getEmailChangeInfo();
+
+
+            const existingAliases = Array.isArray(loggedInUser.emailAliases)
+                ? loggedInUser.emailAliases : [];
+            updatedUser.emailAliases = [
+                ...new Set([
+                    ...existingAliases,
+                    oldEmail,
+                ]),
+            ];
+            updatedUser.emailChangeAttempts =
+                info.attemptsLeft - 1;
+            updatedUser.emailChangeWindowStartedAt =
+                loggedInUser.emailChangeWindowStartedAt ||
+                new Date().toISOString();
         }
         try {
             const savedUser = await updateUser(loggedInUser.id, updatedUser);
@@ -201,13 +367,38 @@ const ManageAccount = () => {
                     </div>
                     <div className="form-group">
                         <label>Email</label>
-                        <input type="email" name="email"
-                            value={formData.email} onChange={handleChange}
-                             />
-                        {emailLocked && (
+
+                        <input
+                            type="email"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            onFocus={handleEmailFocus}
+                            readOnly={emailChangeInfo.locked || !emailEditingEnabled}
+                        />
+
+                        {errors.email && (
+                            <small className="input-error">
+                                {errors.email}
+                            </small>
+                        )}
+
+                        {!errors.email &&
+                            !emailChangeInfo.locked && (
+                                <small className="email-info">
+                                    {emailChangeInfo.attemptsLeft} email change{" "}
+                                    {emailChangeInfo.attemptsLeft === 1
+                                        ? "attempt"
+                                        : "attempts"}{" "}
+                                    remaining.
+                                </small>
+                            )}
+
+                        {emailChangeInfo.locked && (
                             <small className="email-info">
+                                You have used all 2 email change attempts.
                                 You can change your email again after{" "}
-                                {nextEmailChangeDate}.
+                                {emailChangeInfo.nextDate}.
                             </small>
                         )}
                     </div>
@@ -226,7 +417,7 @@ const ManageAccount = () => {
                                 new Date().getFullYear() - 12,
                                 new Date().getMonth(),
                                 new Date().getDate()
-                            ).toISOString().split("T")[0]}/>
+                            ).toISOString().split("T")[0]} />
 
                         {errors.dob && (
                             <small className="input-error">
@@ -241,8 +432,17 @@ const ManageAccount = () => {
                         </button>
                         <button type="submit" className="submit-btn" disabled={!hasChanges}>Save changes</button>
                     </div>
+                    
                 </form>
+                
             </div>
+            <EmailChangeDialog
+                open={emailDialogOpen}
+                onClose={handleEmailDialogCancel}
+                onCancel={handleEmailDialogCancel}
+                onContinue={handleEmailDialogContinue}
+                attemptsLeft={emailChangeInfo.attemptsLeft}
+            />
         </div>
     );
 };

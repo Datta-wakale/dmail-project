@@ -4,6 +4,7 @@ import { useContext } from "react";
 import { useOutletContext } from "react-router-dom";
 import { UserContext } from "../../Context/UserContext";
 import DraftRow from "./DraftRow";
+import { isEmailForUser } from "../../Utils/mailUtils";
 
 const Drafts = () => {
 
@@ -18,7 +19,7 @@ const Drafts = () => {
     // Get only draft emails
     const draftEmails = emails.filter(
         (email) =>
-            email.from === loggedInUser.email &&
+            isEmailForUser(email.from, loggedInUser) &&
             email.senderFolder === "draft"
     );
 

@@ -16,7 +16,7 @@ const {
 
 const receivedEmails = emails.filter(
     (email) =>
-        matchesAnyRecipient(email.to, loggedInUser.email) &&
+        matchesAnyRecipient(email.to, loggedInUser) &&
         email.receiverFolder === "inbox" &&
         !email.receiverSnoozedUntil
 );

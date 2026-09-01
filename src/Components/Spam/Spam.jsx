@@ -2,7 +2,7 @@ import { useContext } from "react";
 import { useOutletContext } from "react-router-dom";
 import { UserContext } from "../../Context/UserContext";
 import EmailRow from "../EmailRow.jsx/EmailRow";
-import { matchesAnyRecipient } from "../../Utils/mailUtils";
+import { isEmailForUser, matchesAnyRecipient } from "../../Utils/mailUtils";
 
 const Spam = () => {
  const { loggedInUser } = useContext(UserContext);
@@ -11,8 +11,8 @@ const Spam = () => {
 
  const spamEmails = emails.filter(
    (email) =>
-     (matchesAnyRecipient(email.to, loggedInUser.email) && email.receiverFolder === "spam") ||
-     (email.from === loggedInUser.email && email.senderFolder === "spam")
+     (matchesAnyRecipient(email.to, loggedInUser) && email.receiverFolder === "spam") ||
+     (isEmailForUser(email.from, loggedInUser) && email.senderFolder === "spam")
  );
     // Search + sort
     const filteredEmails = [
