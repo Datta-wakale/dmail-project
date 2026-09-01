@@ -1,3 +1,5 @@
+import bcrypt from "bcryptjs";
+
 const API_URL = "http://localhost:3000/users";
 // Normalize email to ensure it includes the dmail domain
 const normalizeEmail = (email) => {
@@ -17,7 +19,6 @@ export const getUsers = async () => {
   return await response.json();
 };
 
-
 // Check whether email exists (returns the user object or null)
 export const checkEmailExists = async (email) => {
   const normalized = normalizeEmail(email);
@@ -31,38 +32,13 @@ export const checkEmailExists = async (email) => {
   return users && users.length ? users[0] : null;
 };
 
+
 // Register user
-// export const registerUser = async (userData) => {
-//   const normalizedEmail = normalizeEmail(userData.email);
-//   const hashedPassword = await bcrypt.hash(userData.password, 10);
-//   const emailExists = await checkEmailExists(normalizedEmail);
-
-//   if (emailExists) {
-//     return null;
-//   }
-
-//   const response = await fetch(API_URL, {
-//     method: "POST",
-//     headers: {
-//       "Content-Type": "application/json",
-//     },
-//     body: JSON.stringify({
-//       ...userData,
-//       email: normalizedEmail,
-//       password: hashedPassword,
-//     }),
-//   });
-
-//   if (!response.ok) {
-//     throw new Error("Registration failed");
-//   }
-
-//   return await response.json();
-// };
-
 export const registerUser = async (userData) => {
   const normalizedEmail = normalizeEmail(userData.email);
+  const hashedPassword = await bcrypt.hash(userData.password, 10);
   const emailExists = await checkEmailExists(normalizedEmail);
+
   if (emailExists) {
     return null;
   }
@@ -75,6 +51,7 @@ export const registerUser = async (userData) => {
     body: JSON.stringify({
       ...userData,
       email: normalizedEmail,
+      password: hashedPassword,
     }),
   });
 
@@ -84,45 +61,71 @@ export const registerUser = async (userData) => {
 
   return await response.json();
 };
+
+// export const registerUser = async (userData) => {
+//   const normalizedEmail = normalizeEmail(userData.email);
+//   const emailExists = await checkEmailExists(normalizedEmail);
+//   if (emailExists) {
+//     return null;
+//   }
+
+//   const response = await fetch(API_URL, {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//     body: JSON.stringify({
+//       ...userData,
+//       email: normalizedEmail,
+//     }),
+//   });
+
+//   if (!response.ok) {
+//     throw new Error("Registration failed");
+//   }
+
+//   return await response.json();
+// };
+
+
+// Login user
+// export const loginUser = async (email, password) => {
+//   const normalized = normalizeEmail(email);
+//   const response = await fetch(`${API_URL}?email=${encodeURIComponent(normalized)}`);
+//   if (!response.ok) {
+//     throw new Error("Unable to login");
+//   }
+//   const users = await response.json();
+//   const user = users.find(
+//     (user) =>
+//       user.email === normalized &&
+//       user.password === password
+//   );
+//   return user;
+// };
+
+
 // Login user
 export const loginUser = async (email, password) => {
   const normalized = normalizeEmail(email);
-  const response = await fetch(`${API_URL}?email=${encodeURIComponent(normalized)}`);
+
+  const response = await fetch(
+    `${API_URL}?email=${encodeURIComponent(normalized)}`
+  );
+
   if (!response.ok) {
     throw new Error("Unable to login");
   }
   const users = await response.json();
-  const user = users.find(
-    (user) =>
-      user.email === normalized &&
-      user.password === password
-  );
-  return user;
+  const user = users[0];
+  if (!user) {
+    return null;
+  }
+
+  return await bcrypt.compare(password, user.password)
+    ? user
+    : null;
 };
-// Login user
-// export const loginUser = async (email, password) => {
-//   const normalized = normalizeEmail(email);
-
-//   const response = await fetch(
-//     `${API_URL}?email=${encodeURIComponent(normalized)}`
-//   );
-
-//   if (!response.ok) {
-//     throw new Error("Unable to login");
-//   }
-
-//   const users = await response.json();
-
-//   const user = users[0];
-
-//   if (!user) {
-//     return null;
-//   }
-
-//   return await bcrypt.compare(password, user.password)
-//     ? user
-//     : null;
-// };
 
 // Delete user
 export const deleteUser = async (id) => {

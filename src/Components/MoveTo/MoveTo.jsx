@@ -46,7 +46,7 @@ const MoveToMenu = ({
         }
 
         // Sent email which was moved from Sent to Trash
-        if ( mail.from === loggedInUser?.email && mail.senderFolder === "trash" ) {
+        if (mail.from === loggedInUser?.email && mail.senderFolder === "trash") {
             return "sender";
         }
 
@@ -69,7 +69,7 @@ const MoveToMenu = ({
                     return;
                 }
 
-                if ( type === "receiver" &&
+                if (type === "receiver" &&
                     toFolder !== "inbox") {
                     toast.error(
                         "This email can only be moved to Inbox");
@@ -77,23 +77,24 @@ const MoveToMenu = ({
                     return;
                 }
 
-                if ( type === "sender" &&  toFolder !== "sent") {
-                    toast.error(  "This email can only be moved to Sent" );
+                if (type === "sender" && toFolder !== "sent") {
+                    toast.error("This email can only be moved to Sent");
                     handleClose();
                     return;
                 }
                 fromFolder = type;
             }
             // moveEmail returns the updated email
-            const updatedEmail = await moveEmail(email.id,fromFolder, toFolder);
+            const updatedEmail = await moveEmail(email.id, fromFolder, toFolder);
             toast.success(`Moved to ${toFolder}`);
             handleClose();
             // Send updated email back to parent
             if (onMove) {
-                await onMove( updatedEmail, toFolder );}
+                await onMove(updatedEmail, toFolder);
+            }
         } catch (error) {
             console.error("Unable to move email", error);
-            toast.error("Unable to move email" );
+            toast.error("Unable to move email");
             handleClose();
         }
     };
@@ -119,8 +120,8 @@ const MoveToMenu = ({
                     }));
 
                 const hasInvalidEmail = classifiedEmails.some(
-                        ({ type }) => !type
-                    );
+                    ({ type }) => !type
+                );
                 if (hasInvalidEmail) {
                     toast.error(
                         "Unable to determine email type"
@@ -143,19 +144,19 @@ const MoveToMenu = ({
 
                 // emails to be moved together.
                 if (!allReceived && !allSent) {
-                    toast.error(  "Please select only received emails or only sent emails"  );
+                    toast.error("Please select only received emails or only sent emails");
                     handleClose();
                     return;
                 }
                 // Received emails → Inbox only
-                if ( allReceived && toFolder !== "inbox" ) {
-                    toast.error( "These emails can only be moved to Inbox" );
+                if (allReceived && toFolder !== "inbox") {
+                    toast.error("These emails can only be moved to Inbox");
                     handleClose();
                     return;
                 }
                 // Sent emails → Sent only
-                if ( allSent && toFolder !== "sent") {
-                    toast.error(  "These emails can only be moved to Sent");
+                if (allSent && toFolder !== "sent") {
+                    toast.error("These emails can only be moved to Sent");
                     handleClose();
                     return;
                 }
@@ -170,35 +171,35 @@ const MoveToMenu = ({
                             )
                     )
                 );
-                toast.success( `${selectedEmails.length} emails moved to ${toFolder}` );
+                toast.success(`${selectedEmails.length} emails moved to ${toFolder}`);
                 handleClose();
                 // Send updated email objects to parent
                 if (onMove) {
-                    await onMove(updatedEmails, toFolder );
+                    await onMove(updatedEmails, toFolder);
                 }
                 return;
             }
             const updatedEmails = await Promise.all(
                 selectedEmails.map((id) =>
-                    moveEmail(id,folder, toFolder)
+                    moveEmail(id, folder, toFolder)
                 )
             );
-            toast.success( `${selectedEmails.length} emails moved to ${toFolder}` );
+            toast.success(`${selectedEmails.length} emails moved to ${toFolder}`);
             handleClose();
             // Send updated email objects to parent
             if (onMove) {
-                await onMove( updatedEmails,toFolder );
+                await onMove(updatedEmails, toFolder);
             }
         } catch (error) {
             console.error("Unable to move emails", error);
-            toast.error( "Unable to move emails");
+            toast.error("Unable to move emails");
             handleClose();
         }
     };
     let showInbox = false;
     let showSent = false;
 
-    if ( email && selectedEmails.length === 0) {
+    if (email && selectedEmails.length === 0) {
         if (folder === "trash") {
             const type = trashType ||
                 getEmailTrashType(email);
@@ -228,13 +229,13 @@ const MoveToMenu = ({
             )
             .filter(Boolean);
         if (folder === "trash") {
-            const types =selectedMailObjects.map(getEmailTrashType);
+            const types = selectedMailObjects.map(getEmailTrashType);
 
-            const allReceived =  types.length > 0 &&
-                types.every( (type) =>  type === "receiver");
+            const allReceived = types.length > 0 &&
+                types.every((type) => type === "receiver");
 
             const allSent = types.length > 0 &&
-                types.every((type) => type === "sender" );
+                types.every((type) => type === "sender");
 
             // Only show one option
             if (allReceived) {
@@ -256,17 +257,17 @@ const MoveToMenu = ({
     if (!showInbox && !showSent) {
         return null;
     }
-
-    
-  
     return (
         <>
-            <IconButton
-                onClick={handleOpen}
-                title="Move to"
-                size="small">
-                <MoveToInboxIcon fontSize="small" />
-            </IconButton>
+           {folder === "trash" && (showInbox || showSent) && (
+    <IconButton
+        onClick={handleOpen}
+        title="Move to"
+        size="small"
+    >
+        <MoveToInboxIcon fontSize="small" />
+    </IconButton>
+)}
             <Menu
                 anchorEl={anchorEl}
                 open={open}
@@ -275,7 +276,7 @@ const MoveToMenu = ({
                 {showInbox && (
                     <MenuItem
                         onClick={() => {
-                            if (selectedEmails.length > 0 ) {
+                            if (selectedEmails.length > 0) {
                                 handleMultipleMove("inbox");
                             } else {
                                 handleSingleMove(
@@ -296,14 +297,14 @@ const MoveToMenu = ({
                 {showSent && (
                     <MenuItem
                         onClick={() => {
-                            if ( selectedEmails.length > 0) {
-                                handleMultipleMove( "sent" );
+                            if (selectedEmails.length > 0) {
+                                handleMultipleMove("sent");
                             } else {
-                                handleSingleMove( "sent");
+                                handleSingleMove("sent");
                             }
                         }}>
-                        <SendIcon  fontSize="small"
-                            style={{ marginRight: 10, }}/>
+                        <SendIcon fontSize="small"
+                            style={{ marginRight: 10, }} />
                         Move to Sent
                     </MenuItem>
                 )}

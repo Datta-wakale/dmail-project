@@ -116,6 +116,20 @@ const EmailRow = ({ email, folder }) => {
               senderFolder: "trash",
             };
           }
+          if (folder === "archive") {
+            if (item.receiverFolder === "archive") {
+              return {
+                ...item,
+                receiverFolder: "trash",
+              };
+            }
+            if (item.senderFolder === "archive") {
+              return {
+                ...item,
+                senderFolder: "trash",
+              };
+            }
+          }
           return item;
         })
       );
@@ -155,6 +169,10 @@ const EmailRow = ({ email, folder }) => {
       );
     }
   };
+
+  const isArchived =
+    (email.from === loggedInUser?.email && email.senderFolder === "archive") ||
+    (email.from !== loggedInUser?.email && email.receiverFolder === "archive");
 
   const handleArchive = async (event) => {
     event.stopPropagation();
@@ -223,6 +241,46 @@ const EmailRow = ({ email, folder }) => {
       );
     }
   };
+
+const handleUnarchive = async (event) => {
+  event.stopPropagation();
+
+  try {
+    const restoreFolder =
+      email.from === loggedInUser?.email
+        ? "sent"
+        : "inbox";
+
+    const restoredEmail = await restoreArchivedEmail(
+      email.id,
+      restoreFolder
+    );
+
+    setEmails((prevEmails) =>
+      prevEmails.map((item) =>
+        item.id === email.id
+          ? restoredEmail
+          : item
+      )
+    );
+
+    setSelectedEmails((prev) =>
+      prev.filter((id) => id !== email.id)
+    );
+
+    showSnackbar(
+      `Email moved to ${
+        restoreFolder === "sent" ? "Sent" : "Inbox"
+      }`
+    );
+  } catch (error) {
+    console.error(
+      "Unable to unarchive email:",
+      error
+    );
+  }
+};
+
   const handleSnooze = (event) => {
     event.stopPropagation();
     setSnoozeOpen(true);
@@ -331,10 +389,16 @@ const EmailRow = ({ email, folder }) => {
     }
   };
   
-  const isSnoozed =
-    ((folder === "inbox" || folder === "spam") && email.receiverSnoozedUntil &&
-      new Date(email.receiverSnoozedUntil) > new Date()) || ((folder === "sent" || folder === "draft")
-        && email.senderSnoozedUntil && new Date(email.senderSnoozedUntil) > new Date());
+  const snoozedUntil =
+    folder === "archive"
+      ? (email.receiverFolder === "archive"
+          ? email.receiverSnoozedUntil
+          : email.senderSnoozedUntil)
+      : folder === "inbox" || folder === "spam"
+        ? email.receiverSnoozedUntil
+        : email.senderSnoozedUntil;
+
+  const isSnoozed = Boolean(snoozedUntil) && new Date(snoozedUntil) > new Date();
   const canArchive = folder === "inbox" || folder === "spam" || folder === "sent" ||
     folder === "starred-received" || folder === "starred-sent";
   const displaySender = getSenderDisplayLabel(email, loggedInUser.email);
@@ -353,7 +417,6 @@ const EmailRow = ({ email, folder }) => {
           onChange={handleCheckboxChange} />
 
         {/* Star */}
-        {/* Star */}
         {folder !== "trash" && (
           <IconButton onClick={handleStar}>
             {email.starred ? (
@@ -366,8 +429,12 @@ const EmailRow = ({ email, folder }) => {
 
         {/* Sender */}
         <div className={`email-sender ${!email.read ? "unread" : ""}`}>
-          {folder === "sent" ? displayReceiver : displaySender}
-        </div>
+  {folder === "sent" ||
+  (folder === "archive" &&
+    email.from === loggedInUser?.email)
+    ? displayReceiver
+    : displaySender}
+</div>
         {/* Subject + Message */}
         <div className={`email-content ${!email.read ? "unread" : ""}`}>
           <span className="email-subject">{email.subject}</span>
@@ -377,11 +444,7 @@ const EmailRow = ({ email, folder }) => {
         {/* Date / Snoozed time */}
         <div className="email-date">
           {isSnoozed
-            ? `Snoozed until ${new Date(
-              folder === "inbox" || folder === "spam"
-                ? email.receiverSnoozedUntil
-                : email.senderSnoozedUntil,
-            ).toLocaleTimeString([], {
+            ? `Snoozed until ${new Date(snoozedUntil).toLocaleTimeString([], {
               hour: "numeric",
               minute: "2-digit",
             })}`
@@ -391,7 +454,11 @@ const EmailRow = ({ email, folder }) => {
         <div
           className={`email-hover-actions ${isSelected ? "show-actions" : ""}`}
           onClick={(event) => event.stopPropagation()} >
-          {canArchive && (
+          {isArchived ? (
+            <IconButton title="Unarchive" onClick={handleUnarchive}>
+              <ArchiveIcon />
+            </IconButton>
+          ) : canArchive && (
             <IconButton title="Archive" onClick={handleArchive}>
               <ArchiveIcon />
             </IconButton>

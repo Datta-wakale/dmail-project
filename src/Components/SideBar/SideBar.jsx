@@ -10,6 +10,7 @@ import { useState } from "react";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AllInboxIcon from "@mui/icons-material/AllInbox";
 import SnoozeIcon from '@mui/icons-material/Snooze';
+import ArchiveIcon from '@mui/icons-material/Archive';
 import "./SideBar.css";
 
 const SideBar = ({ onCompose, open }) => {
@@ -109,6 +110,13 @@ const SideBar = ({ onCompose, open }) => {
             >
               <SnoozeIcon/>
               <span>snooze</span>
+            </NavLink>
+            <NavLink
+              to="/archive"
+              className={({ isActive }) => `sidebar-item ${isActive ? "active" : ""}`}
+            >
+              <ArchiveIcon />
+              <span>Archive</span>
             </NavLink>
           </div>
         )}

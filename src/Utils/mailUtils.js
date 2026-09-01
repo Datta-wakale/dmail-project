@@ -7,7 +7,6 @@ export const normalizeEmailAddress = (value) => {
   if (!normalized) {
     return "";
   }
-
   return normalized.includes("@") ? normalized : `${normalized}@dmail.com`;
 };
 
@@ -15,9 +14,7 @@ export const splitRecipients = (value) => {
   if (!value) {
     return [];
   }
-
   const rawRecipients = Array.isArray(value) ? value : String(value).split(/[;,]/);
-
   return rawRecipients
     .flatMap((recipient) => String(recipient).split(" "))
     .map((recipient) => recipient.trim())
@@ -30,7 +27,6 @@ export const matchesAnyRecipient = (recipients, targetEmail) => {
   if (!target) {
     return false;
   }
-
   return splitRecipients(recipients).includes(target);
 };
 
@@ -38,7 +34,6 @@ export const isEmailInTrash = (email, currentUserEmail) => {
   if (!email) {
     return false;
   }
-
   const currentUser = normalizeEmailAddress(currentUserEmail);
   const isSentByMe = normalizeEmailAddress(email.from) === currentUser;
   const isReceivedByMe = matchesAnyRecipient(email.to, currentUser);
@@ -50,7 +45,6 @@ export const isEmailInTrash = (email, currentUserEmail) => {
   if (isReceivedByMe && email.receiverFolder === "trash") {
     return true;
   }
-
   return false;
 };
 
@@ -67,7 +61,7 @@ export const joinRecipients = (value) => {
   return recipients.join(", ");
 };
 
-export const formatMailDate = (value) => {
+export const formatMailDate = (value) =>{
   if (!value) {
     return "Today";
   }
@@ -122,7 +116,6 @@ export const getReceiverDisplayLabel = (email, currentUserEmail) => {
   if (!email) {
     return "";
   }
-
   const currentUser = normalizeEmailAddress(currentUserEmail);
   const sender = normalizeEmailAddress(email.from);
 
@@ -132,6 +125,5 @@ export const getReceiverDisplayLabel = (email, currentUserEmail) => {
     }
     return "me";
   }
-
   return email.to || "Unknown recipient";
 };

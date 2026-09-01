@@ -25,9 +25,13 @@ const Register = () => {
 
     const [error, setError] = useState({});
     const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const {setLoggedInUser} = useContext(UserContext);
     const handleShowPassword = () => {
         setShowPassword((show) => !show);
+    }
+    const handleShowConfirmPassword = ()=> {
+        setShowConfirmPassword((show)=> !show);
     }
     const handleChange = (event) => {
         const { name, value } = event.target;
@@ -60,30 +64,56 @@ const Register = () => {
         if (!user.fname.trim()) {
             errors.fname = "First name is required";
         }
-        if (!user.lname.trim()) {
-            errors.lname = "Last name is required";
-        }
+        // if (!user.lname.trim()) {
+        //     errors.lname = "Last name is required";
+        // }
         setError(errors);
         return Object.keys(errors).length === 0;
     };
 
-    const validateStep2 = async () => {
-        const errors = {};
+    // const validateStep2 = async () => {
+    //     const errors = {};
 
-        if (!user.email.trim()) {
-            errors.email = "Email is required";
-        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(user.email)) {
-            errors.email = "Enter a valid email";
+    //     if (!user.email.trim()) {
+    //         errors.email = "Email is required";
+    //     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(user.email)) {
+    //         errors.email = "Enter a valid email";
+    //     }
+    //     else {
+    //         const exists = await checkEmailExists(user.email);
+    //         if (exists) {
+    //             errors.email = "This dmail is already exists"
+    //         }
+    //     }
+    //     setError(errors);
+    //     return Object.keys(errors).length === 0;
+    // };
+const validateStep2 = async () =>{
+    const errors = {};
+    const email = user.email.trim().toLowerCase();
+
+    if (!email){
+        errors.email = "Email is required";
+    } 
+    else {
+        const normalizedEmail = email.includes("@") ? email : `${email}@dmail.com`;
+
+        // if (!/^[^\s@]+@dmail\.com$/.test(normalizedEmail)) {
+        //     errors.email = "Email must end with @dmail.com";
+        // } 
+        if (!/^[a-zA-Z][a-zA-Z0-9._-]*@dmail\.com$/.test(normalizedEmail)) {
+                 errors.email = "Enter a valid dmail address";
         }
         else {
-            const exists = await checkEmailExists(user.email);
-            if (exists) {
-                errors.email = "This dmail is already exists"
+            const exists = await checkEmailExists(normalizedEmail);
+            if(exists){
+                errors.email = "This dmail is already exists";
             }
         }
-        setError(errors);
-        return Object.keys(errors).length === 0;
-    };
+    }
+    setError(errors);
+    return Object.keys(errors).length === 0;
+};
 
     const validateStep3 = () => {
         const errors = {};
@@ -142,9 +172,7 @@ const Register = () => {
             errors.phone =
                 "Phone number must be 10 digits";
         }
-
         setError(errors);
-
         return Object.keys(errors).length === 0;
     };
 
@@ -189,7 +217,6 @@ const Register = () => {
         setStep((prev) => prev - 1);
     };
     const handleSubmit = async () => {
-
         const newUser = {
             fname: user.fname,
             lname: user.lname,
@@ -198,14 +225,12 @@ const Register = () => {
             dob: user.dob,
             password: user.password,
         };
-
         try {
             const createdUser = await registerUser(newUser);
             if (!createdUser) {
                 toast.error("Registration failed. Please try again.");
                 return;
             }
-
             setLoggedInUser(createdUser);
             localStorage.setItem("loggedInUser", JSON.stringify(createdUser));
             toast.success("Account Created successfully");
@@ -240,7 +265,7 @@ const Register = () => {
                                 placeholder="Enter first name" value={user.fname} onChange={handleChange} />
                             {error.fname && (<span className="error-msg">  {error.fname} </span>)}
                         </div>
-                        <div className="form-group"> <label htmlFor="lname"> Last Name </label>
+                        <div className="form-group"> <label htmlFor="lname"> Last Name (optional)</label>
                             <input type="text" id="lname"
                                 name="lname" placeholder="Enter last name"
                                 value={user.lname} onChange={handleChange} />
@@ -275,14 +300,9 @@ const Register = () => {
                                 Date of Birth
                             </label>
 
-                            <input
-                                type="date"
-                                id="dob"
-                                name="dob"
-                                value={user.dob}
-                                onChange={handleChange}
-                                max={maxDob}
-                            />
+                            <input type="date" id="dob"
+                                name="dob" value={user.dob}
+                                onChange={handleChange} max={maxDob} />
 
                             {error.dob && (
                                 <span className="error-msg">
@@ -292,11 +312,7 @@ const Register = () => {
                         </div>
 
                         <div className="button-row">
-                            <button
-                                type="button"
-                                className="register-btn"
-                                onClick={handleNext}
-                            >
+                            <button type="button" className="register-btn" onClick={handleNext}>
                                 Next
                             </button>
                         </div>
@@ -320,9 +336,12 @@ const Register = () => {
                         <div className="form-group">
                             <label htmlFor="confirmPassword"> Confirm Password </label>
 
-                            <input type="password" id="confirmPassword" name="confirmPassword"
+                            <input type={showConfirmPassword ? "text" : "password"} id="confirmPassword" name="confirmPassword"
                                 placeholder="Confirm password" value={user.confirmPassword}
                                 onChange={handleChange} />
+                                <IconButton onClick={handleShowConfirmPassword} className="icon-2">
+                                    {showConfirmPassword ? ( <VisibilityOff/>) : (<Visibility/>)}
+                                </IconButton>
                             {error.confirmPassword && (<span className="error-msg"> {error.confirmPassword} </span>)}
                         </div>
                         <div className="button-row">

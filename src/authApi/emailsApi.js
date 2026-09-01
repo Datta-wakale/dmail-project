@@ -61,9 +61,8 @@ export const createWelcomeEmail = async (user) => {
     if (existingWelcomeEmail) {
       return existingWelcomeEmail;
     }
-
     const welcomeEmail = {
-      from: "dmail-team@dmail.com",
+      from: "dmail_team@dmail.com",
       to: user.email,
       subject: "Welcome to D-mail",
       message: `Hi ${user.fname || "there"},\n\nWelcome to D-mail! We are excited to have you here. Your inbox is ready, and this is your first welcome message from the D-mail team.\n\nStart exploring your inbox and enjoy a cleaner, smarter way to stay connected.\n\nBest regards,\nD-mail Team`,
@@ -86,72 +85,22 @@ export const createWelcomeEmail = async (user) => {
   }
 };
 
-
-// MOVE EMAIL TO TRASH
-// export const deleteEmail = async (id, folder) => {
-//   const response = await fetch(`${apiUrl}/${id}`);
-
-//   if (!response.ok) {
-//     throw new Error("Unable to find email");
-//   }
-//   const email = await response.json();
-//   let updatedEmail;
-//   if (folder === "inbox") {
-//     updatedEmail = {
-//       ...email,
-//       receiverFolder: "trash",
-//     };
-//   }
-//   if(folder === "spam"){
-//     updatedEmail = {
-//       ...email,
-//       receiverFolder: "trash"
-//     }
-//   }
-//   if (folder === "sent") {
-//     updatedEmail = {
-//       ...email,
-//       senderFolder: "trash",
-//     };
-//   }
-//   if (folder === "draft") {
-//   updatedEmail = {
-//     ...email,
-//     senderFolder: "trash",
-//   };
-// }
-//   const updateResponse = await fetch(`${apiUrl}/${id}`, {
-//     method: "PUT",
-//     headers: {
-//       "Content-Type": "application/json",
-//     },
-//     body: JSON.stringify(updatedEmail),
-//   });
-//   if (!updateResponse.ok) {
-//     throw new Error("Unable to move email to trash");
-//   }
-//   return await updateResponse.json();
-// };
 export const deleteEmail = async (id, folder) => {
   const response = await fetch(`${apiUrl}/${id}`);
 
   if (!response.ok) {
     throw new Error("Unable to find email");
   }
-
   const email = await response.json();
-
   let updatedEmail;
-
-  // Inbox → Trash
+  // Inbox  Trash
   if (folder === "inbox") {
     updatedEmail = {
       ...email,
       receiverFolder: "trash",
     };
   }
-
-  // Spam → Trash
+  // Spam Trash
   if (folder === "spam") {
     // Received email is in Spam
     if (email.receiverFolder === "spam") {
@@ -160,9 +109,8 @@ export const deleteEmail = async (id, folder) => {
         receiverFolder: "trash",
       };
     }
-
     // Sent email is in Spam
-    else if (email.senderFolder === "spam") {
+    else if (email.senderFolder === "spam"){
       updatedEmail = {
         ...email,
         senderFolder: "trash",
@@ -170,7 +118,7 @@ export const deleteEmail = async (id, folder) => {
     }
   }
 
-  // Sent → Trash
+  // Sent  Trash
   if (folder === "sent") {
     updatedEmail = {
       ...email,
@@ -178,7 +126,22 @@ export const deleteEmail = async (id, folder) => {
     };
   }
 
-  // Draft → Trash
+  // Archive Trash
+  if (folder === "archive") {
+    if (email.receiverFolder === "archive") {
+      updatedEmail = {
+        ...email,
+        receiverFolder: "trash",
+      };
+    } else if (email.senderFolder === "archive") {
+      updatedEmail = {
+        ...email,
+        senderFolder: "trash",
+      };
+    }
+  }
+ 
+  // Draft Trash
   if (folder === "draft") {
     updatedEmail = {
       ...email,
@@ -204,48 +167,18 @@ export const deleteEmail = async (id, folder) => {
 
   return await updateResponse.json();
 };
-// MOVE EMAIL TO SPAM
-// export const moveEmailToSpam = async (id) => {
-//   const response = await fetch(`${apiUrl}/${id}`);
 
-//   if (!response.ok) {
-//     throw new Error("Unable to find email");
-//   }
-
-//   const email = await response.json();
-
-//   const updatedEmail = {
-//     ...email,
-//     receiverFolder: "spam",
-//   };
-
-//   const updateResponse = await fetch(`${apiUrl}/${id}`, {
-//     method: "PUT",
-//     headers: {
-//       "Content-Type": "application/json",
-//     },
-//     body: JSON.stringify(updatedEmail),
-//   });
-
-//   if (!updateResponse.ok) {
-//     throw new Error("Unable to move email to spam");
-//   }
-
-//   return await updateResponse.json();
-// };
+// move email to spam
 export const moveEmailToSpam = async (id, folder) => {
   const response = await fetch(`${apiUrl}/${id}`);
 
   if (!response.ok) {
     throw new Error("Unable to find email");
   }
-
   const email = await response.json();
-
   const updatedEmail = {
     ...email,
   };
-
   // Received email
   if (
     folder === "inbox" ||
@@ -254,12 +187,8 @@ export const moveEmailToSpam = async (id, folder) => {
   ) {
     updatedEmail.receiverFolder = "spam";
   }
-
   // Sent email
-  if (
-    folder === "sent" ||
-    folder === "starred-sent"
-  ) {
+  if (folder === "sent" ||folder === "starred-sent") {
     updatedEmail.senderFolder = "spam";
   }
 
@@ -306,18 +235,6 @@ export const toggleStarEmail = async (id, starred) => {
   return await updateResponse.json();
 };
 
-// PERMANENT DELETE FROM TRASH
-// export const permanentlyDeleteEmail = async (id) => {
-//   const response = await fetch(`${apiUrl}/${id}`, {
-//     method: "DELETE",
-//   });
-
-//   if (!response.ok) {
-//     throw new Error("Unable to permanently delete email");
-//   }
-
-//   return true;
-// };
 // PERMANENT DELETE FROM TRASH
 export const permanentlyDeleteEmail = async (id) => {
   const response = await fetch(`${apiUrl}/${id}`);
@@ -383,7 +300,7 @@ export const permanentlyDeleteEmail = async (id) => {
       }
       return true;
     }
-    const updateResponse = await fetch(`${apiUrl}/${id}`, {
+    const updateResponse = await fetch(`${apiUrl}/${id}`,{
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -423,9 +340,9 @@ export const restoreEmail = async (id, folder) => {
     };
   }
 
-  if (!updatedEmail) {
-    throw new Error("Invalid folder");
-  }
+ if(!updatedEmail){
+    throw new Error("Unable to restore email");
+ }
 
   const updateResponse = await fetch(`${apiUrl}/${id}`, {
     method: "PUT",
@@ -556,6 +473,14 @@ export const snoozeEmail = async (id, folder, snoozedUntil) => {
 
   if (folder === "sent") {
     updatedEmail.senderSnoozedUntil = snoozedUntil;
+  }
+
+  if (folder === "archive") {
+    if (email.receiverFolder === "archive") {
+      updatedEmail.receiverSnoozedUntil = snoozedUntil;
+    } else if (email.senderFolder === "archive") {
+      updatedEmail.senderSnoozedUntil = snoozedUntil;
+    }
   }
 
   const updateResponse = await fetch(`${apiUrl}/${id}`, {

@@ -171,32 +171,90 @@
       "dob": "2002-06-07",
       "password": "ram123",
       "id": "wFNr5JloG-c"
+    },
+    {
+      "fname": "tester",
+      "lname": "test",
+      "email": "tester@dmail.com",
+      "phone": "9022332256",
+      "dob": "2012-01-02",
+      "password": "tester123",
+      "id": "D9aUXm_gwwg"
+    },
+    {
+      "fname": "pranav",
+      "lname": "patil",
+      "email": "pranav@dmail.com",
+      "phone": "8329944117",
+      "dob": "2000-01-03",
+      "password": "$2b$10$YIuONUjxTTluPjKi3oufpuCDm.eiCm5w9T1hiujFxubsb2ThSBVmS",
+      "id": "f8omQVCnGcg"
+    },
+    {
+      "fname": "devank",
+      "lname": "dalal",
+      "email": "devank@dmail.co",
+      "phone": "9944761234",
+      "dob": "2000-02-22",
+      "password": "$2b$10$hEidlIuc6EW/5yKTn5SZjOwwJBHnIZFqW8m1.nVy.F9ig/tMm8c0W",
+      "id": "sIUzbiIpJJ4"
+    },
+    {
+      "fname": "sunil",
+      "lname": "kumar",
+      "email": "sunil@dmail.com",
+      "phone": "9944761234",
+      "dob": "2003-03-03",
+      "password": "$2b$10$9WQ9zmUAQQ2.GE56GnMo3eiGpHuPI7ldw.cWmVg4da5RoqzA4.UFu",
+      "id": "gQ33_IR0TcE"
+    },
+    {
+      "fname": "ankit",
+      "lname": "wakale",
+      "email": "ankit@dmail.com",
+      "phone": "8903412344",
+      "dob": "2002-03-02",
+      "password": "$2b$10$JJj3UZKgF/MSWUWjEMffiu6jnf7JPjmSnJOfuWgkviMN1OKIYutem",
+      "id": "FtcDIv_T7Ls"
+    },
+    {
+      "fname": "sumit",
+      "lname": "wakale",
+      "email": "sumit@dmail.com",
+      "phone": "9021897654",
+      "dob": "2003-12-12",
+      "password": "$2b$10$BbUkBlXubvKLRucvFS7vyOmSQRWS6zyKzVCvUMkAARDl0/XnWfdya",
+      "id": "8P9yF0558yE"
     }
   ],
   "emails": [
     {
       "id": "w7pdiK4NwWw",
-      "read": true,
-      "receiverFolder": "archive",
-      "senderFolder": "trash"
+      "read": false,
+      "receiverFolder": "inbox",
+      "senderFolder": "trash",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "id": "rTDrOddwgo8",
-      "read": true,
-      "receiverFolder": "archive",
-      "senderFolder": "trash"
+      "read": false,
+      "receiverFolder": "inbox",
+      "senderFolder": "trash",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "id": "MVM2scXF2WM",
       "senderFolder": "trash",
-      "read": true,
-      "receiverFolder": "archive"
+      "read": false,
+      "receiverFolder": "inbox",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "id": "oYIuRpDAfzg",
-      "read": true,
-      "receiverFolder": "archive",
-      "senderFolder": "trash"
+      "read": false,
+      "receiverFolder": "inbox",
+      "senderFolder": "trash",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "test@dmail.com",
@@ -206,9 +264,10 @@
       "attachment": null,
       "threadId": "JHNLtssVq1w",
       "senderFolder": "trash",
-      "receiverFolder": "archive",
+      "receiverFolder": "inbox",
       "id": "sOu016T2ReE",
-      "read": true
+      "read": false,
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "test@dmail.com",
@@ -217,10 +276,11 @@
       "message": "testtttttttttttttt\n                ----------------\n                From: test@dmail.com\n                To: test@dmail.com\n               testingggg",
       "attachment": null,
       "senderFolder": "trash",
-      "receiverFolder": "archive",
+      "receiverFolder": "inbox",
       "id": "SRLk91TRxbI",
       "starred": false,
-      "read": true
+      "read": false,
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "datta@dmail.com",
@@ -231,9 +291,10 @@
       "attachment": null,
       "threadId": "d3fbf2a7-e66b-4e54-b638-0679e443b4f9",
       "senderFolder": "inbox",
-      "receiverFolder": "deleted",
+      "receiverFolder": "inbox",
       "id": "oFsG9fRmU1Q",
-      "read": true
+      "read": true,
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "datta@dmail.com",
@@ -243,9 +304,10 @@
       "attachment": null,
       "threadId": "6221f862-13b7-4e03-a3d8-a50d309b9723",
       "senderFolder": "trash",
-      "receiverFolder": "deleted",
+      "receiverFolder": "inbox",
       "id": "Q8DUVmXahqE",
-      "read": true
+      "read": false,
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "datta@dmail.com",
@@ -256,9 +318,10 @@
       "attachment": null,
       "threadId": "51f9f377-e0a3-4361-a887-835617339c1d",
       "senderFolder": "trash",
-      "receiverFolder": "deleted",
+      "receiverFolder": "inbox",
       "id": "oeB-Q_Jrca0",
-      "read": true
+      "read": true,
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "ajaypatil@dmail.com",
@@ -269,10 +332,10 @@
       "attachment": null,
       "threadId": "e6652dc2-cba5-4a89-b8e7-518743b57c15",
       "senderFolder": "trash",
-      "receiverFolder": "trash",
+      "receiverFolder": "inbox",
       "id": "9r1ts2BzSsM",
       "starred": false,
-      "receiverSnoozedUntil": null,
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z",
       "read": true
     },
     {
@@ -284,9 +347,10 @@
       "attachment": null,
       "threadId": "864bd29d-7b38-486f-98f0-2e6224aab795",
       "senderFolder": "trash",
-      "receiverFolder": "trash",
+      "receiverFolder": "inbox",
       "id": "dWM3TXo-F20",
-      "read": true
+      "read": true,
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "ajaypatil@dmail.com",
@@ -297,11 +361,11 @@
       "attachment": null,
       "threadId": "b18adf33-e8ae-4e61-b568-e9cae29e28fd",
       "senderFolder": "trash",
-      "receiverFolder": "archive",
+      "receiverFolder": "inbox",
       "id": "-AUYUbeIsrc",
       "starred": false,
       "senderSnoozedUntil": null,
-      "receiverSnoozedUntil": "2026-08-27T12:30:00.000Z",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z",
       "read": true
     },
     {
@@ -313,10 +377,10 @@
       "attachment": null,
       "threadId": "2dd3ee01-a079-4222-9dc3-1fb2bc1e3f2c",
       "senderFolder": "trash",
-      "receiverFolder": "archive",
+      "receiverFolder": "inbox",
       "id": "InwZD62R-A8",
-      "receiverSnoozedUntil": null,
-      "read": true
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z",
+      "read": false
     },
     {
       "from": "ajaypatil@dmail.com",
@@ -326,10 +390,11 @@
       "attachment": null,
       "threadId": "2dd3ee01-a079-4222-9dc3-1fb2bc1e3f2c",
       "senderFolder": "trash",
-      "receiverFolder": "archive",
+      "receiverFolder": "inbox",
       "id": "9IWCOe_--FI",
       "senderSnoozedUntil": "2026-08-27T12:30:00.000Z",
-      "read": true
+      "read": false,
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "ajaypatil@dmail.com",
@@ -340,10 +405,10 @@
       "attachment": null,
       "threadId": "d71385fb-23c4-46ea-a1b5-ba0c908771be",
       "senderFolder": "trash",
-      "receiverFolder": "trash",
+      "receiverFolder": "inbox",
       "id": "_dMpaXlCfKA",
-      "receiverSnoozedUntil": "2026-08-27T12:30:00.000Z",
-      "read": true
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z",
+      "read": false
     },
     {
       "from": "datta@dmail.com",
@@ -354,11 +419,11 @@
       "attachment": null,
       "threadId": "1bd8a5b7-3e37-491e-9802-bd06483b475b",
       "senderFolder": "inbox",
-      "receiverFolder": "trash",
+      "receiverFolder": "inbox",
       "id": "tO3DjXrfKpU",
       "senderSnoozedUntil": null,
-      "read": true,
-      "receiverSnoozedUntil": null,
+      "read": false,
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z",
       "starred": false
     },
     {
@@ -369,9 +434,10 @@
       "attachment": null,
       "threadId": "e1575756-f515-47c8-aea4-2a6c622e7152",
       "senderFolder": "trash",
-      "receiverFolder": "archive",
-      "read": true,
-      "id": "iS_CCTqEb0o"
+      "receiverFolder": "inbox",
+      "read": false,
+      "id": "iS_CCTqEb0o",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "rahul@dmail.com",
@@ -382,9 +448,10 @@
       "attachment": null,
       "threadId": "46f9907b-b52b-4cdd-a53a-f9d339053c12",
       "senderFolder": "trash",
-      "receiverFolder": "deleted",
-      "read": true,
-      "id": "y7wP_DdbM9I"
+      "receiverFolder": "inbox",
+      "read": false,
+      "id": "y7wP_DdbM9I",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "rahul@dmail.com",
@@ -395,10 +462,11 @@
       "attachment": null,
       "threadId": "55a20c3f-4aba-4dcc-814a-4bd3f2bfd988",
       "senderFolder": "trash",
-      "receiverFolder": "archive",
-      "read": true,
+      "receiverFolder": "trash",
+      "read": false,
       "id": "7QtiC3u4M2A",
-      "starred": false
+      "starred": false,
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "rahul@dmail.com",
@@ -409,9 +477,10 @@
       "attachment": null,
       "threadId": "a2ff42ef-eece-4d72-957b-9d01a18b4d3c",
       "senderFolder": "trash",
-      "receiverFolder": "archive",
-      "read": true,
-      "id": "lV7lk82cnMw"
+      "receiverFolder": "trash",
+      "read": false,
+      "id": "lV7lk82cnMw",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "rahul@dmail.com",
@@ -422,9 +491,10 @@
       "attachment": null,
       "threadId": "982328a2-c42c-4f4d-8bba-dafb89baf2e9",
       "senderFolder": "trash",
-      "receiverFolder": "archive",
-      "read": true,
-      "id": "s2knENvDja0"
+      "receiverFolder": "trash",
+      "read": false,
+      "id": "s2knENvDja0",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "datta@dmail.com",
@@ -435,10 +505,11 @@
       "attachment": null,
       "threadId": "787bab62-974a-4c0c-80aa-aa469d278483",
       "senderFolder": "inbox",
-      "receiverFolder": "archive",
-      "read": true,
+      "receiverFolder": "trash",
+      "read": false,
       "id": "4GzY8Er_6bg",
-      "starred": false
+      "starred": false,
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "datta@dmail.com",
@@ -449,10 +520,11 @@
       "attachment": null,
       "threadId": "0309a31b-cb6a-43fa-85de-e86e918bfba2",
       "senderFolder": "trash",
-      "receiverFolder": "archive",
-      "read": true,
+      "receiverFolder": "trash",
+      "read": false,
       "id": "NFs9i6ZHK5A",
-      "starred": false
+      "starred": false,
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "datta@dmail.com",
@@ -462,9 +534,10 @@
       "attachment": null,
       "threadId": "0309a31b-cb6a-43fa-85de-e86e918bfba2",
       "senderFolder": "trash",
-      "receiverFolder": "archive",
-      "read": true,
-      "id": "zznyGSVPLpM"
+      "receiverFolder": "trash",
+      "read": false,
+      "id": "zznyGSVPLpM",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "rahul@dmail.com",
@@ -474,9 +547,10 @@
       "attachment": null,
       "threadId": "9d01981f-fa44-45fc-a4af-bbddc3efa7ad",
       "senderFolder": "sent",
-      "receiverFolder": "archive",
-      "read": true,
-      "id": "96SCOndxJQk"
+      "receiverFolder": "inbox",
+      "read": false,
+      "id": "96SCOndxJQk",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "rahul@dmail.com",
@@ -487,9 +561,10 @@
       "attachment": null,
       "threadId": "94b44cf3-d261-4d65-a15f-d7f532db04f8",
       "senderFolder": "inbox",
-      "receiverFolder": "deleted",
-      "read": true,
-      "id": "AeacXtyzqE8"
+      "receiverFolder": "inbox",
+      "read": false,
+      "id": "AeacXtyzqE8",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "abhi@dmail.com",
@@ -500,9 +575,10 @@
       "attachment": null,
       "threadId": "1d22e8f8-9290-45c0-917c-d1d93972d230",
       "senderFolder": "deleted",
-      "receiverFolder": "archive",
-      "read": true,
-      "id": "mf2NMK_aHYI"
+      "receiverFolder": "inbox",
+      "read": false,
+      "id": "mf2NMK_aHYI",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "abhi@dmail.com",
@@ -513,9 +589,10 @@
       "attachment": null,
       "threadId": "fa4e8c56-4878-49fb-b716-38333ef58903",
       "senderFolder": "deleted",
-      "receiverFolder": "archive",
-      "read": true,
-      "id": "-lVAGpkTviI"
+      "receiverFolder": "inbox",
+      "read": false,
+      "id": "-lVAGpkTviI",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "abhi@dmail.com",
@@ -526,10 +603,11 @@
       "attachment": null,
       "threadId": "ca71a161-d601-4aa1-9427-5df0a14fb908",
       "senderFolder": "deleted",
-      "receiverFolder": "archive",
-      "read": true,
+      "receiverFolder": "inbox",
+      "read": false,
       "id": "8W0Wh4E9PT4",
-      "starred": true
+      "starred": true,
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "datta@dmail.com",
@@ -540,10 +618,11 @@
       "attachment": null,
       "threadId": "f96d68ac-3056-4632-9137-e1375f5f1999",
       "senderFolder": "inbox",
-      "receiverFolder": "archive",
-      "read": true,
+      "receiverFolder": "inbox",
+      "read": false,
       "id": "ahA8sSjZP4o",
-      "starred": false
+      "starred": false,
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "rahul@dmail.com",
@@ -554,9 +633,10 @@
       "attachment": null,
       "threadId": "c1277b9d-fb74-4cb0-9971-e45e64dc85ad",
       "senderFolder": "inbox",
-      "receiverFolder": "archive",
-      "read": true,
-      "id": "ckF9T6Oh-U8"
+      "receiverFolder": "inbox",
+      "read": false,
+      "id": "ckF9T6Oh-U8",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "rahul@dmail.com",
@@ -567,9 +647,10 @@
       "attachment": null,
       "threadId": "4488ca31-2501-4667-9ad0-c9588b2cf2d2",
       "senderFolder": "inbox",
-      "receiverFolder": "archive",
-      "read": true,
-      "id": "-CfCn6WedfI"
+      "receiverFolder": "inbox",
+      "read": false,
+      "id": "-CfCn6WedfI",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "rahul@dmail.com",
@@ -580,10 +661,11 @@
       "attachment": null,
       "threadId": "4f5ad99a-333b-4b40-a076-8ba35ae451ab",
       "senderFolder": "sent",
-      "receiverFolder": "archive",
-      "read": true,
+      "receiverFolder": "inbox",
+      "read": false,
       "id": "njlbBQrD5DQ",
-      "starred": false
+      "starred": false,
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "rahul@dmail.com",
@@ -594,10 +676,11 @@
       "attachment": null,
       "threadId": "cb6f2a34-3512-4950-b250-e4c35ae053b4",
       "senderFolder": "sent",
-      "receiverFolder": "archive",
-      "read": true,
+      "receiverFolder": "inbox",
+      "read": false,
       "id": "dIsch4S_O-I",
-      "starred": false
+      "starred": false,
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "rahul@dmail.com",
@@ -607,9 +690,10 @@
       "attachment": null,
       "threadId": "ca71a161-d601-4aa1-9427-5df0a14fb908",
       "senderFolder": "sent",
-      "receiverFolder": "deleted",
-      "read": true,
-      "id": "Wc8f-sqJ5Q0"
+      "receiverFolder": "inbox",
+      "read": false,
+      "id": "Wc8f-sqJ5Q0",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "rahul@dmail.com",
@@ -619,9 +703,10 @@
       "attachment": null,
       "threadId": "55a20c3f-4aba-4dcc-814a-4bd3f2bfd988",
       "senderFolder": "sent",
-      "receiverFolder": "archive",
-      "read": true,
-      "id": "B4pz5cXAlsw"
+      "receiverFolder": "inbox",
+      "read": false,
+      "id": "B4pz5cXAlsw",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "pratik@dmail.com",
@@ -632,9 +717,10 @@
       "attachment": null,
       "threadId": "279d2fa0-c2e7-4431-9f89-ea46c5a69c65",
       "senderFolder": "sent",
-      "receiverFolder": "archive",
-      "read": true,
-      "id": "sfSKNbpjjK0"
+      "receiverFolder": "inbox",
+      "read": false,
+      "id": "sfSKNbpjjK0",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "datta@dmail.com",
@@ -644,9 +730,10 @@
       "attachment": null,
       "threadId": "279d2fa0-c2e7-4431-9f89-ea46c5a69c65",
       "senderFolder": "sent",
-      "receiverFolder": "archive",
-      "read": true,
-      "id": "w3rKExFK4Wc"
+      "receiverFolder": "inbox",
+      "read": false,
+      "id": "w3rKExFK4Wc",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "datta@dmail.com",
@@ -657,9 +744,10 @@
       "attachment": null,
       "threadId": "9e7a3cae-77ee-407e-879d-6e9521b8f10a",
       "senderFolder": "sent",
-      "receiverFolder": "archive",
-      "read": true,
-      "id": "VkRaB2C_sEU"
+      "receiverFolder": "inbox",
+      "read": false,
+      "id": "VkRaB2C_sEU",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "datta@dmail.com",
@@ -670,9 +758,10 @@
       "attachment": null,
       "threadId": "007d88be-07f4-40cd-b18e-dd841fe903e9",
       "senderFolder": "sent",
-      "receiverFolder": "archive",
-      "read": true,
-      "id": "I5JrV42jjs8"
+      "receiverFolder": "inbox",
+      "read": false,
+      "id": "I5JrV42jjs8",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "rahul@dmail.com",
@@ -682,9 +771,10 @@
       "attachment": null,
       "threadId": "007d88be-07f4-40cd-b18e-dd841fe903e9",
       "senderFolder": "sent",
-      "receiverFolder": "archive",
-      "read": true,
-      "id": "DQRtp_5hCUs"
+      "receiverFolder": "inbox",
+      "read": false,
+      "id": "DQRtp_5hCUs",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "rahul@dmail.com",
@@ -694,9 +784,10 @@
       "attachment": null,
       "threadId": "9e7a3cae-77ee-407e-879d-6e9521b8f10a",
       "senderFolder": "sent",
-      "receiverFolder": "archive",
-      "read": true,
-      "id": "HRiRnIfDqTY"
+      "receiverFolder": "inbox",
+      "read": false,
+      "id": "HRiRnIfDqTY",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "rahul@dmail.com",
@@ -707,9 +798,10 @@
       "attachment": null,
       "threadId": "f2e0dbc6-aa91-49a4-99a2-160fa69872b5",
       "senderFolder": "sent",
-      "receiverFolder": "archive",
-      "read": true,
-      "id": "tjJJijvWdsQ"
+      "receiverFolder": "inbox",
+      "read": false,
+      "id": "tjJJijvWdsQ",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "rahul@dmail.com",
@@ -720,9 +812,10 @@
       "attachment": null,
       "threadId": "1a71af55-076e-4e38-afa6-ea9272ab67c3",
       "senderFolder": "sent",
-      "receiverFolder": "archive",
-      "read": true,
-      "id": "fOS0i6F2Ia4"
+      "receiverFolder": "inbox",
+      "read": false,
+      "id": "fOS0i6F2Ia4",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "datta@dmail.com",
@@ -733,9 +826,10 @@
       "attachment": null,
       "threadId": "e3fbd9a5-c6c6-4101-a7c7-32122ff09da7",
       "senderFolder": "trash",
-      "receiverFolder": "archive",
-      "read": true,
-      "id": "14mu5pd9tu8"
+      "receiverFolder": "inbox",
+      "read": false,
+      "id": "14mu5pd9tu8",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "datta@dmail.com",
@@ -746,9 +840,10 @@
       "attachment": null,
       "threadId": "1c4607ec-d730-4c41-97f0-f27d89234e32",
       "senderFolder": "sent",
-      "receiverFolder": "archive",
-      "read": true,
-      "id": "afRaPS6UPOM"
+      "receiverFolder": "inbox",
+      "read": false,
+      "id": "afRaPS6UPOM",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "rahul@dmail.com",
@@ -758,9 +853,10 @@
       "attachment": null,
       "threadId": "1c4607ec-d730-4c41-97f0-f27d89234e32",
       "senderFolder": "sent",
-      "receiverFolder": "archive",
-      "read": true,
-      "id": "8UEkv5H-2Mc"
+      "receiverFolder": "inbox",
+      "read": false,
+      "id": "8UEkv5H-2Mc",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "rahul@dmail.com",
@@ -770,9 +866,10 @@
       "attachment": null,
       "threadId": "e3fbd9a5-c6c6-4101-a7c7-32122ff09da7",
       "senderFolder": "sent",
-      "receiverFolder": "archive",
-      "read": true,
-      "id": "VNQwLR6u3EA"
+      "receiverFolder": "inbox",
+      "read": false,
+      "id": "VNQwLR6u3EA",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "rahul@dmail.com",
@@ -783,9 +880,10 @@
       "attachment": null,
       "threadId": "877dadc4-97c5-430b-a847-d8e49b483e3f",
       "senderFolder": "sent",
-      "receiverFolder": "archive",
-      "read": true,
-      "id": "ym233I4BLQs"
+      "receiverFolder": "inbox",
+      "read": false,
+      "id": "ym233I4BLQs",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "rahul@dmail.com",
@@ -796,9 +894,10 @@
       "attachment": null,
       "threadId": "aebe776b-855d-4cd3-b08d-18a121ef8321",
       "senderFolder": "sent",
-      "receiverFolder": "archive",
-      "read": true,
-      "id": "Bd0-zhNv8os"
+      "receiverFolder": "inbox",
+      "read": false,
+      "id": "Bd0-zhNv8os",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "pratik@dmail.com",
@@ -808,9 +907,10 @@
       "attachment": null,
       "threadId": "aebe776b-855d-4cd3-b08d-18a121ef8321",
       "senderFolder": "sent",
-      "receiverFolder": "archive",
-      "read": true,
-      "id": "VYgQ6K77umM"
+      "receiverFolder": "inbox",
+      "read": false,
+      "id": "VYgQ6K77umM",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "pratik@dmail.com",
@@ -820,9 +920,10 @@
       "attachment": null,
       "threadId": "877dadc4-97c5-430b-a847-d8e49b483e3f",
       "senderFolder": "sent",
-      "receiverFolder": "archive",
-      "read": true,
-      "id": "4KCWZM-zJ6I"
+      "receiverFolder": "inbox",
+      "read": false,
+      "id": "4KCWZM-zJ6I",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "rohit@dmail.com",
@@ -833,9 +934,10 @@
       "attachment": null,
       "threadId": "d83ea74a-0358-4e16-8308-efcff5fdb43e",
       "senderFolder": "sent",
-      "receiverFolder": "archive",
-      "read": true,
-      "id": "5On8ac1j2Us"
+      "receiverFolder": "inbox",
+      "read": false,
+      "id": "5On8ac1j2Us",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "rohit@dmail.com",
@@ -846,9 +948,10 @@
       "attachment": null,
       "threadId": "921e3135-2c92-4439-b0b4-3caa6b09ff3f",
       "senderFolder": "sent",
-      "receiverFolder": "archive",
-      "read": true,
-      "id": "M7AeMWOBc7U"
+      "receiverFolder": "inbox",
+      "read": false,
+      "id": "M7AeMWOBc7U",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "shubham@dmail.com",
@@ -858,9 +961,11 @@
       "attachment": null,
       "threadId": "921e3135-2c92-4439-b0b4-3caa6b09ff3f",
       "senderFolder": "sent",
-      "receiverFolder": "archive",
-      "read": true,
-      "id": "feAF9ejvZqs"
+      "receiverFolder": "inbox",
+      "read": false,
+      "id": "feAF9ejvZqs",
+      "senderSnoozedUntil": "2026-09-01T12:30:00.000Z",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "shubham@dmail.com",
@@ -870,9 +975,10 @@
       "attachment": null,
       "threadId": "d83ea74a-0358-4e16-8308-efcff5fdb43e",
       "senderFolder": "sent",
-      "receiverFolder": "archive",
+      "receiverFolder": "inbox",
       "read": false,
-      "id": "XnZAJFY47WM"
+      "id": "XnZAJFY47WM",
+      "senderSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "shubham@dmail.com",
@@ -882,9 +988,10 @@
       "attachment": null,
       "threadId": "921e3135-2c92-4439-b0b4-3caa6b09ff3f",
       "senderFolder": "trash",
-      "receiverFolder": "archive",
-      "read": true,
-      "id": "4WV2P2mYujE"
+      "receiverFolder": "inbox",
+      "read": false,
+      "id": "4WV2P2mYujE",
+      "senderSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "shubham@dmail.com",
@@ -895,9 +1002,10 @@
       "attachment": null,
       "threadId": "a99235a8-3eba-44be-868e-acd1c4834604",
       "senderFolder": "trash",
-      "receiverFolder": "trash",
-      "read": true,
-      "id": "MYtcdnN0l3o"
+      "receiverFolder": "inbox",
+      "read": false,
+      "id": "MYtcdnN0l3o",
+      "senderSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "shubham@dmail.com",
@@ -933,8 +1041,9 @@
       "threadId": "97716c77-9b8f-4a2f-9d79-f4130ce6505b",
       "senderFolder": "trash",
       "receiverFolder": "inbox",
-      "read": true,
-      "id": "LV39LNJOsEo"
+      "read": false,
+      "id": "LV39LNJOsEo",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "abhi@dmail.com",
@@ -944,9 +1053,10 @@
       "attachment": null,
       "threadId": "97716c77-9b8f-4a2f-9d79-f4130ce6505b",
       "senderFolder": "deleted",
-      "receiverFolder": "archive",
-      "read": true,
-      "id": "UI2c4YRuVJs"
+      "receiverFolder": "inbox",
+      "read": false,
+      "id": "UI2c4YRuVJs",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "abhi@dmail.com",
@@ -958,7 +1068,8 @@
       "senderFolder": "deleted",
       "receiverFolder": "inbox",
       "read": false,
-      "id": "n139kBOd8M0"
+      "id": "n139kBOd8M0",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "abhi@dmail.com",
@@ -968,7 +1079,10 @@
       "attachment": null,
       "createdAt": "2026-08-31T12:00:53.587Z",
       "senderFolder": "deleted",
-      "id": "Vi2B1u5Dcwc"
+      "id": "Vi2B1u5Dcwc",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z",
+      "receiverFolder": "inbox",
+      "read": false
     },
     {
       "from": "abhi@dmail.com",
@@ -979,7 +1093,9 @@
       "createdAt": "2026-08-31T10:58:02.223Z",
       "senderFolder": "deleted",
       "id": "oZYRKG9vViY",
-      "read": true
+      "read": false,
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z",
+      "receiverFolder": "inbox"
     },
     {
       "from": "abhi@dmail.com",
@@ -990,7 +1106,9 @@
       "createdAt": "2026-08-31T10:58:16.860Z",
       "senderFolder": "deleted",
       "id": "Ldsi-LWfkWw",
-      "read": true
+      "read": false,
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z",
+      "receiverFolder": "inbox"
     },
     {
       "from": "abhi@dmail.com",
@@ -1001,7 +1119,9 @@
       "createdAt": "2026-08-31T12:00:53.911Z",
       "senderFolder": "deleted",
       "id": "LwpJxDuzQuQ",
-      "read": true
+      "read": false,
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z",
+      "receiverFolder": "inbox"
     },
     {
       "from": "datta@dmail.com",
@@ -1012,7 +1132,9 @@
       "createdAt": "2026-08-31T12:47:37.316Z",
       "senderFolder": "trash",
       "id": "uRDuM6eXSwA",
-      "read": true
+      "read": false,
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z",
+      "receiverFolder": "inbox"
     },
     {
       "from": "datta@dmail.com",
@@ -1023,7 +1145,9 @@
       "createdAt": "2026-08-31T12:48:04.180Z",
       "senderFolder": "trash",
       "id": "LQ63XWP81Kk",
-      "read": true
+      "read": false,
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z",
+      "receiverFolder": "inbox"
     },
     {
       "from": "datta@dmail.com",
@@ -1034,7 +1158,9 @@
       "createdAt": "2026-08-31T13:22:04.948Z",
       "senderFolder": "deleted",
       "id": "YcnWQRdpn9k",
-      "read": true
+      "read": false,
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z",
+      "receiverFolder": "inbox"
     },
     {
       "from": "datta@dmail.com",
@@ -1045,7 +1171,9 @@
       "createdAt": "2026-08-31T13:24:08.404Z",
       "senderFolder": "draft",
       "id": "5L-mO11CrGo",
-      "read": true
+      "read": false,
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z",
+      "receiverFolder": "inbox"
     },
     {
       "from": "dmail-team@dmail.com",
@@ -1055,11 +1183,12 @@
       "attachment": null,
       "createdAt": "2026-08-31T13:44:19.577Z",
       "senderFolder": "sent",
-      "receiverFolder": "trash",
-      "read": true,
+      "receiverFolder": "inbox",
+      "read": false,
       "welcome": true,
       "threadId": "8c6072a9-0628-4aa2-b523-3c0032869d1f",
-      "id": "aXx1y4kD0yg"
+      "id": "aXx1y4kD0yg",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "dmail-team@dmail.com",
@@ -1069,11 +1198,12 @@
       "attachment": null,
       "createdAt": "2026-08-31T13:44:19.583Z",
       "senderFolder": "sent",
-      "receiverFolder": "trash",
-      "read": true,
+      "receiverFolder": "inbox",
+      "read": false,
       "welcome": true,
       "threadId": "e15df22e-dbe4-4a9c-afc7-3ef478b220cf",
-      "id": "84qJO09wn-Y"
+      "id": "84qJO09wn-Y",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "dmail-team@dmail.com",
@@ -1084,10 +1214,11 @@
       "createdAt": "2026-08-31T17:01:22.556Z",
       "senderFolder": "sent",
       "receiverFolder": "inbox",
-      "read": true,
+      "read": false,
       "welcome": true,
       "threadId": "79d5723b-a0a0-4d99-a497-a013ab4ad271",
-      "id": "Y440ygxHIhI"
+      "id": "Y440ygxHIhI",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "dmail-team@dmail.com",
@@ -1098,10 +1229,11 @@
       "createdAt": "2026-08-31T17:01:22.561Z",
       "senderFolder": "sent",
       "receiverFolder": "inbox",
-      "read": true,
+      "read": false,
       "welcome": true,
       "threadId": "190cb0e2-a94c-4f25-912d-0083259abbb5",
-      "id": "_DMCvZRdlgo"
+      "id": "_DMCvZRdlgo",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "dmail-team@dmail.com",
@@ -1112,10 +1244,11 @@
       "createdAt": "2026-08-31T17:04:23.580Z",
       "senderFolder": "sent",
       "receiverFolder": "inbox",
-      "read": true,
+      "read": false,
       "welcome": true,
       "threadId": "5678962e-bc58-410e-9076-65c75912249a",
-      "id": "wBiKKgAm7GQ"
+      "id": "wBiKKgAm7GQ",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "dmail-team@dmail.com",
@@ -1126,10 +1259,11 @@
       "createdAt": "2026-08-31T17:04:23.583Z",
       "senderFolder": "sent",
       "receiverFolder": "inbox",
-      "read": true,
+      "read": false,
       "welcome": true,
       "threadId": "d71cd32a-b0ea-4bae-9382-983fab88821d",
-      "id": "e6hIdiEssdM"
+      "id": "e6hIdiEssdM",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "dmail-team@dmail.com",
@@ -1140,11 +1274,12 @@
       "createdAt": "2026-08-31T17:18:28.905Z",
       "senderFolder": "sent",
       "receiverFolder": "inbox",
-      "read": true,
+      "read": false,
       "welcome": true,
       "threadId": "ecd8cf07-30fb-43a5-9921-836fbfa43d08",
       "id": "bG3vlYx64O8",
-      "starred": false
+      "starred": false,
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "dmail-team@dmail.com",
@@ -1158,7 +1293,8 @@
       "read": false,
       "welcome": true,
       "threadId": "193eb83f-7e35-4823-a64a-cf6f9a169a30",
-      "id": "1IXBHSltVsY"
+      "id": "1IXBHSltVsY",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "datta@dmail.com",
@@ -1170,8 +1306,9 @@
       "threadId": "c7809d1b-6d55-4987-8137-0571c0544bb2",
       "senderFolder": "trash",
       "receiverFolder": "inbox",
-      "read": true,
-      "id": "fl3HD8lgbqI"
+      "read": false,
+      "id": "fl3HD8lgbqI",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "datta@dmail.com",
@@ -1183,9 +1320,10 @@
       "threadId": "7e8958b3-a3a7-4d18-847e-431a25169c31",
       "senderFolder": "sent",
       "receiverFolder": "inbox",
-      "read": true,
+      "read": false,
       "id": "tiNeVS6qzSw",
-      "starred": false
+      "starred": false,
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "datta@dmail.com",
@@ -1195,10 +1333,11 @@
       "createdAt": "2026-08-31T17:47:21.304Z",
       "attachment": null,
       "threadId": "a429373b-f632-4803-9ca5-56351c61d422",
-      "senderFolder": "sent",
+      "senderFolder": "archive",
       "receiverFolder": "inbox",
-      "read": true,
-      "id": "h7FDyUAVzyw"
+      "read": false,
+      "id": "h7FDyUAVzyw",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
     },
     {
       "from": "datta@dmail.com",
@@ -1208,9 +1347,218 @@
       "attachment": null,
       "threadId": "7e8958b3-a3a7-4d18-847e-431a25169c31",
       "senderFolder": "sent",
-      "receiverFolder": "trash",
+      "receiverFolder": "inbox",
       "read": false,
-      "id": "sLUa8jLv1pg"
+      "id": "sLUa8jLv1pg",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
+    },
+    {
+      "from": "dmail-team@dmail.com",
+      "to": "shubham@dmail.com",
+      "subject": "Welcome to D-mail",
+      "message": "Hi shubham,\n\nWelcome to D-mail! We are excited to have you here. Your inbox is ready, and this is your first welcome message from the D-mail team.\n\nStart exploring your inbox and enjoy a cleaner, smarter way to stay connected.\n\nBest regards,\nD-mail Team",
+      "attachment": null,
+      "createdAt": "2026-09-01T01:48:30.283Z",
+      "senderFolder": "sent",
+      "receiverFolder": "inbox",
+      "read": false,
+      "welcome": true,
+      "threadId": "7ea0bbe5-21e6-4b4f-ae94-a77da8106ba2",
+      "id": "rE2KLETU9FA"
+    },
+    {
+      "from": "dmail-team@dmail.com",
+      "to": "tester@dmail.com",
+      "subject": "Welcome to D-mail",
+      "message": "Hi tester,\n\nWelcome to D-mail! We are excited to have you here. Your inbox is ready, and this is your first welcome message from the D-mail team.\n\nStart exploring your inbox and enjoy a cleaner, smarter way to stay connected.\n\nBest regards,\nD-mail Team",
+      "attachment": null,
+      "createdAt": "2026-09-01T01:53:11.786Z",
+      "senderFolder": "sent",
+      "receiverFolder": "inbox",
+      "read": false,
+      "welcome": true,
+      "threadId": "e17e7f08-84b7-4256-be69-c2e22b0362d8",
+      "id": "jeL8X-jDF34",
+      "receiverSnoozedUntil": null,
+      "starred": false
+    },
+    {
+      "from": "tester@dmail.com",
+      "to": "iuiyui@dmail.com",
+      "subject": "ghghy",
+      "message": "hfghfgh",
+      "attachment": null,
+      "createdAt": "2026-09-01T02:20:57.698Z",
+      "senderFolder": "draft",
+      "id": "NtFMY0hesWA",
+      "read": false,
+      "receiverFolder": "inbox"
+    },
+    {
+      "from": "datta@dmail.com",
+      "to": "tester@dmail.com",
+      "subject": "dfgfdg",
+      "message": "hfghfgh",
+      "createdAt": "2026-09-01T04:39:01.122Z",
+      "attachment": null,
+      "threadId": "be829fa7-e9fd-4a70-96f4-17922d525063",
+      "senderFolder": "sent",
+      "receiverFolder": "inbox",
+      "read": false,
+      "id": "DPtDxytbGkY"
+    },
+    {
+      "from": "datta@dmail.com",
+      "to": "tester@dmail.com",
+      "subject": "Check working or not",
+      "message": "check working or not",
+      "createdAt": "2026-09-01T04:55:05.175Z",
+      "attachment": null,
+      "threadId": "b36aac14-3ea4-444f-8a31-eb5f8d0c51a3",
+      "senderFolder": "sent",
+      "receiverFolder": "inbox",
+      "read": false,
+      "id": "OL4YHLPPyrE",
+      "receiverSnoozedUntil": null,
+      "starred": false
+    },
+    {
+      "from": "dmail_team@dmail.com",
+      "to": "pranav@dmail.com",
+      "subject": "Welcome to D-mail",
+      "message": "Hi pranav,\n\nWelcome to D-mail! We are excited to have you here. Your inbox is ready, and this is your first welcome message from the D-mail team.\n\nStart exploring your inbox and enjoy a cleaner, smarter way to stay connected.\n\nBest regards,\nD-mail Team",
+      "attachment": null,
+      "createdAt": "2026-09-01T05:18:10.150Z",
+      "senderFolder": "sent",
+      "receiverFolder": "inbox",
+      "read": false,
+      "welcome": true,
+      "threadId": "dc3bb2d1-c16a-45c3-9de0-507a813df05a",
+      "id": "jTjmnEH9Nvs",
+      "receiverSnoozedUntil": "2026-09-01T12:30:00.000Z"
+    },
+    {
+      "from": "pranav@dmail.com",
+      "to": "pratik@dmail.com",
+      "subject": "",
+      "message": "",
+      "attachment": null,
+      "createdAt": "2026-09-01T05:20:17.026Z",
+      "senderFolder": "deleted",
+      "id": "XJa3EvlPHA0",
+      "read": false,
+      "receiverFolder": "inbox"
+    },
+    {
+      "from": "pranav@dmail.com",
+      "to": "test12@dmail.com",
+      "subject": "effd",
+      "message": "efdfsdd",
+      "attachment": null,
+      "createdAt": "2026-09-01T05:33:16.875Z",
+      "senderFolder": "deleted",
+      "id": "PHx1rm6aj_s",
+      "read": false,
+      "receiverFolder": "inbox"
+    },
+    {
+      "from": "pranav@dmail.com",
+      "to": "datta@dmail.com",
+      "subject": "lkjl",
+      "message": "mjhkhuk",
+      "createdAt": "2026-09-01T05:35:45.189Z",
+      "attachment": null,
+      "threadId": "cbf8111e-191f-4cb5-ad5c-6fa55ad7491f",
+      "senderFolder": "deleted",
+      "receiverFolder": "inbox",
+      "read": false,
+      "id": "RGCOBSY4PXY"
+    },
+    {
+      "from": "dmail_team@dmail.com",
+      "to": "devank@dmail.co",
+      "subject": "Welcome to D-mail",
+      "message": "Hi devank,\n\nWelcome to D-mail! We are excited to have you here. Your inbox is ready, and this is your first welcome message from the D-mail team.\n\nStart exploring your inbox and enjoy a cleaner, smarter way to stay connected.\n\nBest regards,\nD-mail Team",
+      "attachment": null,
+      "createdAt": "2026-09-01T06:15:52.643Z",
+      "senderFolder": "sent",
+      "receiverFolder": "inbox",
+      "read": false,
+      "welcome": true,
+      "threadId": "411937a9-4803-478f-9691-90a87cc470b2",
+      "id": "UBJPBpxriQM"
+    },
+    {
+      "from": "dmail_team@dmail.com",
+      "to": "sunil@dmail.com",
+      "subject": "Welcome to D-mail",
+      "message": "Hi sunil,\n\nWelcome to D-mail! We are excited to have you here. Your inbox is ready, and this is your first welcome message from the D-mail team.\n\nStart exploring your inbox and enjoy a cleaner, smarter way to stay connected.\n\nBest regards,\nD-mail Team",
+      "attachment": null,
+      "createdAt": "2026-09-01T06:21:47.500Z",
+      "senderFolder": "sent",
+      "receiverFolder": "inbox",
+      "read": false,
+      "welcome": true,
+      "threadId": "d0b58761-4b4c-483e-98a7-9c9030aa8dd6",
+      "id": "3cIZoIKw6Tw",
+      "starred": false
+    },
+    {
+      "from": "dmail_team@dmail.com",
+      "to": "ankit@dmail.com",
+      "subject": "Welcome to D-mail",
+      "message": "Hi ankit,\n\nWelcome to D-mail! We are excited to have you here. Your inbox is ready, and this is your first welcome message from the D-mail team.\n\nStart exploring your inbox and enjoy a cleaner, smarter way to stay connected.\n\nBest regards,\nD-mail Team",
+      "attachment": null,
+      "createdAt": "2026-09-01T07:42:32.339Z",
+      "senderFolder": "sent",
+      "receiverFolder": "inbox",
+      "read": false,
+      "welcome": true,
+      "threadId": "f60a3934-445f-438b-823d-3e58d9bad1c5",
+      "id": "5lShJLx9buI",
+      "receiverSnoozedUntil": null
+    },
+    {
+      "from": "dmail_team@dmail.com",
+      "to": "sumit@dmail.com",
+      "subject": "Welcome to D-mail",
+      "message": "Hi sumit,\n\nWelcome to D-mail! We are excited to have you here. Your inbox is ready, and this is your first welcome message from the D-mail team.\n\nStart exploring your inbox and enjoy a cleaner, smarter way to stay connected.\n\nBest regards,\nD-mail Team",
+      "attachment": null,
+      "createdAt": "2026-09-01T07:44:23.142Z",
+      "senderFolder": "sent",
+      "receiverFolder": "inbox",
+      "read": true,
+      "welcome": true,
+      "threadId": "04e88d47-8d0c-4f87-bfef-e0c45df840b0",
+      "id": "rGpn0r-02HE",
+      "receiverSnoozedUntil": null,
+      "starred": false
+    },
+    {
+      "from": "sumit@dmail.com",
+      "to": "pratik@dmail.com",
+      "subject": "hiiii",
+      "message": "jhjghjghjgh",
+      "createdAt": "2026-09-01T10:29:14.152Z",
+      "attachment": null,
+      "threadId": "ac0036f6-363c-4a40-ab3a-83fee8141b44",
+      "senderFolder": "sent",
+      "receiverFolder": "inbox",
+      "read": true,
+      "id": "sUENYB52g68"
+    },
+    {
+      "from": "sumit@dmail.com",
+      "to": "datta@dmail.com",
+      "subject": "Check working or not",
+      "message": "jkjhkjh",
+      "createdAt": "2026-09-01T10:46:35.656Z",
+      "attachment": null,
+      "threadId": "fa8b0120-0d3b-497c-8b18-f8ce3442f8e8",
+      "senderFolder": "sent",
+      "receiverFolder": "inbox",
+      "read": true,
+      "id": "cba5PWT_bqk"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"

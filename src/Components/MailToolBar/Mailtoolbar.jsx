@@ -16,6 +16,8 @@ import SnoozeIcon from "@mui/icons-material/Snooze";
 import MoveToMenu from "../MoveTo/MoveTo";
 import SnoozeDialog from "../SnoozeDialoge/SnoozeDialog";
 import { deleteEmail, archiveEmail, moveEmailToSpam, snoozeEmail } from "../../authApi/emailsApi";
+import { restoreArchivedEmail, restoreEmail, restoreSpamEmail } from "../../authApi/restoreEmail";
+import { unsnoozeEmail } from "../../authApi/UnSnoozeEmail";
 import { updateEmail } from "../../authApi/updateEmail";
 import "./Mailtoolbar.css";
 
@@ -27,6 +29,44 @@ const Mailtoolbar = ({ emails, selectedEmails, setSelectedEmails, loadEmails, sh
   const hasSelection = selectedCount > 0;
   const { loggedInUser } = useContext(UserContext);
   const moreOpen = Boolean(moreAnchorEl);
+
+  const getSelectedEmailById = (id) => emails.find((item) => String(item.id) === String(id));
+
+  const getEffectiveFolderForEmail = (email) => {
+    if (!email) {
+      return ["inbox", "sent", "spam", "trash", "draft"].includes(folder)
+        ? folder
+        : email?.from === loggedInUser?.email
+          ? "sent"
+          : "inbox";
+    }
+
+    if (["inbox", "sent", "spam", "trash", "draft", "archive"].includes(folder)) {
+      return folder;
+    }
+
+    if (email.from === loggedInUser?.email) {
+      return email.senderFolder || "sent";
+    }
+
+    return email.receiverFolder || "inbox";
+  };
+
+  const getRestoreFolderForEmail = (email) => {
+    if (email?.from === loggedInUser?.email) {
+      if (["inbox", "sent", "spam", "trash", "draft", "archive"].includes(folder)) {
+        return folder === "spam" ? "spam" : "sent";
+      }
+      return email.senderFolder === "spam" ? "spam" : "sent";
+    }
+
+    if (["inbox", "sent", "spam", "trash", "draft", "archive"].includes(folder)) {
+      return folder === "spam" ? "spam" : "inbox";
+    }
+
+    return email?.receiverFolder === "spam" ? "spam" : "inbox";
+  };
+
   // Select all visible emails
   const handleSelectAll = (event) => {
     if (event.target.checked) {
@@ -86,16 +126,36 @@ const Mailtoolbar = ({ emails, selectedEmails, setSelectedEmails, loadEmails, sh
   };
   const handleArchiveSelected = async () => {
     try {
-      await Promise.all(
-        selectedEmails.map((id) => archiveEmail(id, folder))
+      const archivedItems = selectedEmails.map((id) => getSelectedEmailById(id)).filter(Boolean);
+      const archivedResults = await Promise.all(
+        archivedItems.map((email) => archiveEmail(email.id, getEffectiveFolderForEmail(email)))
+      );
+
+      const archivedMap = Object.fromEntries(
+        archivedResults.map((item) => [String(item.id), item])
       );
 
       setEmails((prev) =>
-        prev.filter((email) => !selectedEmails.includes(email.id))
+        prev.map((email) => archivedMap[String(email.id)] || email)
       );
 
       setSelectedEmails([]);
-      showSnackbar("Emails archived");
+      showSnackbar("Emails archived", async () => {
+        try {
+          const restored = await Promise.all(
+            archivedItems.map((email) => restoreArchivedEmail(email.id, getRestoreFolderForEmail(email)))
+          );
+          const restoredMap = Object.fromEntries(
+            restored.map((item) => [String(item.id), item])
+          );
+
+          setEmails((prev) =>
+            prev.map((email) => restoredMap[String(email.id)] || email)
+          );
+        } catch (error) {
+          console.error("Unable to undo archive selected emails", error);
+        }
+      });
     } catch (error) {
       console.error("Unable to archive selected emails", error);
     }
@@ -103,26 +163,36 @@ const Mailtoolbar = ({ emails, selectedEmails, setSelectedEmails, loadEmails, sh
 
   const handleDeleteSelected = async () => {
     try {
-      await Promise.all(
-        selectedEmails.map((id) => deleteEmail(id, folder))
+      const deletedItems = selectedEmails.map((id) => getSelectedEmailById(id)).filter(Boolean);
+      const deletedResults = await Promise.all(
+        deletedItems.map((email) => deleteEmail(email.id, getEffectiveFolderForEmail(email)))
+      );
+
+      const deletedMap = Object.fromEntries(
+        deletedResults.map((item) => [String(item.id), item])
       );
 
       setEmails((prev) =>
-        prev.map((email) => {
-          if (!selectedEmails.includes(email.id)) {
-            return email;
-          }
-
-          if (folder === "sent") {
-            return { ...email, senderFolder: "trash" };
-          }
-
-          return { ...email, receiverFolder: "trash" };
-        })
+        prev.map((email) => deletedMap[String(email.id)] || email)
       );
 
       setSelectedEmails([]);
-      showSnackbar("Emails moved to Trash");
+      showSnackbar("Emails moved to Trash", async () => {
+        try {
+          const restored = await Promise.all(
+            deletedItems.map((email) => restoreEmail(email.id, getRestoreFolderForEmail(email)))
+          );
+          const restoredMap = Object.fromEntries(
+            restored.map((item) => [String(item.id), item])
+          );
+
+          setEmails((prev) =>
+            prev.map((email) => restoredMap[String(email.id)] || email)
+          );
+        } catch (error) {
+          console.error("Unable to undo delete selected emails", error);
+        }
+      });
     } catch (error) {
       console.error("Unable to delete selected emails", error);
     }
@@ -130,14 +200,36 @@ const Mailtoolbar = ({ emails, selectedEmails, setSelectedEmails, loadEmails, sh
 
   const handleSpamSelected = async () => {
     try {
-      await Promise.all(
-        selectedEmails.map((id) => moveEmailToSpam(id, folder))
+      const spamItems = selectedEmails.map((id) => getSelectedEmailById(id)).filter(Boolean);
+      const spamResults = await Promise.all(
+        spamItems.map((email) => moveEmailToSpam(email.id, getEffectiveFolderForEmail(email)))
       );
 
-      await loadEmails();
+      const spamMap = Object.fromEntries(
+        spamResults.map((item) => [String(item.id), item])
+      );
+
+      setEmails((prev) =>
+        prev.map((email) => spamMap[String(email.id)] || email)
+      );
 
       setSelectedEmails([]);
-      showSnackbar("Emails moved to Spam");
+      showSnackbar("Emails moved to Spam", async () => {
+        try {
+          const restored = await Promise.all(
+            spamItems.map((email) => restoreSpamEmail(email.id))
+          );
+          const restoredMap = Object.fromEntries(
+            restored.map((item) => [String(item.id), item])
+          );
+
+          setEmails((prev) =>
+            prev.map((email) => restoredMap[String(email.id)] || email)
+          );
+        } catch (error) {
+          console.error("Unable to undo spam selected emails", error);
+        }
+      });
     } catch (error) {
       console.error("Unable to move selected emails to spam", error);
     }
@@ -173,17 +265,40 @@ const Mailtoolbar = ({ emails, selectedEmails, setSelectedEmails, loadEmails, sh
 
   const handleSnoozeSelected = async (snoozedUntil) => {
     try {
-      await Promise.all(
-        selectedEmails.map((id) => {
-          const email = emails.find((item) => String(item.id) === String(id));
-          const resolvedFolder = email?.from === loggedInUser?.email ? "sent" : "inbox";
-          return snoozeEmail(id, resolvedFolder, snoozedUntil);
+      const snoozedItems = selectedEmails.map((id) => getSelectedEmailById(id)).filter(Boolean);
+      const snoozedResults = await Promise.all(
+        snoozedItems.map((email) => {
+          const resolvedFolder = getEffectiveFolderForEmail(email);
+          return snoozeEmail(email.id, resolvedFolder, snoozedUntil);
         })
+      );
+
+      const snoozedMap = Object.fromEntries(
+        snoozedResults.map((item) => [String(item.id), item])
+      );
+
+      setEmails((prev) =>
+        prev.map((email) => snoozedMap[String(email.id)] || email)
       );
 
       setSelectedEmails([]);
       setSnoozeOpen(false);
-      showSnackbar("Emails snoozed");
+      showSnackbar("Emails snoozed", async () => {
+        try {
+          const restored = await Promise.all(
+            snoozedItems.map((email) => unsnoozeEmail(email.id, getRestoreFolderForEmail(email)))
+          );
+          const restoredMap = Object.fromEntries(
+            restored.map((item) => [String(item.id), item])
+          );
+
+          setEmails((prev) =>
+            prev.map((email) => restoredMap[String(email.id)] || email)
+          );
+        } catch (error) {
+          console.error("Unable to undo snooze selected emails", error);
+        }
+      });
     } catch (error) {
       console.error("Unable to snooze selected emails", error);
       showSnackbar("Unable to snooze emails");

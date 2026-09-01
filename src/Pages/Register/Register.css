@@ -128,3 +128,9 @@
   right: 50px;
   cursor: pointer;
 }
+.icon-2{
+  position: absolute;
+  right: 50px;
+  bottom: 37%;
+  cursor: pointer;
+}

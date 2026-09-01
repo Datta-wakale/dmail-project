@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route,useLocation } from "react-router-dom";
 import Header from "./Components/Header/Header";
 import Home from "./Pages/Home";
 import Register from "./Pages/Register/Register";
@@ -19,12 +19,14 @@ import Spam from "./Components/Spam/Spam"
 import AllDmails from "./Components/AllDmails/AllDmails";
 import Snoozed from "./Snoozed/Snoozed";
 import ManageAccount from "./UserProfile/ManageAccount";
-function App() {
-
+import Archive from "./Components/Archieve/Archive";
+function AppContent() {
+const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const handleToggleSidebar = () => {
     setSidebarOpen((prev) => !prev);
   };
+  
   const [search, setSearch] = useState("");
   const [searchFilter, setSearchFilter] = useState("all");
 
@@ -66,21 +68,26 @@ function App() {
       if (folderFilter === "drafts") {
         return email.senderFolder === "draft";
       }
+      if (folderFilter === "archive") {
+        return email.senderFolder === "archive";
+      }
       return true;
     });
   };
 
   return (
     <>
-      <BrowserRouter>
-        <Header
-          sidebarOpen={sidebarOpen}
-          handleToggleSidebar={handleToggleSidebar}
-          search={search}
-          setSearch={setSearch}
-          searchFilter={searchFilter}
-          setSearchFilter={setSearchFilter}
-        />
+        {location.pathname !== "/manage-account" && (
+  <Header
+    sidebarOpen={sidebarOpen}
+    handleToggleSidebar={handleToggleSidebar}
+    search={search}
+    setSearch={setSearch}
+    searchFilter={searchFilter}
+    setSearchFilter={setSearchFilter}
+  />
+)}
+
 
         <Routes>
           <Route element={<PublicRoute />}>
@@ -103,15 +110,24 @@ function App() {
               <Route path="all-mail" element={<AllDmails />} />
               <Route path="email/:id" element={<EmailsDetails />} />
               <Route path="snooze" element={<Snoozed />} />
-
+              <Route path="archive" element={<Archive />} />
             </Route>
 
           </Route>
           <Route path="/manage-account" element={<ManageAccount />} />
         </Routes>
-      </BrowserRouter>
+     
       <ToastContainer position="top-center" autoClose={2000} />
     </>
   );
 }
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AppContent />
+    </BrowserRouter>
+  );
+}
+
 export default App;

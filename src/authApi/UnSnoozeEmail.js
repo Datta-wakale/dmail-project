@@ -14,6 +14,13 @@ export const unsnoozeEmail = async (id, folder) => {
   if (folder === "sent" || folder === "draft") {
     updatedEmail.senderSnoozedUntil = null;
   }
+  if (folder === "archive") {
+    if (email.receiverFolder === "archive") {
+      updatedEmail.receiverSnoozedUntil = null;
+    } else if (email.senderFolder === "archive") {
+      updatedEmail.senderSnoozedUntil = null;
+    }
+  }
   const updateResponse = await fetch(`${apiUrl}/${id}`, {
     method: "PUT",
     headers: {

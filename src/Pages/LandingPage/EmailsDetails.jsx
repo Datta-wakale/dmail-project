@@ -7,6 +7,7 @@ import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArchiveIcon from "@mui/icons-material/Archive";
+import UnarchiveIcon from "@mui/icons-material/Unarchive";
 import ReportIcon from "@mui/icons-material/Report";
 import DeleteIcon from "@mui/icons-material/Delete";
 import MarkEmailReadIcon from "@mui/icons-material/MarkEmailRead";
@@ -28,7 +29,8 @@ import { unsnoozeEmail } from "../../authApi/UnSnoozeEmail";
 import { updateEmail } from "../../authApi/updateEmail";
 import SnoozeDialog from "../../Components/SnoozeDialoge/SnoozeDialog";
 import { canUseReplyOrForward, formatMailDate, getReceiverDisplayLabel, getSenderDisplayLabel, matchesAnyRecipient, normalizeEmailAddress } from "../../Utils/mailUtils";
-
+import { restoreSpamEmail} from "../../authApi/restoreEmail";
+import { restoreArchivedEmail } from "../../authApi/restoreEmail";
 const EmailsDetails = () => {
   const [replyOpen, setReplyOpen] = useState(false);
   const [forwardOpen, setForwardOpen] = useState(false);
@@ -45,7 +47,7 @@ const EmailsDetails = () => {
   const { loggedInUser } = useContext(UserContext);
   const navigate = useNavigate();
   const notify = showSnackbar || ((message) => toast.info(message));
-  const undoUpdate = (snapshot, message) => notify(message, async () => {
+  const undoUpdate = (snapshot, message) => notify(message, async () =>{
     try {
       const restored = await updateEmail(snapshot.id, snapshot);
       setEmails((items) => items.map((item) => item.id === restored.id ? restored : item));
@@ -54,7 +56,6 @@ const EmailsDetails = () => {
     }
   });
   // Find selected email
-
   const email = emails.find((email) => String(email.id) === String(id));
   useEffect(() => {
     if (!email || email.read) {
@@ -117,13 +118,15 @@ const EmailsDetails = () => {
       );
     });
   // control the snoozing
-  const isSnoozed =
-    ((folder === "inbox" || folder === "spam") &&
-      email.receiverSnoozedUntil &&
-      new Date(email.receiverSnoozedUntil) > new Date()) ||
-    ((folder === "sent" || folder === "draft") &&
-      email.senderSnoozedUntil &&
-      new Date(email.senderSnoozedUntil) > new Date());
+  const snoozedUntil = folder === "archive"
+    ? (email.receiverFolder === "archive"
+      ? email.receiverSnoozedUntil
+      : email.senderSnoozedUntil)
+    : (folder === "inbox" || folder === "spam"
+      ? email.receiverSnoozedUntil
+      : email.senderSnoozedUntil);
+
+  const isSnoozed = Boolean(snoozedUntil) && new Date(snoozedUntil) > new Date();
   // Back button
   const handleBack = () => {
     navigate(-1);
@@ -152,6 +155,20 @@ const EmailsDetails = () => {
               senderSnoozedUntil: null,
             };
           }
+          if (folder === "archive") {
+            if (item.receiverFolder === "archive") {
+              return {
+                ...item,
+                receiverSnoozedUntil: null,
+              };
+            }
+            if (item.senderFolder === "archive") {
+              return {
+                ...item,
+                senderSnoozedUntil: null,
+              };
+            }
+          }
           return item;
         }),
       );
@@ -165,8 +182,11 @@ const EmailsDetails = () => {
       if (folder === "sent") {
         navigate("/sent");
       }
-      if (folder === "draft") {
+      if (folder === "draft"){
         navigate("/drafts");
+      }
+      if (folder === "archive") {
+        navigate("/archive");
       }
       notify("Email unsnoozed", async () => {
         const restored = await updateEmail(previous.id, previous);
@@ -190,22 +210,20 @@ const EmailsDetails = () => {
         navigate(-1);
         return;
       }
-      // Inbox / Sent / Spam  Trash
+      // Inbox / Sent / Spam / Archive  Trash
       await deleteEmail(email.id, folder);
       setEmails((prevEmails) =>
         prevEmails.map((item) => {
           if (item.id !== email.id) {
             return item;
           }
-
           // Received email
-          if (folder === "inbox" || folder === "spam") {
+          if (folder === "inbox" || folder === "spam"){
             return {
               ...item,
               receiverFolder: "trash",
             };
           }
-
           // Sent email
           if (folder === "sent") {
             return {
@@ -214,6 +232,20 @@ const EmailsDetails = () => {
             };
           }
 
+          if (folder === "archive") {
+            if (item.receiverFolder === "archive") {
+              return {
+                ...item,
+                receiverFolder: "trash",
+              };
+            }
+            if (item.senderFolder === "archive") {
+              return {
+                ...item,
+                senderFolder: "trash",
+              };
+            }
+          }
           return item;
         }),
       );
@@ -252,6 +284,63 @@ const EmailsDetails = () => {
       console.error("Unable to archive email", error);
     }
   };
+  const handleUnarchive = async () => {
+  try {
+    const previous = { ...email };
+
+    const restoreFolder =
+      email.from === loggedInUser?.email
+        ? "sent"
+        : "inbox";
+
+    const restoredEmail = await restoreArchivedEmail(
+      email.id,
+      restoreFolder
+    );
+
+    setEmails((prevEmails) =>
+      prevEmails.map((item) =>
+        item.id === email.id
+          ? restoredEmail
+          : item
+      )
+    );
+
+    navigate(`/${restoreFolder}`);
+
+    notify(
+      `Email moved to ${
+        restoreFolder === "sent" ? "Sent" : "Inbox"
+      }`,
+      async () => {
+        try {
+          const restored = await updateEmail(
+            previous.id,
+            previous
+          );
+
+          setEmails((items) =>
+            items.map((item) =>
+              item.id === restored.id
+                ? restored
+                : item
+            )
+          );
+        } catch (error) {
+          console.error(
+            "Unable to undo unarchive:",
+            error
+          );
+        }
+      }
+    );
+  } catch (error) {
+    console.error(
+      "Unable to unarchive email:",
+      error
+    );
+  }
+};
   const handleReportSpam = async () => {
     try {
       const previous = { ...email };
@@ -271,6 +360,56 @@ const EmailsDetails = () => {
       console.error("Unable to report email as spam", error);
     }
   };
+
+  // not a spam 
+const handleNotSpam = async () => {
+  try {
+    if (folder !== "spam") {
+      return;
+    }
+    const previous = { ...email };
+    const updatedEmail = await restoreSpamEmail(email.id);
+
+    setEmails((prevEmails) =>
+      prevEmails.map((item) =>
+        item.id === email.id
+          ? updatedEmail
+          : item
+      )
+    );
+    // Determine where the email should go
+    const destinationFolder =
+      previous.receiverFolder === "spam"
+        ? "inbox"
+        : "sent";
+    // Go back to Inbox or Sent
+    navigate(`/${destinationFolder}`);
+    notify(
+      `Email moved to ${destinationFolder === "inbox" ? "Inbox" : "Sent"}`,
+      async () => {
+        try {
+          const restoredSpamEmail = await moveEmailToSpam(
+            previous.id,
+            destinationFolder);
+
+          setEmails((items) =>
+            items.map((item) =>
+              item.id === restoredSpamEmail.id
+                ? restoredSpamEmail
+                : item
+            )
+          );
+        } catch (error) {
+          console.error("Unable to undo Not Spam:", error);
+          toast.error("Unable to undo action");
+        }
+      }
+    );
+  } catch (error) {
+    console.error("Unable to move email from Spam:", error);
+    toast.error("Unable to move email from Spam");
+  }
+};
   const handleMoreClick = (event) => {
     setMoreAnchorEl(event.currentTarget);
   };
@@ -386,15 +525,19 @@ const EmailsDetails = () => {
   const handleSnooze = async (snoozedUntil) => {
     const previous = { ...email };
     try {
-      const ownerFolder = email.from === loggedInUser?.email ? "sent" : "inbox";
-      const updated = await snoozeEmail(email.id, ownerFolder, snoozedUntil);
+      const effectiveFolder = folder === "archive"
+        ? "archive"
+        : email.from === loggedInUser?.email
+          ? "sent"
+          : "inbox";
+      const updated = await snoozeEmail(email.id, effectiveFolder, snoozedUntil);
       setEmails((items) => items.map((item) => item.id === email.id ? updated : item));
       setSnoozeOpen(false);
       notify("Email snoozed", async () => {
         const restored = await updateEmail(previous.id, previous);
         setEmails((items) => items.map((item) => item.id === restored.id ? restored : item));
       });
-      navigate(-1);
+      navigate(folder === "archive" ? "/archive" : -1);
     } catch (error) {
       toast.error("Unable to snooze email");
     }
@@ -475,19 +618,22 @@ const EmailsDetails = () => {
               });
             }}
           />
-
-
-
-
-
         </div>
 
         <div className="toolbar-right">
-          <Tooltip title="Archive">
-            <IconButton onClick={handleArchive}>
-              <ArchiveIcon />
-            </IconButton>
-          </Tooltip>
+        {folder === "archive" ? (
+  <Tooltip title="Unarchive">
+    <IconButton onClick={handleUnarchive}>
+      <UnarchiveIcon />
+    </IconButton>
+  </Tooltip>
+) : (
+  <Tooltip title="Archive">
+    <IconButton onClick={handleArchive}>
+      <ArchiveIcon />
+    </IconButton>
+  </Tooltip>
+)}
           <Tooltip title="Report spam">
             <IconButton onClick={handleReportSpam}>
               <ReportIcon />
@@ -546,20 +692,32 @@ const EmailsDetails = () => {
           </Menu>
         </div>
       </div>
+      {/* not a spam button */}
+      {folder === "spam" && (
+  <div className="not-spam-container">
+    <button
+      className="not-spam-button"
+      onClick={handleNotSpam}
+    >
+      Not spam
+    </button>
+  </div>
+)}
       <div className="email-details-content">
         <div className="email-subject-row">
           <h1 className="email-details-subject">
             {email.subject}
           </h1>
           <span className="email-folder-label">
-            {folder === "inbox" && "Inbox"}
-            {folder === "sent" && "Sent"}
-            {folder === "spam" && "Spam"}
-            {folder === "trash" && "Trash"}
-            {folder === "draft" && "Draft"}
-            {folder === "starred-received" && "Starred"}
-            {folder === "starred-sent" && "Starred"}
-          </span>
+  {folder === "inbox" && "Inbox"}
+  {folder === "sent" && "Sent"}
+  {folder === "spam" && "Spam"}
+  {folder === "trash" && "Trash"}
+  {folder === "draft" && "Draft"}
+  {folder === "archive" && "Archive"}
+  {folder === "starred-received" && "Starred"}
+  {folder === "starred-sent" && "Starred"}
+</span>
         </div>
         {isSnoozed && (
           <div className="snooze-info">
@@ -567,9 +725,13 @@ const EmailsDetails = () => {
             <span>
               Snoozed until{" "}
               {new Date(
-                folder === "inbox" || folder === "spam"
-                  ? email.receiverSnoozedUntil
-                  : email.senderSnoozedUntil
+                folder === "archive"
+                  ? (email.receiverFolder === "archive"
+                    ? email.receiverSnoozedUntil
+                    : email.senderSnoozedUntil)
+                  : (folder === "inbox" || folder === "spam"
+                    ? email.receiverSnoozedUntil
+                    : email.senderSnoozedUntil)
               ).toLocaleString()}
             </span>
             <button onClick={handleUnsnooze}>
@@ -669,7 +831,6 @@ const EmailsDetails = () => {
       console.error("Invalid reply received:", newReply);
       return;
     }
-
     setEmails((prevEmails) => {
       const exists = prevEmails.some(
         (item) => String(item.id) === String(newReply.id)

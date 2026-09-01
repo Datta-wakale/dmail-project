@@ -9,7 +9,7 @@ const Snoozed = () => {
     const { emails, search, filterEmails } = useOutletContext();
 
     const now = new Date();
-
+    
     const snoozedEmails = emails.filter((email) => {
         if (matchesAnyRecipient(email.to, loggedInUser.email)) {
             return (
@@ -30,11 +30,9 @@ const Snoozed = () => {
 
     const filteredEmails = [
         ...filterEmails(snoozedEmails, search)
-    ].sort(
-        (a, b) =>
+    ].sort((a, b) =>
             new Date(b.createdAt) -
-            new Date(a.createdAt)
-    );
+            new Date(a.createdAt));
 
     return (
         <div className="snoozed-container">
