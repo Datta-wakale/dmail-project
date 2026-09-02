@@ -8,6 +8,15 @@ const normalizeEmail = (email) => {
   return trimmed.includes("@") ? trimmed : `${trimmed}@dmail.com`;
 };
 
+const normalizeEmailForLookup = (email) => {
+  if (!email) {
+    return "";
+  }
+
+  const normalized = String(email).trim().toLowerCase();
+  return normalized.includes("@") ? normalized : `${normalized}@dmail.com`;
+};
+
 // Get all users
 export const getUsers = async () => {
   const response = await fetch(API_URL);
@@ -32,35 +41,32 @@ export const getUsers = async () => {
 //   return users && users.length ? users[0] : null;
 // };
 
-export const checkEmailExists = async (email) => {
-    const normalizedEmail = String(email || "")
-        .trim()
-        .toLowerCase();
+export const findUserByEmail = async (email) => {
+    const normalizedEmail = normalizeEmailForLookup(email);
 
     if (!normalizedEmail) {
-        return false;
+        return null;
     }
 
     const users = await getUsers();
 
-    return users.some((user) => {
-        const currentEmail = String(user.email || "")
-            .trim()
-            .toLowerCase();
+    return (
+        users.find((user) => {
+            const currentEmail = normalizeEmailForLookup(user.email);
+            const aliases = Array.isArray(user.emailAliases)
+                ? user.emailAliases.map((alias) => normalizeEmailForLookup(alias))
+                : [];
 
-        const aliases = Array.isArray(user.emailAliases)
-            ? user.emailAliases.map((alias) =>
-                String(alias)
-                    .trim()
-                    .toLowerCase()
-            )
-            : [];
+            return (
+                currentEmail === normalizedEmail ||
+                aliases.includes(normalizedEmail)
+            );
+        }) || null
+    );
+};
 
-        return (
-            currentEmail === normalizedEmail ||
-            aliases.includes(normalizedEmail)
-        );
-    });
+export const checkEmailExists = async (email) => {
+    return Boolean(await findUserByEmail(email));
 };
 
 // Register user
@@ -199,6 +205,6 @@ export const checkPhoneExists = async (phone) => {
     throw new Error("Unable to fetch users");
   }
   const users = await response.json();
-  return users.find(
-    (user) => String(user.phone).trim() === phoneValue) || null;
+  return users.find((user) => String(user.phone).trim() === phoneValue) || null;
 };
+

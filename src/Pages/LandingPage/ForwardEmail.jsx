@@ -2,7 +2,7 @@ import { useState } from "react";
 import { sendEmail } from "../../authApi/emailsApi";
 import { toast } from "react-toastify";
 import { canUseReplyOrForward, splitRecipients, joinRecipients } from "../../Utils/mailUtils";
-import { checkEmailExists } from "../../authApi/authApi";
+import { findUserByEmail } from "../../authApi/authApi";
 import "./ForwardEmail.css";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 
@@ -51,11 +51,11 @@ const ForwardEmail = ({ email, loggedInUser, onClose }) => {
      const validRecipients = [];
 
      for (const recipient of recipients) {
-       const userExists = await checkEmailExists(recipient);
+       const userExists = await findUserByEmail(recipient);
        if (!userExists) {
          invalidRecipients.push(recipient);
        } else {
-         validRecipients.push(userExists.email);
+         validRecipients.push(recipient);
        }
      }
 

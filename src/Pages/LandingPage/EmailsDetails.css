@@ -217,3 +217,16 @@
   color: #1967d2;
   text-decoration: none;
 }
+.not-spam-container{
+    margin-left: 24px;
+}
+
+.not-spam-button{
+   margin-top: 6px;
+   padding: 10px;
+   border: none;
+   color: #1a73e8;
+   cursor: pointer;
+   font-weight: 500;
+   border-radius: 6px;
+}

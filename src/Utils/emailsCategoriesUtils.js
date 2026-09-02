@@ -12,7 +12,7 @@ const getEmailCategory = (email) => {
   }
 
   // Social
-  if ( text.includes("instagram") || text.includes("facebook") ||
+  if (text.includes("instagram") || text.includes("facebook") ||
    text.includes("linkedin") || text.includes("twitter") ||
     text.includes("follow") || text.includes("comment") ||
     text.includes("friend")) {

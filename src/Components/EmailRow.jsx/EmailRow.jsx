@@ -22,7 +22,8 @@ const EmailRow = ({ email, folder }) => {
   const { loggedInUser } = useContext(UserContext);
   const { setEmails, openSelectedMail, selectedEmails,
     setSelectedEmails,
-    showSnackbar } = useOutletContext();
+    showSnackbar,
+    setDraftToEdit } = useOutletContext();
 
   // Check whether this email is selected
   const isSelected = selectedEmails.includes(email.id);
@@ -173,6 +174,20 @@ const EmailRow = ({ email, folder }) => {
   const isArchived =
     (email.from === loggedInUser?.email && email.senderFolder === "archive") ||
     (email.from !== loggedInUser?.email && email.receiverFolder === "archive");
+
+  const isDraftInTrash =
+    folder === "trash" &&
+    email?.senderFolder === "draft" &&
+    email?.from === loggedInUser?.email;
+
+  const handleOpenEmail = () => {
+    if (isDraftInTrash) {
+      setDraftToEdit(email);
+      return;
+    }
+
+    openSelectedMail(email.id, folder);
+  };
 
   const handleArchive = async (event) => {
     event.stopPropagation();
@@ -404,12 +419,17 @@ const handleUnarchive = async (event) => {
   const displaySender = getSenderDisplayLabel(email, loggedInUser.email);
   const displayReceiver = getReceiverDisplayLabel(email, loggedInUser.email);
   const formattedDate = formatMailDate(email.createdAt || email.date);
+  const senderLabel = isDraftInTrash
+    ? "Draft"
+    : (folder === "sent" || (folder === "archive" && email.from === loggedInUser?.email)
+      ? displayReceiver
+      : displaySender);
 
   return (
     <>
       <div
         className={`email-row ${isSelected ? "email-selected" : ""}`}
-        onClick={() => openSelectedMail(email.id, folder)} >
+        onClick={handleOpenEmail} >
         {/* Checkbox */}
         <Checkbox
           checked={isSelected}
@@ -427,13 +447,9 @@ const handleUnarchive = async (event) => {
           </IconButton>
         )}
 
-        {/* Sender */}
-        <div className={`email-sender ${!email.read ? "unread" : ""}`}>
-  {folder === "sent" ||
-  (folder === "archive" &&
-    email.from === loggedInUser?.email)
-    ? displayReceiver
-    : displaySender}
+{/* Sender */}
+<div className={`email-sender ${!email.read && !isDraftInTrash ? "unread" : ""} ${isDraftInTrash ? "text" : ""}`}>
+  {senderLabel}
 </div>
         {/* Subject + Message */}
         <div className={`email-content ${!email.read ? "unread" : ""}`}>

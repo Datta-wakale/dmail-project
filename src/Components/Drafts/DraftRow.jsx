@@ -118,15 +118,11 @@ const DraftRow = ({ email }) => {
 
     return (
 
-        <div className={`email-row ${isSelected
-                ? "email-selected"
-                : ""
-            }`}
+        <div className={`email-row ${isSelected ? "email-selected"  : "" }`}
             onClick={handleOpenDraft} >
             {/* Checkbox */}
 
-            <Checkbox
-                checked={isSelected}
+            <Checkbox  checked={isSelected}
                 onClick={(event) =>
                     event.stopPropagation()
                 }
@@ -134,29 +130,20 @@ const DraftRow = ({ email }) => {
             <div className="email-sender text">  Draft </div>
             <div className="email-content">
                 <span className="email-subject">
-                    {email.subject ||
-                        "(no subject)"}
+                    {email.subject || "(no subject)"}
                 </span>
                 <span className="email-preview">
-                    {" - " +
-                        (email.message || "")}
-
+                    {" - " +  (email.message || "")}
                 </span>
             </div>
             <div className="email-date">
                 {formattedDate}
             </div>
 
-            {/* Hover Actions */}
-
-            <div
-                className={`email-hover-actions ${isSelected
+            <div className={`email-hover-actions ${isSelected
                         ? "show-actions"
-                        : ""
-                    }`}
-                onClick={(event) =>
-                    event.stopPropagation()
-                } >
+                        : "" }`}
+                onClick={(event) => event.stopPropagation() } >
 
                 <IconButton
                     title="Archive"

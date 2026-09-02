@@ -11,7 +11,9 @@ const TrashEmails = () => {
   const trashedMails = emails.filter(
     (email) =>
       (matchesAnyRecipient(email.to, loggedInUser) && email.receiverFolder === "trash") ||
-      (isEmailForUser(email.from, loggedInUser) && email.senderFolder === "trash"));
+      (isEmailForUser(email.from, loggedInUser) && email.senderFolder === "trash") ||
+      (isEmailForUser(email.from, loggedInUser) && email.senderFolder === "draft")
+  );
 
     const filteredEmails = [
         ...filterEmails(trashedMails, search)

@@ -20,8 +20,10 @@ import AllDmails from "./Components/AllDmails/AllDmails";
 import Snoozed from "./Snoozed/Snoozed";
 import ManageAccount from "./UserProfile/ManageAccount";
 import Archive from "./Components/Archieve/Archive";
+import UpdatePassword from "./UserProfile/UpdatePassword";
 function AppContent() {
-const location = useLocation();
+  
+  const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const handleToggleSidebar = () => {
     setSidebarOpen((prev) => !prev);
@@ -77,17 +79,18 @@ const location = useLocation();
 
   return (
     <>
-        {location.pathname !== "/manage-account" && (
-  <Header
-    sidebarOpen={sidebarOpen}
-    handleToggleSidebar={handleToggleSidebar}
-    search={search}
-    setSearch={setSearch}
-    searchFilter={searchFilter}
-    setSearchFilter={setSearchFilter}
-  />
+        {location.pathname !== "/manage-account" &&
+         location.pathname !== "/update-password" &&
+        (
+          <Header
+             sidebarOpen={sidebarOpen}
+             handleToggleSidebar={handleToggleSidebar}
+             search={search}
+             setSearch={setSearch}
+             searchFilter={searchFilter}
+             setSearchFilter={setSearchFilter}
+     />
 )}
-
 
         <Routes>
           <Route element={<PublicRoute />}>
@@ -95,6 +98,7 @@ const location = useLocation();
             <Route path="/sign-in" element={<Login />} />
             <Route path="/forgot-pass" element={<ForgotPassword />} />
             <Route path="/forgot-dmail" element={<ForgotDmail />} />
+           
           </Route>
 
           <Route path="/" element={<Home sidebarOpen={sidebarOpen} search={search} setSearch={setSearch} filterEmails={filterEmails} searchFilter={searchFilter} />} >
@@ -115,6 +119,7 @@ const location = useLocation();
 
           </Route>
           <Route path="/manage-account" element={<ManageAccount />} />
+          <Route path="/update-password" element= {<UpdatePassword/>}/>
         </Routes>
      
       <ToastContainer position="top-center" autoClose={2000} />

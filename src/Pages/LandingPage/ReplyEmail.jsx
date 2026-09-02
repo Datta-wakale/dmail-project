@@ -57,6 +57,7 @@ const ReplyEmail = ({ email, loggedInUser, onClose, onReplySent }) => {
       };
 
       const newReply = await sendEmail(replyEmail);
+      console.log("newReply :: 60", newReply);
       if (newReply?.id) {
         onReplySent(newReply);
       }

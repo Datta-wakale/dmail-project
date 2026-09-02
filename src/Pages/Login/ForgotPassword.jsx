@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { checkEmailExists, updateUser} from "../../authApi/authApi";
+import {  findUserByEmail, updateUser} from "../../authApi/authApi";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import OtpDialog from "./OtpDialog";
 import IconButton from "@mui/material/IconButton";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { resetUserPassword } from "../../authApi/resetUserPassword";
 import "./ForgotPassword.css";
 
 const ForgotPassword = () => {
@@ -41,46 +42,55 @@ const ForgotPassword = () => {
       setShowPassword((toggle)=> !toggle);
   }
 
-  const handleEmailSubmit = async (event) => {
+const handleEmailSubmit = async (event) => {
     event.preventDefault();
+    setError("");
     if (!user.email.trim()) {
-      setError("DMail is required");
-      return;
+        setError("DMail is required");
+        return;
     }
-    let email = user.email.trim();
+    let email = user.email.trim().toLowerCase();
+
     // Add @dmail.com automatically
     if (!email.includes("@")) {
-      email = `${email}@dmail.com`;
+        email = `${email}@dmail.com`;
     }
     try {
-      const foundUser = await checkEmailExists(email);
-      if (!foundUser) {
-        setError("Enter a valid DMail address");
-        return;
-      }
-      // Store complete user information
-      setUser((prev) => ({
-        ...prev,
-        ...foundUser,
-        email: foundUser.email,
-        oldPassword: foundUser.password,
-        otp: "",
-        newPassword: "",
-        confirmPassword: "",
-      }));
-      // Generate OTP
-      const otp = Math.floor(
-        100000 + Math.random() * 900000
-      ).toString();
-      setGeneratedOtp(otp);
-      // Show OTP dialog
-      setOpenOtpDialog(true);
-      setError("");
+        // Get the COMPLETE user object
+        const foundUser = await findUserByEmail(email);
+        console.log("Found user:", foundUser);
+        console.log("User ID:", foundUser?.id);
+
+        if (!foundUser) {
+            setError("Enter a valid DMail address");
+            return;
+        }
+        // Store user information
+        setUser((prev) => ({
+            ...prev,
+            ...foundUser,
+            email: foundUser.email,
+            oldPassword: foundUser.password,
+            otp: "",
+            newPassword: "",
+            confirmPassword: "",
+        }));
+
+        // Generate OTP
+        const otp = Math.floor(
+            100000 + Math.random() * 900000
+        ).toString();
+
+        setGeneratedOtp(otp);
+
+        // Show OTP dialog
+        setOpenOtpDialog(true);
+
     } catch (err) {
-      console.error(err);
-      setError("Unable to verify DMail");
+        console.error(err);
+        setError("Unable to verify DMail");
     }
-  };
+};
   // OTP DIALOG
   const handleOtpDialogClose = () => {
     setOpenOtpDialog(false);
@@ -102,62 +112,55 @@ const ForgotPassword = () => {
     setStep(3);
   };
   // STEP 3 - PASSWORD
-  const handlePasswordSubmit = async (event) => {
+const handlePasswordSubmit = async (event) => {
     event.preventDefault();
+
+    setError("");
     if (!user.newPassword.trim()) {
-      setError("New password is required");
-      return;
+        setError("New password is required");
+        return;
+    }
+    if (user.newPassword.length < 6) {
+        setError("Password must be at least 6 characters");
+        return;
     }
     if (!user.confirmPassword.trim()) {
-      setError("Confirm password is required");
-      return;
+        setError("Confirm password is required");
+        return;
     }
-    // New password should not be old password
-    if (user.newPassword === user.oldPassword) {
-      setError("New password cannot be the old password");
-      return;
-    }
-    // Check password match
     if (user.newPassword !== user.confirmPassword) {
-      setError("Passwords do not match");
-      return;
+        setError("Passwords do not match");
+        return;
+    }
+    if (!user.id) {
+        setError("Unable to find user");
+        return;
     }
     try {
-      // Keep the original user structure
-      const updatedUser = {
-        fname: user.fname,
-        lname: user.lname,
-        email: user.email,
-        phone: user.phone,
-        dob: user.dob,
-        password: user.newPassword,
-        id: user.id,
-      };
-      await updateUser(user.id, updatedUser);
-      toast.success("Password reset successfully");
-      // Reset state
-      setUser({
-        email: "",
-        otp: "",
-        newPassword: "",
-        confirmPassword: "",
-        oldPassword: "",
-        id: "",
-        fname: "",
-        lname: "",
-        phone: "",
-        dob: "",
-      });
-      setGeneratedOtp("");
-      setOpenOtpDialog(false);
-      setError("");
-      setStep(1);
-      navigate("/sign-in");
+        await resetUserPassword( user.id, user.newPassword );
+        toast.success("Password reset successfully");
+        setUser({
+            email: "",
+            otp: "",
+            newPassword: "",
+            confirmPassword: "",
+            oldPassword: "",
+            id: "",
+            fname: "",
+            lname: "",
+            phone: "",
+            dob: "",
+        });
+        setGeneratedOtp("");
+        setOpenOtpDialog(false);
+        setError("");
+        setStep(1);
+        navigate("/sign-in");
     } catch (err) {
-      console.error(err);
-      setError("Unable to reset password");
+        console.error(err);
+        setError("Unable to reset password");
     }
-  };
+};
 
   return (
     <div className="forgot-container">
@@ -207,7 +210,7 @@ const ForgotPassword = () => {
                 <input type={showPassword ? "text" : "password"}  name="newPassword"  placeholder="Enter new password"  value={user.newPassword}
                   onChange={handleChange} className="icon-input"/>
                   <IconButton onClick={handleShowPassword} className="eye-icon">
-                    { showPassword ? <VisibilityOff/> : <Visibility/>}
+                    { showPassword ?  <Visibility/> :  <VisibilityOff/>}
                 </IconButton>
               </div>
               <div className="forgot-form-group">
@@ -216,7 +219,7 @@ const ForgotPassword = () => {
                   placeholder="Confirm new password" value={user.confirmPassword}
                   onChange={handleChange}/>
                    <IconButton onClick={handleShowPassword} className="eye-icon">
-                    { showPassword ? <VisibilityOff/> : <Visibility/>}
+                    { showPassword ? <Visibility/> :  <VisibilityOff/>}
                 </IconButton>
               </div>
               {error && ( <span className="forgot-error"> {error}  </span> )}

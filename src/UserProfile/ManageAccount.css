@@ -46,7 +46,6 @@
   margin-bottom: 7px;
   font-weight: 500;
 }
-
 .form-group input {
   width: 100%;
   padding: 11px 12px;
@@ -55,12 +54,10 @@
   font-size: 15px;
   box-sizing: border-box;
 }
-
 .form-group input:focus {
   outline: none;
   border-color: #1976d2;
 }
-
 .form-group input:disabled {
   background: #f3f3f3;
   cursor: not-allowed;
@@ -78,7 +75,6 @@
   gap: 12px;
   margin-top: 25px;
 }
-
 .account-actions button {
   padding: 10px 20px;
   border: none;
@@ -94,7 +90,6 @@
   background: #1976d2;
   color: white;
 }
-
 .submit-btn:disabled {
   cursor: not-allowed;   
   opacity: 0.6;      
@@ -106,4 +101,29 @@
     color: #d93025;
     font-size: 13px;
     margin-top: 5px;
+}
+.account-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 25px;
+}
+.right-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+.update-password-btn {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    background-color: #f1f3f4;
+    color: #1a73e8;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+.update-password-btn:hover {
+    background-color: #e2e8f0;
 }

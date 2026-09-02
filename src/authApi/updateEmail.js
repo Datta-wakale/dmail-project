@@ -15,6 +15,20 @@ export const updateEmail = async (id, emailData) => {
   if (!response.ok) {
     throw new Error("Unable to update email");
   }
-
   return await response.json();
 };
+
+// export const addUser = async(user)=> {
+//   try {
+//     const response = await fetch(API_URL, {
+
+//       method: "POST",
+//       headers: {
+//         "Content-Type" : "application/json"
+//       },
+//       body: JSON.stringify()
+//     });
+//   } catch (error) {
+    
+//   }
+// }

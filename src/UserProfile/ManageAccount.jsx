@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { UserContext } from "../Context/UserContext";
@@ -21,9 +21,7 @@ const ManageAccount = () => {
         phone: loggedInUser?.phone || "",
         dob: loggedInUser?.dob || "",
     }));
-
-
-
+    const emailInputRef = useRef(null);
     const [errors, setErrors] = useState({
         dob: "",
         email: "",
@@ -49,9 +47,7 @@ const ManageAccount = () => {
                 ? loggedInUser.emailChangeAttempts
                 : MAX_EMAIL_CHANGE_ATTEMPTS;
 
-        const startedAt =
-            loggedInUser.emailChangeWindowStartedAt;
-
+        const startedAt = loggedInUser.emailChangeWindowStartedAt;
         // User has never changed email
         if (!startedAt) {
             return {
@@ -62,12 +58,9 @@ const ManageAccount = () => {
         }
 
         const startDate = new Date(startedAt);
-
         const nextDate = new Date(startDate);
 
-        nextDate.setDate(
-            nextDate.getDate() + EMAIL_CHANGE_DAYS
-        );
+        nextDate.setDate(nextDate.getDate() + EMAIL_CHANGE_DAYS);
 
         // 30 days completed
         if (new Date() >= nextDate) {
@@ -110,11 +103,9 @@ const ManageAccount = () => {
             return "Date of birth cannot be in future";
         }
         let age = today.getFullYear() - dob.getFullYear();
+        console.log("Age calculated:: 106", age);
         const monthDiff = today.getMonth() - dob.getMonth();
-        if (
-            monthDiff < 0 ||
-            (monthDiff === 0 && today.getDate() < dob.getDate())
-        ) {
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
             age--;
         }
         if (age < 12) {
@@ -151,21 +142,20 @@ const ManageAccount = () => {
     };
     const handleEmailFocus = () => {
         const info = getEmailChangeInfo();
-
         if (info.locked) {
             return;
         }
-
         if (emailEditingEnabled) {
             return;
         }
-
         setEmailDialogOpen(true);
     };
 
     const handleEmailDialogCancel = () => {
         setEmailDialogOpen(false);
         setEmailEditingEnabled(false);
+        // clear the ref of input field to avoid focus on it when dialog is closed
+        emailInputRef.current?.blur();
         setFormData((prev) => ({
             ...prev,
             email: loggedInUser?.email || "",
@@ -210,10 +200,10 @@ const ManageAccount = () => {
             toast.error("First name is required");
             return;
         }
-        if (!formData.lname.trim()) {
-            toast.error("Last name is required");
-            return;
-        }
+        // if (!formData.lname.trim()) {
+        //     toast.error("Last name is required");
+        //     return;
+        // }
         if (!formData.email.trim()) {
             toast.error("Email is required");
             return;
@@ -224,13 +214,9 @@ const ManageAccount = () => {
         const newEmail =
             formData.email.trim().toLowerCase();
 
-        const emailChanged =
-            oldEmail !== newEmail;
-
-
+        const emailChanged = oldEmail !== newEmail;
         // Validate email format
         const emailError = validateEmail(newEmail);
-
         if (emailError) {
             setErrors((prev) => ({
                 ...prev,
@@ -239,15 +225,11 @@ const ManageAccount = () => {
 
             return;
         }
-
-
         // Only do email-change checks when email actually changes
         if (emailChanged) {
-
             // Check whether email already exists
             try {
-                const emailExists =
-                    await checkEmailExists(newEmail);
+                const emailExists = await checkEmailExists(newEmail);
 
                 if (emailExists) {
                     setErrors((prev) => ({
@@ -259,7 +241,6 @@ const ManageAccount = () => {
                 }
             } catch (error) {
                 console.error(error);
-
                 setErrors((prev) => ({
                     ...prev,
                     email: "Unable to verify email",
@@ -267,17 +248,12 @@ const ManageAccount = () => {
 
                 return;
             }
-
-
             // Check remaining attempts
-            const info =
-                getEmailChangeInfo();
-
+            const info = getEmailChangeInfo();
             if (info.locked) {
                 setErrors((prev) => ({
                     ...prev,
-                    email:
-                        `You have used all 2 email change attempts. ` +
+                    email: `You have used all 2 email change attempts. ` +
                         `You can change your email again after ${info.nextDate}.`,
                 }));
 
@@ -305,11 +281,7 @@ const ManageAccount = () => {
 
 
         if (emailChanged) {
-
-            const info =
-                getEmailChangeInfo();
-
-
+            const info = getEmailChangeInfo();
             const existingAliases = Array.isArray(loggedInUser.emailAliases)
                 ? loggedInUser.emailAliases : [];
             updatedUser.emailAliases = [
@@ -337,7 +309,7 @@ const ManageAccount = () => {
     };
     const hasChanges = loggedInUser && (
         loggedInUser.fname !== formData.fname.trim() ||
-        loggedInUser.lname !== formData.lname.trim() ||
+        // loggedInUser.lname !== formData.lname.trim() ||
         loggedInUser.email !== formData.email.trim().toLowerCase() ||
         (loggedInUser.phone || "") !== formData.phone.trim() ||
         (loggedInUser.dob || "") !== formData.dob
@@ -361,21 +333,18 @@ const ManageAccount = () => {
                         <div className="form-group">
                             <label>Last name</label>
                             <input type="text" name="lname"
-                                value={formData.lname}
-                                onChange={handleChange} />
+                                value={formData.lname} onChange={handleChange} />
                         </div>
                     </div>
                     <div className="form-group">
                         <label>Email</label>
 
-                        <input
-                            type="email"
-                            name="email"
+                        <input type="email" name="email"
                             value={formData.email}
+                            ref={emailInputRef}
                             onChange={handleChange}
                             onFocus={handleEmailFocus}
-                            readOnly={emailChangeInfo.locked || !emailEditingEnabled}
-                        />
+                            readOnly={emailChangeInfo.locked || !emailEditingEnabled} />
 
                         {errors.email && (
                             <small className="input-error">
@@ -427,14 +396,37 @@ const ManageAccount = () => {
                     </div>
 
                     <div className="account-actions">
-                        <button type="button" onClick={() => navigate(-1)}>
-                            Cancel
+
+                        <button
+                            type="button"
+                            className="update-password-btn"
+                            onClick={() => navigate("/update-password")}
+                        >
+                            Update Password
                         </button>
-                        <button type="submit" className="submit-btn" disabled={!hasChanges}>Save changes</button>
+
+                        <div className="right-actions">
+                            <button
+                                type="button"
+                                onClick={() => navigate("/inbox")}
+                            >
+                                Cancel
+                            </button>
+
+                            <button
+                                type="submit"
+                                className="submit-btn"
+                                disabled={!hasChanges}
+                            >
+                                Save changes
+                            </button>
+                        </div>
+
                     </div>
-                    
+
+
                 </form>
-                
+
             </div>
             <EmailChangeDialog
                 open={emailDialogOpen}

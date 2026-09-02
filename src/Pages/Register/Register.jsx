@@ -26,12 +26,12 @@ const Register = () => {
     const [error, setError] = useState({});
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const {setLoggedInUser} = useContext(UserContext);
+    const { setLoggedInUser } = useContext(UserContext);
     const handleShowPassword = () => {
         setShowPassword((show) => !show);
     }
-    const handleShowConfirmPassword = ()=> {
-        setShowConfirmPassword((show)=> !show);
+    const handleShowConfirmPassword = () => {
+        setShowConfirmPassword((show) => !show);
     }
     const handleChange = (event) => {
         const { name, value } = event.target;
@@ -59,88 +59,80 @@ const Register = () => {
             event.preventDefault();
         }
     };
+    
     const validateStep1 = () => {
-        const errors = {};
-        if (!user.fname.trim()) {
-            errors.fname = "First name is required";
-        }
-        // if (!user.lname.trim()) {
-        //     errors.lname = "Last name is required";
-        // }
-        setError(errors);
-        return Object.keys(errors).length === 0;
-    };
-
-    // const validateStep2 = async () => {
-    //     const errors = {};
-
-    //     if (!user.email.trim()) {
-    //         errors.email = "Email is required";
-    //     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(user.email)) {
-    //         errors.email = "Enter a valid email";
-    //     }
-    //     else {
-    //         const exists = await checkEmailExists(user.email);
-    //         if (exists) {
-    //             errors.email = "This dmail is already exists"
-    //         }
-    //     }
-    //     setError(errors);
-    //     return Object.keys(errors).length === 0;
-    // };
-const validateStep2 = async () =>{
     const errors = {};
-    const email = user.email.trim().toLowerCase();
-
-    if (!email){
-        errors.email = "Email is required";
+    const fname = user.fname;
+    if (!fname.trim()) {
+        errors.fname = "First name is required";
     } 
-    else {
-        const normalizedEmail = email.includes("@") ? email : `${email}@dmail.com`;
-
-        // if (!/^[^\s@]+@dmail\.com$/.test(normalizedEmail)) {
-        //     errors.email = "Email must end with @dmail.com";
-        // } 
-        if (!/^[a-zA-Z][a-zA-Z0-9._-]*@dmail\.com$/.test(normalizedEmail)) {
-                 errors.email = "Enter a valid dmail address";
-        }
-        else {
-            const exists = await checkEmailExists(normalizedEmail);
-            if(exists){
-                errors.email = "This dmail is already exists";
-            }
-        }
+    else if (!/^[A-Za-z]+$/.test(fname)) {
+        errors.fname = "First name must contain letters only";
     }
     setError(errors);
     return Object.keys(errors).length === 0;
 };
 
-    const validateStep3 = () => {
+    const validateStep2 = async () => {
         const errors = {};
+        const email = user.email.trim().toLowerCase();
 
-        if (!user.dob) {
-            errors.dob = "Date of birth is required";
+        if (!email) {
+            errors.email = "Email is required";
         }
         else {
-            const dob = new Date(user.dob);
-            const today = new Date();
-            today.setHours(0);
-            if (dob > today) {
-                errors.dob = "Date of birth cannot be in future";
+            const normalizedEmail = email.includes("@") ? email : `${email}@dmail.com`;
+
+            // if (!/^[^\s@]+@dmail\.com$/.test(normalizedEmail)) {
+            //     errors.email = "Email must end with @dmail.com";
+            // } 
+            if (!/^[a-zA-Z][a-zA-Z0-9._-]*@dmail\.com$/.test(normalizedEmail)) {
+                errors.email = "Enter a valid dmail address";
             }
             else {
-                let age = today.getFullYear() - dob.getFullYear();
-                const monthDiff = today.getMonth() - dob.getMonth();
-                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
-                    age--;
-                }
-                if(age < 12){
-                    errors.dob = "age must be greater than 12 years";
+                const exists = await checkEmailExists(normalizedEmail);
+                if (exists) {
+                    errors.email = "This dmail is already exists";
                 }
             }
         }
         setError(errors);
+        return Object.keys(errors).length === 0;
+    };
 
+    const validateStep3 = () => {
+        const errors = {};
+        if (!user.dob) {
+            errors.dob = "Date of birth is required";
+        } else {
+            // Get year, month and day directly from input
+            const [year, month, day] = user.dob.split("-").map(Number);
+            const today = new Date();
+            // Reject invalid/too-old/future years
+            if (year < 1900 || year > today.getFullYear()) {
+                errors.dob = "Enter a valid date of birth";
+            } else {
+                const dob = new Date(year, month - 1, day);
+                // Check future date
+                if (dob > today) {
+                    errors.dob = "Date of birth cannot be in future";
+                } else {
+                    let age = today.getFullYear() - year;
+                    // Check whether birthday has happened this year
+                    const currentMonth = today.getMonth() + 1;
+                    const currentDay = today.getDate();
+
+                    if (currentMonth < month || (currentMonth === month && currentDay < day)) {
+                        age--;
+                    }
+                    // Must be at least 12
+                    if (age < 12) {
+                        errors.dob = "You must be at least 12 years old";
+                    }
+                }
+            }
+        }
+        setError(errors);
         return Object.keys(errors).length === 0;
     };
 
@@ -155,7 +147,7 @@ const validateStep2 = async () =>{
         if (!user.confirmPassword) {
             errors.confirmPassword =
                 "Confirm password is required";
-        } else if ( user.password !== user.confirmPassword ) {
+        } else if (user.password !== user.confirmPassword) {
             errors.confirmPassword =
                 "Passwords do not match";
         }
@@ -169,8 +161,7 @@ const validateStep2 = async () =>{
         const errors = {};
 
         if (user.phone.length !== 10) {
-            errors.phone =
-                "Phone number must be 10 digits";
+            errors.phone = "Phone number must be 10 digits";
         }
         setError(errors);
         return Object.keys(errors).length === 0;
@@ -243,6 +234,10 @@ const validateStep2 = async () =>{
 
     const today = new Date();
     const maxDob = today.toISOString().split("T")[0];
+    const minDobDate = new Date( today.getFullYear() - 12,
+        today.getMonth(), today.getDate());
+    const minDob = minDobDate.toISOString().split("T")[0];
+
     return (
         <div className="form-container">
             <div className="formcard">
@@ -276,25 +271,15 @@ const validateStep2 = async () =>{
                     </>
                 )}
                 {step === 2 && (
-
-                    <ChooseEmail
-                        fname={user.fname}
-                        lname={user.lname}
-                        email={user.email}
-                        setUser={setUser}
-                        error={error}
-                        setError={setError}
-                        handleChange={handleChange}
-                        handleNext={handleNext} />
+                    <ChooseEmail  fname={user.fname} lname={user.lname}
+                        email={user.email} setUser={setUser}
+                        error={error} setError={setError}
+                        handleChange={handleChange} handleNext={handleNext} />
                 )}
                 {step === 3 && (
                     <>
                         <h2>Basic information</h2>
-
-                        <p className="step-description">
-                            Enter your date of birth
-                        </p>
-
+                        <p className="step-description">  Enter your date of birth</p>
                         <div className="form-group">
                             <label htmlFor="dob">
                                 Date of Birth
@@ -304,11 +289,7 @@ const validateStep2 = async () =>{
                                 name="dob" value={user.dob}
                                 onChange={handleChange} max={maxDob} />
 
-                            {error.dob && (
-                                <span className="error-msg">
-                                    {error.dob}
-                                </span>
-                            )}
+                            {error.dob && ( <span className="error-msg"> {error.dob} </span>  )}
                         </div>
 
                         <div className="button-row">
@@ -327,9 +308,9 @@ const validateStep2 = async () =>{
                         </label>
                             <input type={showPassword ? "text" : "password"} id="password" name="password"
                                 placeholder="Enter password" value={user.password}
-                                onChange={handleChange} className="placeicon" />
+                                onChange={handleChange} className="placeicon"  onPaste={(e)=> e.preventDefault()}/>
                             <IconButton onClick={handleShowPassword} className="eyeicon">
-                                {showPassword ? (<VisibilityOff />) : <Visibility />}
+                                {showPassword ? <Visibility /> :  (<VisibilityOff />)}
                             </IconButton>
                             {error.password && (<span className="error-msg"> {error.password}</span>)}
                         </div>
@@ -338,10 +319,10 @@ const validateStep2 = async () =>{
 
                             <input type={showConfirmPassword ? "text" : "password"} id="confirmPassword" name="confirmPassword"
                                 placeholder="Confirm password" value={user.confirmPassword}
-                                onChange={handleChange} />
-                                <IconButton onClick={handleShowConfirmPassword} className="icon-2">
-                                    {showConfirmPassword ? ( <VisibilityOff/>) : (<Visibility/>)}
-                                </IconButton>
+                                onChange={handleChange} onPaste={(e)=> e.preventDefault()}/>
+                            <IconButton onClick={handleShowConfirmPassword} className="icon-2">
+                                {showConfirmPassword ?(<Visibility />) :  (<VisibilityOff />) }
+                            </IconButton>
                             {error.confirmPassword && (<span className="error-msg"> {error.confirmPassword} </span>)}
                         </div>
                         <div className="button-row">

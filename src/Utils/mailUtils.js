@@ -66,6 +66,7 @@ export const joinRecipients = (value) => {
 };
 
 export const formatMailDate = (value) =>{
+
   if (!value) {
     return "Today";
   }
@@ -139,9 +140,7 @@ export const getUserEmailAddresses = (user) => {
         return [];
     }
 
-    const currentEmail = normalizeEmailAddress(
-        user.email
-    );
+    const currentEmail = normalizeEmailAddress(user.email);
 
     const aliases = Array.isArray(user.emailAliases)
         ? user.emailAliases.map((email) =>
@@ -156,15 +155,12 @@ export const getUserEmailAddresses = (user) => {
     ];
 };
 
-
 export const isEmailForUser = (email, user) => {
-    const normalizedEmail =
-        normalizeEmailAddress(email);
+    const normalizedEmail = normalizeEmailAddress(email);
 
     if (!normalizedEmail || !user) {
         return false;
     }
-
     return getUserEmailAddresses(user).includes(
         normalizedEmail
     );

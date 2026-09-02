@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState, useRef } from "react";
 import { UserContext } from "../../Context/UserContext";
-import { checkEmailExists } from "../../authApi/authApi";
+import { findUserByEmail } from "../../authApi/authApi";
 import { sendEmail, saveDraft, deleteDraft, updateDraft } from "../../authApi/emailsApi";
 import Dialog from "@mui/material/Dialog";
 import IconButton from "@mui/material/IconButton";
@@ -15,6 +15,7 @@ import "./ComposeDialog.css";
 
 const ComposeDialog = ({ open, onClose, onEmailSent, draftToEdit, onDraftSaved }) => {
 const { loggedInUser } = useContext(UserContext);
+console.log("loggedInUser in ComposeDialog:: 18", loggedInUser);
 const [mail, setMail] = useState({
   to: "",
   subject: "",
@@ -98,11 +99,11 @@ const handleSend = async () => {
     const validRecipients = [];
 
     for (const recipient of recipients) {
-      const userExists = await checkEmailExists(recipient);
+      const userExists = await findUserByEmail(recipient);
       if (!userExists) {
          invalidRecipients.push(recipient);
       } else {
-         validRecipients.push(userExists.email);
+         validRecipients.push(recipient);
       }
     }
 
@@ -351,8 +352,7 @@ return (
                    ...prev,
                    attachment: null,
                  }))
-               }
-             >
+               }>
                <CloseIcon />
              </button>
            </div>

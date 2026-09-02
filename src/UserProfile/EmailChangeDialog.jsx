@@ -5,46 +5,32 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import Button from "@mui/material/Button";
 
-const EmailChangeDialog = ({
-    open,
-    onClose,
-    onCancel,
-    onContinue,
-    attemptsLeft,
-}) => {
+const EmailChangeDialog = ({ open,onClose,onCancel, onContinue, attemptsLeft,}) => {
     return (
-        <Dialog
-            open={open}
-            onClose={onClose}
-            maxWidth="xs"
-            fullWidth>
+        <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth disableRestoreFocus >
             <DialogTitle>
-                Change your email?
+                Change your D-mail?
             </DialogTitle>
 
             <DialogContent>
                 <p>
                     You have{" "}
                     <strong>{attemptsLeft}</strong>{" "}
-                    email change{" "}
+                        D-mail change{" "}
                     {attemptsLeft === 1
                         ? "attempt"
                         : "attempts"}{" "}
                     remaining.
                 </p>
-
-                <p>
-                    Your previous email address will remain
+                <p> Your previous D-mail address will remain
                     connected to this D-mail account.
                 </p>
 
-                <p>
-                    Emails sent to your old and new email
+                <p> Dmails sent to your old and new email
                     addresses will continue to reach the same
                     account.
                 </p>
             </DialogContent>
-
             <DialogActions>
                 <Button onClick={onCancel || onClose}>
                     Cancel

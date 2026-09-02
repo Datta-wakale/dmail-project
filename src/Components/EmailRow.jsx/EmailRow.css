@@ -30,6 +30,10 @@
     white-space: nowrap;
 }
 
+.text {
+    color: rgb(236, 48, 48);
+}
+
 .email-preview {
     color: #666;
 }

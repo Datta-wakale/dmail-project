@@ -23,20 +23,6 @@ const ChooseEmail = ({ fname, lname, email, setUser, error, setError, handleNext
         ];
     }, [fname, lname]);
 
-   // When the user types in the input, auto-append the domain if missing.
-    // const handleEmailInput = (e) => {
-    //     const raw = e.target.value;
-    //     // If user types the domain already
-    //     const normalized = raw.includes("@") ? raw : `${raw}${DOMAIN}`;
-    //     setUser((prev) => ({
-    //         ...prev,
-    //         email: normalized,
-    //     }));
-    //     setError((prev) => ({
-    //         ...prev,
-    //         email: "",
-    //     }));
-    // };
 
     const handleEmailInput = (e) => {
     const raw = e.target.value;
