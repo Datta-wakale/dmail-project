@@ -2,23 +2,19 @@ import { useContext } from "react";
 import { useOutletContext } from "react-router-dom";
 import { UserContext } from "../../Context/UserContext";
 import EmailRow from "../EmailRow.jsx/EmailRow";
-import { isEmailForUser, matchesAnyRecipient } from "../../Utils/mailUtils";
+import DraftRow from "../Drafts/DraftRow";
+import { getVisibleEmails } from "../../Utils/visibleEmails";
 
 const TrashEmails = () => {
   const { loggedInUser } = useContext(UserContext);
   const { emails, search, filterEmails } = useOutletContext();
-
-  const trashedMails = emails.filter(
-    (email) =>
-      (matchesAnyRecipient(email.to, loggedInUser) && email.receiverFolder === "trash") ||
-      (isEmailForUser(email.from, loggedInUser) && email.senderFolder === "trash") ||
-      (isEmailForUser(email.from, loggedInUser) && email.senderFolder === "draft")
-  );
-
-    const filteredEmails = [
-        ...filterEmails(trashedMails, search)
-    ].sort(
-        (a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  const filteredEmails = getVisibleEmails({
+    emails,
+    folder: "trash",
+    loggedInUser,
+    search,
+    filterEmails,
+  });
     return (
         <div className="inbox-container">
             <div className="email-list">
@@ -31,10 +27,19 @@ const TrashEmails = () => {
                     </p>
                 ) : (
                     filteredEmails.map((email) => (
-                        <EmailRow
-                            key={email.id}
-                            email={email}
-                            folder="trash" />
+                        (email.isDraft === true || email.senderFolder === "draft") ? (
+                            <DraftRow
+                                key={email.id}
+                                email={email}
+                                folder="trash"
+                            />
+                        ) : (
+                            <EmailRow
+                                key={email.id}
+                                email={email}
+                                folder="trash"
+                            />
+                        )
                     ))
                 )}
             </div>

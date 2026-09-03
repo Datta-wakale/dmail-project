@@ -13,7 +13,7 @@ export const moveEmail = async (id, fromFolder, toFolder) => {
 
   // Trash uses sender/receiver because
   // the same email can have different folders for sender and receiver.
-  if (fromFolder === "sender") {
+  if (fromFolder === "sender"){
     updatedEmail.senderFolder = toFolder;
   } else if (fromFolder === "receiver") {
     updatedEmail.receiverFolder = toFolder;
@@ -43,6 +43,5 @@ export const moveEmail = async (id, fromFolder, toFolder) => {
   if (!updateResponse.ok) {
     throw new Error("Unable to move email");
   }
-
   return await updateResponse.json();
 };

@@ -2,8 +2,7 @@ import { useContext } from "react";
 import { useOutletContext } from "react-router-dom";
 import { UserContext } from "../../Context/UserContext";
 import EmailRow from "../EmailRow.jsx/EmailRow";
-import getEmailCategory from "../../Utils/emailsCategoriesUtils";
-import { matchesAnyRecipient } from "../../Utils/mailUtils";
+import { getVisibleEmails } from "../../Utils/visibleEmails";
 
 const Inbox = () => {
 const { loggedInUser } = useContext(UserContext);
@@ -14,27 +13,14 @@ const {
     selectedCategory
 } = useOutletContext();
 
-const receivedEmails = emails.filter(
-    (email) =>
-        matchesAnyRecipient(email.to, loggedInUser) &&
-        email.receiverFolder === "inbox" &&
-        !email.receiverSnoozedUntil
-);
-    // Category filter
-    const categoryEmails = receivedEmails.filter(
-        (email) =>
-            getEmailCategory(email) === selectedCategory
-    );
-    // Search + sort
-    const filteredEmails = [
-        ...filterEmails(
-            categoryEmails,
-            search )
-    ].sort(
-        (a, b) =>
-            new Date(b.createdAt) -
-            new Date(a.createdAt)
-    );
+const filteredEmails = getVisibleEmails({
+    emails,
+    folder: "inbox",
+    loggedInUser,
+    search,
+    filterEmails,
+    selectedCategory,
+});
 
     return (
         <div className="inbox-container">

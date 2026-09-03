@@ -18,17 +18,3 @@ export const updateEmail = async (id, emailData) => {
   return await response.json();
 };
 
-// export const addUser = async(user)=> {
-//   try {
-//     const response = await fetch(API_URL, {
-
-//       method: "POST",
-//       headers: {
-//         "Content-Type" : "application/json"
-//       },
-//       body: JSON.stringify()
-//     });
-//   } catch (error) {
-    
-//   }
-// }

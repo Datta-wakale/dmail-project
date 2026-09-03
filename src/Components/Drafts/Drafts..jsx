@@ -4,7 +4,7 @@ import { useContext } from "react";
 import { useOutletContext } from "react-router-dom";
 import { UserContext } from "../../Context/UserContext";
 import DraftRow from "./DraftRow";
-import { isEmailForUser } from "../../Utils/mailUtils";
+import { getVisibleEmails } from "../../Utils/visibleEmails";
 
 const Drafts = () => {
 
@@ -16,21 +16,13 @@ const Drafts = () => {
         filterEmails
     } = useOutletContext();
 
-    // Get only draft emails
-    const draftEmails = emails.filter(
-        (email) =>
-            isEmailForUser(email.from, loggedInUser) &&
-            email.senderFolder === "draft"
-    );
-
-    // Search + sort
-    const filteredEmails = [
-        ...filterEmails(draftEmails, search)
-    ].sort(
-        (a, b) =>
-            new Date(b.createdAt) -
-            new Date(a.createdAt)
-    );
+    const filteredEmails = getVisibleEmails({
+        emails,
+        folder: "drafts",
+        loggedInUser,
+        search,
+        filterEmails,
+    });
 
     return (
         <div className="draft-container">
@@ -53,6 +45,7 @@ const Drafts = () => {
                         <DraftRow
                             key={email.id}
                             email={email}
+                            folder="draft"
                         />
 
                     ))

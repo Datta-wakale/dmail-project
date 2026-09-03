@@ -280,7 +280,7 @@ const ManageAccount = () => {
         };
 
 
-        if (emailChanged) {
+        if (emailChanged){
             const info = getEmailChangeInfo();
             const existingAliases = Array.isArray(loggedInUser.emailAliases)
                 ? loggedInUser.emailAliases : [];

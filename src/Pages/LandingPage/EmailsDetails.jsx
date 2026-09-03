@@ -218,12 +218,30 @@ const EmailsDetails = () => {
             return item;
           }
           // Received email
-          if (folder === "inbox" || folder === "spam") {
-            return {
-              ...item,
-              receiverFolder: "trash",
-            };
-          }
+         if (folder === "inbox") {
+  return {
+    ...item,
+    receiverFolder: "trash",
+  };
+}
+
+// Spam
+if (folder === "spam") {
+  if (item.receiverFolder === "spam") {
+    return {
+      ...item,
+      receiverFolder: "trash",
+    };
+  }
+
+  if (item.senderFolder === "spam") {
+    return {
+      ...item,
+      senderFolder: "trash",
+    };
+  }
+}
+
           // Sent email
           if (folder === "sent") {
             return {
@@ -524,11 +542,11 @@ const EmailsDetails = () => {
   const handleSnooze = async (snoozedUntil) => {
     const previous = { ...email };
     try {
-      const effectiveFolder = folder === "archive"
-        ? "archive"
-        : email.from === loggedInUser?.email
-          ? "sent"
-          : "inbox";
+     const effectiveFolder = folder === "starred-received"
+        ? "inbox" : folder === "starred-sent"
+      ? "sent"
+      : folder;
+
       const updated = await snoozeEmail(email.id, effectiveFolder, snoozedUntil);
       setEmails((items) => items.map((item) => item.id === email.id ? updated : item));
       setSnoozeOpen(false);

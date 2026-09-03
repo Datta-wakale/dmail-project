@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import {  findUserByEmail, updateUser} from "../../authApi/authApi";
+import { findUserByEmail, updateUser } from "../../authApi/authApi";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import OtpDialog from "./OtpDialog";
@@ -27,6 +27,7 @@ const ForgotPassword = () => {
   const [generatedOtp, setGeneratedOtp] = useState("");
   const [openOtpDialog, setOpenOtpDialog] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState(false);
   const navigate = useNavigate();
   // HANDLE INPUT
   const handleChange = (event) => {
@@ -38,59 +39,62 @@ const ForgotPassword = () => {
     setError("");
   };
 
-  const handleShowPassword = ()=> {
-      setShowPassword((toggle)=> !toggle);
+  const handleShowPassword = () => {
+    setShowPassword((toggle) => !toggle);
+  }
+  const handleConfirmPassword = () => {
+    setConfirmPassword((toggle) => !toggle);
   }
 
-const handleEmailSubmit = async (event) => {
+  const handleEmailSubmit = async (event) => {
     event.preventDefault();
     setError("");
     if (!user.email.trim()) {
-        setError("DMail is required");
-        return;
+      setError("DMail is required");
+      return;
     }
     let email = user.email.trim().toLowerCase();
 
     // Add @dmail.com automatically
     if (!email.includes("@")) {
-        email = `${email}@dmail.com`;
+      email = `${email}@dmail.com`;
     }
     try {
-        // Get the COMPLETE user object
-        const foundUser = await findUserByEmail(email);
-        console.log("Found user:", foundUser);
-        console.log("User ID:", foundUser?.id);
+      // Get the COMPLETE user object
+      const foundUser = await findUserByEmail(email);
+      console.log("Found user:", foundUser);
+      console.log("User ID:", foundUser?.id);
 
-        if (!foundUser) {
-            setError("Enter a valid DMail address");
-            return;
-        }
-        // Store user information
-        setUser((prev) => ({
-            ...prev,
-            ...foundUser,
-            email: foundUser.email,
-            oldPassword: foundUser.password,
-            otp: "",
-            newPassword: "",
-            confirmPassword: "",
-        }));
+      if (!foundUser) {
+        setError("Enter a valid DMail address");
+        return;
+      }
+      // Store user information
+      setUser((prev) => ({
+        ...prev,
+        ...foundUser,
+        email: foundUser.email,
+        oldPassword: foundUser.password,
+        otp: "",
+        newPassword: "",
+        confirmPassword: "",
+      }));
 
-        // Generate OTP
-        const otp = Math.floor(
-            100000 + Math.random() * 900000
-        ).toString();
+      // Generate OTP
+      const otp = Math.floor(
+        100000 + Math.random() * 900000
+      ).toString();
 
-        setGeneratedOtp(otp);
+      setGeneratedOtp(otp);
 
-        // Show OTP dialog
-        setOpenOtpDialog(true);
+      // Show OTP dialog
+      setOpenOtpDialog(true);
 
     } catch (err) {
-        console.error(err);
-        setError("Unable to verify DMail");
+      console.error(err);
+      setError("Unable to verify DMail");
     }
-};
+  };
   // OTP DIALOG
   const handleOtpDialogClose = () => {
     setOpenOtpDialog(false);
@@ -112,55 +116,55 @@ const handleEmailSubmit = async (event) => {
     setStep(3);
   };
   // STEP 3 - PASSWORD
-const handlePasswordSubmit = async (event) => {
+  const handlePasswordSubmit = async (event) => {
     event.preventDefault();
 
     setError("");
     if (!user.newPassword.trim()) {
-        setError("New password is required");
-        return;
+      setError("New password is required");
+      return;
     }
     if (user.newPassword.length < 6) {
-        setError("Password must be at least 6 characters");
-        return;
+      setError("Password must be at least 6 characters");
+      return;
     }
     if (!user.confirmPassword.trim()) {
-        setError("Confirm password is required");
-        return;
+      setError("Confirm password is required");
+      return;
     }
     if (user.newPassword !== user.confirmPassword) {
-        setError("Passwords do not match");
-        return;
+      setError("Passwords do not match");
+      return;
     }
     if (!user.id) {
-        setError("Unable to find user");
-        return;
+      setError("Unable to find user");
+      return;
     }
     try {
-        await resetUserPassword( user.id, user.newPassword );
-        toast.success("Password reset successfully");
-        setUser({
-            email: "",
-            otp: "",
-            newPassword: "",
-            confirmPassword: "",
-            oldPassword: "",
-            id: "",
-            fname: "",
-            lname: "",
-            phone: "",
-            dob: "",
-        });
-        setGeneratedOtp("");
-        setOpenOtpDialog(false);
-        setError("");
-        setStep(1);
-        navigate("/sign-in");
+      await resetUserPassword(user.id, user.newPassword);
+      toast.success("Password reset successfully");
+      setUser({
+        email: "",
+        otp: "",
+        newPassword: "",
+        confirmPassword: "",
+        oldPassword: "",
+        id: "",
+        fname: "",
+        lname: "",
+        phone: "",
+        dob: "",
+      });
+      setGeneratedOtp("");
+      setOpenOtpDialog(false);
+      setError("");
+      setStep(1);
+      navigate("/sign-in");
     } catch (err) {
-        console.error(err);
-        setError("Unable to reset password");
+      console.error(err);
+      setError("Unable to reset password");
     }
-};
+  };
 
   return (
     <div className="forgot-container">
@@ -174,7 +178,7 @@ const handlePasswordSubmit = async (event) => {
                 <label>DMail</label>
                 <input type="text" name="email" placeholder="Enter your DMail"
                   value={user.email} onChange={handleChange} />
-                {error && (<span className="forgot-error"> {error} </span> )}
+                {error && (<span className="forgot-error"> {error} </span>)}
               </div>
               <button type="submit" className="forgot-btn" >
                 Next </button>
@@ -188,13 +192,13 @@ const handlePasswordSubmit = async (event) => {
             <form onSubmit={handleOtpSubmit}>
               <div className="forgot-form-group">
                 <label>OTP</label>
-                <input type="text" name="otp"   placeholder="Enter 6 digit OTP" value={user.otp}
-                  onChange={handleChange}/>
+                <input type="text" name="otp" placeholder="Enter 6 digit OTP" value={user.otp}
+                  onChange={handleChange} />
                 {error && (
                   <span className="forgot-error">  {error} </span>
                 )}
               </div>
-              <button   type="submit" className="forgot-btn" >
+              <button type="submit" className="forgot-btn" >
                 Verify OTP
               </button>
             </form>
@@ -205,24 +209,53 @@ const handlePasswordSubmit = async (event) => {
             <h2>Create new password</h2>
             <p className="forgot-subtitle">Enter your new password</p>
             <form onSubmit={handlePasswordSubmit}>
-              <div className="forgot-form-group">
+              <div className="forgot-form-group password-group">
                 <label>New Password</label>
-                <input type={showPassword ? "text" : "password"}  name="newPassword"  placeholder="Enter new password"  value={user.newPassword}
-                  onChange={handleChange} className="icon-input"/>
-                  <IconButton onClick={handleShowPassword} className="eye-icon">
-                    { showPassword ?  <Visibility/> :  <VisibilityOff/>}
-                </IconButton>
+
+                <div className="password-input-wrapper">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    name="newPassword"
+                    placeholder="Enter new password"
+                    value={user.newPassword}
+                    onChange={handleChange}
+                    onPaste={(e) => e.preventDefault()}
+                  />
+
+                  <IconButton
+                    type="button"
+                    onClick={handleShowPassword}
+                    className="see-pass"
+                  >
+                    {showPassword ? <Visibility /> : <VisibilityOff />}
+                  </IconButton>
+                </div>
               </div>
-              <div className="forgot-form-group">
+
+              <div className="forgot-form-group password-group">
                 <label>Confirm Password</label>
-                <input  type="password" name="confirmPassword"
-                  placeholder="Confirm new password" value={user.confirmPassword}
-                  onChange={handleChange}/>
-                   <IconButton onClick={handleShowPassword} className="eye-icon">
-                    { showPassword ? <Visibility/> :  <VisibilityOff/>}
-                </IconButton>
+
+                <div className="password-input-wrapper">
+                  <input
+                    type={confirmPassword ? "text" : "password"}
+                    name="confirmPassword"
+                    placeholder="Confirm new password"
+                    value={user.confirmPassword}
+                    onChange={handleChange}
+                    onPaste={(e) => e.preventDefault()}
+                  />
+
+                  <IconButton
+                    type="button"
+                    onClick={handleConfirmPassword}
+                    className="see-pass"
+                  >
+                    {confirmPassword ? <Visibility /> : <VisibilityOff />}
+                  </IconButton>
+                </div>
               </div>
-              {error && ( <span className="forgot-error"> {error}  </span> )}
+
+              {error && (<span className="forgot-error"> {error}  </span>)}
               <button type="submit" className="forgot-btn"  > Reset Password </button>
             </form>
           </>
@@ -231,7 +264,7 @@ const handlePasswordSubmit = async (event) => {
           Back to sign in
         </Link>
       </div>
-      <OtpDialog open={openOtpDialog}  otp={generatedOtp}
+      <OtpDialog open={openOtpDialog} otp={generatedOtp}
         onClose={handleOtpDialogClose}
       />
     </div>

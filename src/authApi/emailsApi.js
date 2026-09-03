@@ -85,7 +85,7 @@ export const createWelcomeEmail = async (user) => {
   }
 };
 
-export const deleteEmail = async (id, folder) => {
+export const deleteEmail = async (id, folder,isStarredView=false) => {
   const response = await fetch(`${apiUrl}/${id}`);
 
   if (!response.ok) {
@@ -94,7 +94,7 @@ export const deleteEmail = async (id, folder) => {
   const email = await response.json();
   let updatedEmail;
   // Inbox  Trash
-  if (folder === "inbox") {
+  if (folder === "inbox" || folder === "starred-received") {
     updatedEmail = {
       ...email,
       receiverFolder: "trash",
@@ -119,7 +119,7 @@ export const deleteEmail = async (id, folder) => {
   }
 
   // Sent  Trash
-  if (folder === "sent") {
+  if (folder === "sent" || folder === "starred-sent") {
     updatedEmail = {
       ...email,
       senderFolder: "trash",
@@ -146,7 +146,11 @@ export const deleteEmail = async (id, folder) => {
     updatedEmail = {
       ...email,
       senderFolder: "trash",
+      isDraft: true,
     };
+  }
+  if(isStarredView){
+    updatedEmail.starred = false;
   }
 
   if (!updatedEmail) {
@@ -169,16 +173,56 @@ export const deleteEmail = async (id, folder) => {
 };
 
 // move email to spam
+// export const moveEmailToSpam = async (id, folder) => {
+//   const response = await fetch(`${apiUrl}/${id}`);
+
+//   if (!response.ok) {
+//     throw new Error("Unable to find email");
+//   }
+//   const email = await response.json();
+//   const updatedEmail = {
+//     ...email,
+//   };
+//   // Received email
+//   if (
+//     folder === "inbox" ||
+//     folder === "spam" ||
+//     folder === "starred-received"
+//   ) {
+//     updatedEmail.receiverFolder = "spam";
+//   }
+//   // Sent email
+//   if (folder === "sent" ||folder === "starred-sent") {
+//     updatedEmail.senderFolder = "spam";
+//   }
+
+//   const updateResponse = await fetch(`${apiUrl}/${id}`, {
+//     method: "PUT",
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//     body: JSON.stringify(updatedEmail),
+//   });
+
+//   if (!updateResponse.ok) {
+//     throw new Error("Unable to move email to spam");
+//   }
+
+//   return await updateResponse.json();
+// };
 export const moveEmailToSpam = async (id, folder) => {
   const response = await fetch(`${apiUrl}/${id}`);
 
   if (!response.ok) {
     throw new Error("Unable to find email");
   }
+
   const email = await response.json();
+
   const updatedEmail = {
     ...email,
   };
+
   // Received email
   if (
     folder === "inbox" ||
@@ -187,8 +231,12 @@ export const moveEmailToSpam = async (id, folder) => {
   ) {
     updatedEmail.receiverFolder = "spam";
   }
+
   // Sent email
-  if (folder === "sent" ||folder === "starred-sent") {
+  if (
+    folder === "sent" ||
+    folder === "starred-sent"
+  ) {
     updatedEmail.senderFolder = "spam";
   }
 
@@ -206,6 +254,7 @@ export const moveEmailToSpam = async (id, folder) => {
 
   return await updateResponse.json();
 };
+
 // STAR / UNSTAR EMAIL
 export const toggleStarEmail = async (id, starred) => {
   const response = await fetch(`${apiUrl}/${id}`);
@@ -221,7 +270,7 @@ export const toggleStarEmail = async (id, starred) => {
     starred: starred,
   };
 
-  const updateResponse = await fetch(`${apiUrl}/${id}`, {
+  const updateResponse = await fetch(`${apiUrl}/${id}`,{
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -367,6 +416,7 @@ export const saveDraft = async (draftData) => {
         body: JSON.stringify({
             ...draftData,
             senderFolder: "draft",
+            isDraft: true,
         }),
     });
 
@@ -387,6 +437,7 @@ export const updateDraft = async (id, draftData) => {
             ...draftData,
             id,
             senderFolder: "draft",
+            isDraft: true,
         }),
     });
 
@@ -418,27 +469,64 @@ export const archiveEmail = async (id, folder) => {
 
   const email = await response.json();
 
-  let updatedEmail;
+  let updatedEmail = null;
 
-  // Received email
-  if (folder === "inbox" || folder === "spam" || folder === "starred-received") {
+  // Inbox → Archive
+  if (folder === "inbox") {
     updatedEmail = {
       ...email,
       receiverFolder: "archive",
     };
   }
 
-  // Sent email
-  if (folder === "sent" || folder === "starred-sent") {
+  // Sent → Archive
+  else if (folder === "sent") {
     updatedEmail = {
       ...email,
       senderFolder: "archive",
     };
   }
 
-  // Archive is not valid for Trash or Draft
+  // Spam → Archive
+  else if (folder === "spam") {
+
+    // Received copy is in Spam
+    if (email.receiverFolder === "spam") {
+      updatedEmail = {
+        ...email,
+        receiverFolder: "archive",
+      };
+    }
+
+    // Sender copy is in Spam
+    else if (email.senderFolder === "spam") {
+      updatedEmail = {
+        ...email,
+        senderFolder: "archive",
+      };
+    }
+  }
+
+  // Starred received → Archive
+  else if (folder === "starred-received") {
+    updatedEmail = {
+      ...email,
+      receiverFolder: "archive",
+    };
+  }
+
+  // Starred sent → Archive
+  else if (folder === "starred-sent") {
+    updatedEmail = {
+      ...email,
+      senderFolder: "archive",
+    };
+  }
+
   if (!updatedEmail) {
-    throw new Error(`Cannot archive email from folder: ${folder}`);
+    throw new Error(
+      `Cannot archive email from folder: ${folder}`
+    );
   }
 
   const updateResponse = await fetch(`${apiUrl}/${id}`, {
@@ -467,11 +555,11 @@ export const snoozeEmail = async (id, folder, snoozedUntil) => {
 
   let updatedEmail = { ...email };
 
-  if (folder === "inbox") {
+  if (folder === "inbox" || folder === "spam" || folder ==="starred-received") {
     updatedEmail.receiverSnoozedUntil = snoozedUntil;
   }
 
-  if (folder === "sent") {
+  if (folder === "sent" || folder === "draft" || folder === "starred-sent") {
     updatedEmail.senderSnoozedUntil = snoozedUntil;
   }
 

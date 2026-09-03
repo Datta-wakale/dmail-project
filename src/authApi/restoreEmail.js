@@ -100,36 +100,48 @@ export const restoreArchivedEmail = async (id, folder) => {
 
 // restore spam emails 
 
-export const restoreSpamEmail = async(id)=> {
-    const response = await fetch(`${apiUrl}/${id}`);
-    if(!response.ok){
-        throw new Error("Unable to find email");
-    }
+export const restoreSpamEmail = async (id) => {
+  const response = await fetch(`${apiUrl}/${id}`);
 
-    const email = await response.json();
-    let updatedEmail;
-    // if email is from inbox report as spam then move it to inbox folder
-    if(email.receiverFolder === "spam"){
-        updatedEmail = { ...email, receiverFolder: "inbox"}
-    }
-    // if email is from sent report as spam then move it to sent folder
-    else if(email.senderFolder === "spam"){
-       updatedEmail = { ...email, senderFolder: "sent"}
-    }
+  if (!response.ok) {
+    throw new Error("Unable to find email");
+  }
 
-    if(!updatedEmail){
-        throw new Error("Unable to restore spam email");
-    }
+  const email = await response.json();
 
-    const updateResponse = await fetch(`${apiUrl}/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(updatedEmail)
-    });
-    if(!updateResponse.ok){
-      throw new Error("Unable to restore spam email");
-    }
-    return await updateResponse.json();
-}
+  let updatedEmail;
+
+  // Received email: Spam → Inbox
+  if (email.receiverFolder === "spam") {
+    updatedEmail = {
+      ...email,
+      receiverFolder: "inbox",
+    };
+  }
+
+  // Sent email: Spam → Sent
+  else if (email.senderFolder === "spam") {
+    updatedEmail = {
+      ...email,
+      senderFolder: "sent",
+    };
+  }
+
+  if (!updatedEmail) {
+    throw new Error("Unable to restore spam email");
+  }
+
+  const updateResponse = await fetch(`${apiUrl}/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(updatedEmail),
+  });
+
+  if (!updateResponse.ok) {
+    throw new Error("Unable to restore spam email");
+  }
+
+  return await updateResponse.json();
+};

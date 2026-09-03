@@ -103,7 +103,6 @@ const Login = () => {
         return;
       }
       setLoggedInUser(result);
-
       localStorage.setItem("loggedInUser", JSON.stringify(result));
       toast.success("Welcome, Login successful");
       navigate("/");
@@ -152,7 +151,7 @@ const Login = () => {
                 placeholder="Enter your password" value={user.password}
                 onChange={handleChange} className="toggletype"/>
                 <IconButton onClick={passwordToggle} className="toggle-btn">
-                    { showPassword ? <VisibilityOff/> : <Visibility/>}
+                    { showPassword ? <Visibility/>  : <VisibilityOff/>}
                 </IconButton>
               {error.password && (<span className="signin-error"> {error.password}  </span>)}
                <Link to="/forgot-pass" className="forgot-link" > Forgot Password? </Link>

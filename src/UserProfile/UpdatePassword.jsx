@@ -18,13 +18,8 @@ const UpdatePassword = () => {
 
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
-
-    const [showNewPassword, setShowNewPassword] =
-        useState(false);
-
-    const [showConfirmPassword, setShowConfirmPassword] =
-        useState(false);
-
+    const [showNewPassword, setShowNewPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [errors, setErrors] = useState({});
 
     const handleSubmit = async (event) => {
@@ -32,12 +27,10 @@ const UpdatePassword = () => {
 
         const newErrors = {};
 
-        if (!newPassword.trim()) {
-            newErrors.newPassword =
-                "New password is required";
+        if (!newPassword.trim()){
+            newErrors.newPassword = "New password is required";
         } else if (newPassword.length < 6) {
-            newErrors.newPassword =
-                "Password must be at least 6 characters";
+            newErrors.newPassword = "Password must be at least 6 characters";
         }
 
         if (!confirmPassword.trim()) {
@@ -52,134 +45,90 @@ const UpdatePassword = () => {
             return;
         }
         try {
-
             // Compare the new plain password with that hash.
-            const isOldPassword = await bcrypt.compare(
-                newPassword,
-                loggedInUser.password
-            );
+            const isOldPassword = await bcrypt.compare( newPassword, loggedInUser.password);
             if (isOldPassword) {
                 setErrors({
-                    newPassword:
-                        "New password cannot be the old password",
+                    newPassword:"New password cannot be the old password",
                 });
                 return;
             }
 
             // This function hashes the new password
             // before saving it.
-            const updatedUser = await resetUserPassword(
-                loggedInUser.id,
-                newPassword
-            );
+            const updatedUser = await resetUserPassword( loggedInUser.id, newPassword);
 
             setLoggedInUser(updatedUser);
+            localStorage.setItem( "loggedInUser",JSON.stringify(updatedUser));
 
-            localStorage.setItem(
-                "loggedInUser",
-                JSON.stringify(updatedUser)
-            );
-
-            toast.success(
-                "Password updated successfully"
-            );
-
+            toast.success( "Password updated successfully");
             navigate("/manage-account");
-
         } catch (error) {
             console.error(error);
-
-            toast.error(
-                "Unable to update password"
-            );
+            toast.error( "Unable to update password");
         }
     };
 
     return (
         <div className="update-password-container">
-
             <div className="update-password-card">
-
                 <h2>Update Password</h2>
-
                 <p className="update-password-subtitle">
                     Create a new password for your DMail account
                 </p>
 
                 <form onSubmit={handleSubmit}>
-
-                    {/* New Password */}
                     <div className="update-password-form-group">
-
-                        <label htmlFor="newPassword">
-                            New Password
-                        </label>
-
+                        <label htmlFor="newPassword">  New Password </label>
                         <div className="update-password-input-wrapper">
-
-                            <input
-                                type={
-                                    showNewPassword
+                            <input type={ showNewPassword
                                         ? "text"
                                         : "password"
                                 }
                                 id="newPassword"
                                 value={newPassword}
                                 placeholder="Enter new password"
+                                onPaste={(e)=> e.preventDefault()}
                                 onChange={(event) => {
                                     setNewPassword(
-                                        event.target.value
-                                    );
-
+                                        event.target.value);
                                     setErrors((prev) => ({
                                         ...prev,
                                         newPassword: "",
                                     }));
                                 }}
                             />
-
                             <IconButton
                                 type="button"
                                 onClick={() =>
                                     setShowNewPassword(
                                         (prev) => !prev
                                     )
-                                }
-                            >
+                                } >
                                 {showNewPassword
                                     ? <Visibility />
                                     : <VisibilityOff />
                                 }
-                            </IconButton>
-
+                         </IconButton>
                         </div>
-
                         {errors.newPassword && (
                             <span className="update-password-error">
                                 {errors.newPassword}
                             </span>
                         )}
-
                     </div>
 
-                    {/* Confirm Password */}
                     <div className="update-password-form-group">
-
                         <label htmlFor="confirmPassword">
                             Confirm Password
                         </label>
-
                         <div className="update-password-input-wrapper">
-
                             <input
-                                type={
-                                    showConfirmPassword
-                                        ? "text"
-                                        : "password"
-                                }
+                                type={ showConfirmPassword ? "text"  : "password" }
                                 id="confirmPassword"
                                 value={confirmPassword}
                                 placeholder="Confirm new password"
+                                onPaste={(e)=> e.preventDefault()}
                                 onChange={(event) => {
                                     setConfirmPassword(
                                         event.target.value
@@ -195,30 +144,22 @@ const UpdatePassword = () => {
                             <IconButton
                                 type="button"
                                 onClick={() =>
-                                    setShowConfirmPassword(
-                                        (prev) => !prev
-                                    )
+                                    setShowConfirmPassword((prev) => !prev)
                                 } >
                                 {showConfirmPassword
                                     ? <Visibility />
                                     : <VisibilityOff />
                                 }
                             </IconButton>
-
                         </div>
-
                         {errors.confirmPassword && (
                             <span className="update-password-error">
                                 {errors.confirmPassword}
                             </span>
                         )}
-
                     </div>
-
                     <div className="update-password-actions">
-
-                        <button
-                            type="button"
+                        <button type="button"
                             className="update-password-cancel"
                             onClick={() =>  navigate("/manage-account") }>
                             Cancel

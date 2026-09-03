@@ -75,12 +75,6 @@ const handleSend = async () => {
     return;
   }
 
-  // if (!mail.subject.trim()) {
-  //   setError("Subject is required");
-  //   isSending.current = false;
-  //   return;
-  // }
-
   if (!mail.message.trim()) {
     setError("Message is required");
       isSending.current = false;
@@ -283,8 +277,7 @@ return (
              onClick={() => {
                setAddressNotFound(null);
                setError("");
-             }}
-           >
+             }} >
              Try another address
            </button>
          </div>

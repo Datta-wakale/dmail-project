@@ -2,37 +2,20 @@ import { useContext } from "react";
 import { useOutletContext } from "react-router-dom";
 import { UserContext } from "../Context/UserContext";
 import EmailRow from "../Components/EmailRow.jsx/EmailRow";
-import { isEmailForUser, matchesAnyRecipient } from "../Utils/mailUtils";
+import { getVisibleEmails } from "../Utils/visibleEmails";
+import { isEmailForUser } from "../Utils/mailUtils";
 
 const Snoozed = () => {
     const { loggedInUser } = useContext(UserContext);
     const { emails, search, filterEmails } = useOutletContext();
 
-    const now = new Date();
-    
-    const snoozedEmails = emails.filter((email) => {
-        if (matchesAnyRecipient(email.to, loggedInUser)) {
-            return (
-                email.receiverSnoozedUntil &&
-                new Date(email.receiverSnoozedUntil) > now
-            );
-        }
-
-        if (isEmailForUser(email.from, loggedInUser)) {
-            return (
-                email.senderSnoozedUntil &&
-                new Date(email.senderSnoozedUntil) > now
-            );
-        }
-
-        return false;
+    const filteredEmails = getVisibleEmails({
+        emails,
+        folder: "snooze",
+        loggedInUser,
+        search,
+        filterEmails,
     });
-
-    const filteredEmails = [
-        ...filterEmails(snoozedEmails, search)
-    ].sort((a, b) =>
-            new Date(b.createdAt) -
-            new Date(a.createdAt));
 
     return (
         <div className="snoozed-container">

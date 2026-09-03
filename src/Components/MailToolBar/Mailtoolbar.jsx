@@ -32,19 +32,58 @@ const Mailtoolbar = ({ emails, selectedEmails, setSelectedEmails, loadEmails, sh
 
   const getSelectedEmailById = (id) => emails.find((item) => String(item.id) === String(id));
 
+  // const getEffectiveFolderForEmail = (email) => {
+  //   if (!email) {
+  //     return ["inbox", "sent", "spam", "trash", "draft"].includes(folder)
+  //       ? folder
+  //       : email?.from === loggedInUser?.email
+  //         ? "sent"
+  //         : "inbox";
+  //   }
+
+  //   if (["inbox", "sent", "spam", "trash", "draft", "archive"].includes(folder)) {
+  //     return folder;
+  //   }
+  //   if (email.from === loggedInUser?.email) {
+  //     return email.senderFolder || "sent";
+  //   }
+
+  //   return email.receiverFolder || "inbox";
+  // };
   const getEffectiveFolderForEmail = (email) => {
     if (!email) {
-      return ["inbox", "sent", "spam", "trash", "draft"].includes(folder)
-        ? folder
-        : email?.from === loggedInUser?.email
-          ? "sent"
-          : "inbox";
+      return null;
     }
 
-    if (["inbox", "sent", "spam", "trash", "draft", "archive"].includes(folder)) {
+    // ⭐ Starred is a VIEW, not a real folder.
+    // Always determine the actual folder from the email.
+    if (
+      folder === "starred" ||
+      folder === "starred-received" ||
+      folder === "starred-sent"
+    ) {
+      if (email.from === loggedInUser?.email) {
+        return email.senderFolder || "sent";
+      }
+
+      return email.receiverFolder || "inbox";
+    }
+
+    // Normal real folders
+    if (
+      [
+        "inbox",
+        "sent",
+        "spam",
+        "trash",
+        "draft",
+        "archive",
+      ].includes(folder)
+    ) {
       return folder;
     }
 
+    // Fallback
     if (email.from === loggedInUser?.email) {
       return email.senderFolder || "sent";
     }
@@ -79,7 +118,7 @@ const Mailtoolbar = ({ emails, selectedEmails, setSelectedEmails, loadEmails, sh
   const handleRefresh = async () => {
     try {
       showSnackbar("Refreshing...");
-      console.log("before calling");
+
       await loadEmails();
       console.log("load-dmail is loaded");
       showSnackbar("Loading");
@@ -102,8 +141,6 @@ const Mailtoolbar = ({ emails, selectedEmails, setSelectedEmails, loadEmails, sh
   }
 
   const allSelected = emails.length > 0 && selectedEmails.length === emails.length;
-  console.log("allSelected :: ", allSelected);
-
   const handleMarkAllAsRead = async () => {
     try {
       await Promise.all(
@@ -124,116 +161,261 @@ const Mailtoolbar = ({ emails, selectedEmails, setSelectedEmails, loadEmails, sh
       showSnackbar("Unable to mark emails as read");
     }
   };
+
   const handleArchiveSelected = async () => {
     try {
-      const archivedItems = selectedEmails.map((id) => getSelectedEmailById(id)).filter(Boolean);
+      const archivedItems = selectedEmails
+        .map((id) => getSelectedEmailById(id))
+        .filter(Boolean);
+
+      if (archivedItems.length === 0) {
+        return;
+      }
+
+      // Save original state for Undo
+      const originalEmails = archivedItems.map((email) => ({
+        ...email,
+      }));
+
+      // Determine the REAL folder for each email
       const archivedResults = await Promise.all(
-        archivedItems.map((email) => archiveEmail(email.id, getEffectiveFolderForEmail(email)))
+        archivedItems.map((email) => {
+          const realFolder = getEffectiveFolderForEmail(email);
+
+          return archiveEmail(
+            email.id,
+            realFolder
+          );
+        })
       );
 
       const archivedMap = Object.fromEntries(
-        archivedResults.map((item) => [String(item.id), item])
+        archivedResults.map((item) => [
+          String(item.id),
+          item,
+        ])
       );
 
-      setEmails((prev) =>
-        prev.map((email) => archivedMap[String(email.id)] || email)
+      // Update local state
+      setEmails((prevEmails) =>
+        prevEmails.map((email) =>
+          archivedMap[String(email.id)] || email
+        )
       );
 
       setSelectedEmails([]);
-      showSnackbar("Emails archived", async () => {
+      // Undo
+      showSnackbar("Emails Archived", async () => {
         try {
           const restored = await Promise.all(
-            archivedItems.map((email) => restoreArchivedEmail(email.id, getRestoreFolderForEmail(email)))
-          );
-          const restoredMap = Object.fromEntries(
-            restored.map((item) => [String(item.id), item])
+            originalEmails.map((originalEmail) =>
+              updateEmail(
+                originalEmail.id,
+                originalEmail
+              )
+            )
           );
 
-          setEmails((prev) =>
-            prev.map((email) => restoredMap[String(email.id)] || email)
+          const restoredMap = Object.fromEntries(
+            restored.map((item) => [
+              String(item.id),
+              item,
+            ])
+          );
+
+          setEmails((prevEmails) =>
+            prevEmails.map((email) =>
+              restoredMap[String(email.id)] || email
+            )
           );
         } catch (error) {
-          console.error("Unable to undo archive selected emails", error);
+          console.error(
+            "Unable to undo archive selected emails",
+            error
+          );
         }
       });
+
     } catch (error) {
-      console.error("Unable to archive selected emails", error);
+      console.error(
+        "Error handling archive:",
+        error
+      );
+
+      showSnackbar("Unable to archive emails");
     }
   };
 
+
   const handleDeleteSelected = async () => {
     try {
-      const deletedItems = selectedEmails.map((id) => getSelectedEmailById(id)).filter(Boolean);
+      const deletedItems = selectedEmails
+        .map((id) => getSelectedEmailById(id))
+        .filter(Boolean);
+
+      if (deletedItems.length === 0) {
+        return;
+      }
+
+      // Save original state for Undo
+      const originalEmails = deletedItems.map((email) => ({
+        ...email,
+      }));
+
+      // Determine the REAL folder for every selected email
       const deletedResults = await Promise.all(
-        deletedItems.map((email) => deleteEmail(email.id, getEffectiveFolderForEmail(email)))
+        deletedItems.map((email) => {
+          const realFolder = getEffectiveFolderForEmail(email);
+
+          // Starred is a VIEW, not a real folder
+          const isStarredView =
+            folder === "starred" ||
+            folder === "starred-received" ||
+            folder === "starred-sent";
+
+          return deleteEmail(
+            email.id,
+            realFolder,
+            isStarredView
+          );
+        })
       );
 
       const deletedMap = Object.fromEntries(
-        deletedResults.map((item) => [String(item.id), item])
+        deletedResults.map((item) => [
+          String(item.id),
+          item,
+        ])
       );
 
-      setEmails((prev) =>
-        prev.map((email) => deletedMap[String(email.id)] || email)
+      // Update local state
+      setEmails((prevEmails) =>
+        prevEmails.map((email) =>
+          deletedMap[String(email.id)] || email
+        )
       );
 
       setSelectedEmails([]);
-      showSnackbar("Emails moved to Trash", async () => {
-        try {
-          const restored = await Promise.all(
-            deletedItems.map((email) => restoreEmail(email.id, getRestoreFolderForEmail(email)))
-          );
-          const restoredMap = Object.fromEntries(
-            restored.map((item) => [String(item.id), item])
-          );
 
-          setEmails((prev) =>
-            prev.map((email) => restoredMap[String(email.id)] || email)
-          );
-        } catch (error) {
-          console.error("Unable to undo delete selected emails", error);
+      showSnackbar(
+        "Emails moved to Trash",
+        async () => {
+          try {
+            // Restore EXACT original state
+            const restored = await Promise.all(
+              originalEmails.map((originalEmail) =>
+                updateEmail(
+                  originalEmail.id,
+                  originalEmail
+                )
+              )
+            );
+
+            const restoredMap = Object.fromEntries(
+              restored.map((item) => [
+                String(item.id),
+                item,
+              ])
+            );
+
+            setEmails((prevEmails) =>
+              prevEmails.map((email) =>
+                restoredMap[String(email.id)] || email
+              )
+            );
+          } catch (error) {
+            console.error(
+              "Unable to undo delete selected emails",
+              error
+            );
+          }
         }
-      });
+      );
     } catch (error) {
       console.error("Unable to delete selected emails", error);
+      showSnackbar("Unable to delete emails");
     }
   };
 
   const handleSpamSelected = async () => {
     try {
-      const spamItems = selectedEmails.map((id) => getSelectedEmailById(id)).filter(Boolean);
+      const spamItems = selectedEmails
+        .map((id) => getSelectedEmailById(id))
+        .filter(Boolean);
+      if (spamItems.length === 0) {
+        return;
+      }
+
+      // Move selected emails to Spam
       const spamResults = await Promise.all(
-        spamItems.map((email) => moveEmailToSpam(email.id, getEffectiveFolderForEmail(email)))
+        spamItems.map((email) =>
+          moveEmailToSpam(
+            email.id,
+            getEffectiveFolderForEmail(email)
+          )
+        )
       );
 
-      const spamMap = Object.fromEntries(
-        spamResults.map((item) => [String(item.id), item])
+      console.log("Moved to spam:", spamResults);
+
+      // Remove them from the current folder
+      setEmails((prevEmails) =>
+        prevEmails.filter(
+          (email) =>
+            !spamItems.some(
+              (spamEmail) =>
+                String(spamEmail.id) === String(email.id)
+            )
+        )
       );
 
-      setEmails((prev) =>
-        prev.map((email) => spamMap[String(email.id)] || email)
-      );
-
+      // Clear selection
       setSelectedEmails([]);
+
+      // Snackbar + Undo
       showSnackbar("Emails moved to Spam", async () => {
         try {
           const restored = await Promise.all(
-            spamItems.map((email) => restoreSpamEmail(email.id))
-          );
-          const restoredMap = Object.fromEntries(
-            restored.map((item) => [String(item.id), item])
+            spamItems.map((email) =>
+              restoreSpamEmail(email.id)
+            )
           );
 
-          setEmails((prev) =>
-            prev.map((email) => restoredMap[String(email.id)] || email)
-          );
+          console.log("Restored from spam:", restored);
+
+          // Put restored emails back into current folder
+          setEmails((prevEmails) => {
+            const existingIds = new Set(
+              prevEmails.map((email) => String(email.id))
+            );
+
+            const restoredEmails = restored.filter(
+              (email) =>
+                !existingIds.has(String(email.id))
+            );
+
+            return [
+              ...restoredEmails,
+              ...prevEmails,
+            ];
+          });
         } catch (error) {
-          console.error("Unable to undo spam selected emails", error);
+          console.error(
+            "Unable to undo spam selected emails:",
+            error
+          );
         }
       });
     } catch (error) {
-      console.error("Unable to move selected emails to spam", error);
+      console.error(
+        "Unable to move selected emails to spam:",
+        error
+      );
+
+      showSnackbar("Unable to move emails to Spam");
     }
   };
+
 
   const handleMarkSelected = async (read) => {
     try {
@@ -417,11 +599,11 @@ const Mailtoolbar = ({ emails, selectedEmails, setSelectedEmails, loadEmails, sh
             </IconButton>
           </Tooltip>
 
-          <Tooltip title="Report spam">
+          {folder !== "spam" && <Tooltip title="Report spam">
             <IconButton onClick={handleSpamSelected}>
               <ReportIcon />
             </IconButton>
-          </Tooltip>
+          </Tooltip>}
 
           <Tooltip title="Delete">
             <IconButton onClick={handleDeleteSelected}>
@@ -441,27 +623,26 @@ const Mailtoolbar = ({ emails, selectedEmails, setSelectedEmails, loadEmails, sh
             </IconButton>
           </Tooltip>
 
-<MoveToMenu
-    selectedEmails={selectedEmails}
-    emails={emails}
-    folder={folder}
-    loggedInUser={loggedInUser}
-    onMove={(updatedEmails) => {
+          <MoveToMenu
+            selectedEmails={selectedEmails}
+            emails={emails}
+            folder={folder}
+            loggedInUser={loggedInUser}
+            onMove={(updatedEmails) => {
 
-        setEmails((prevEmails) =>
-            prevEmails.map((email) => {
+              setEmails((prevEmails) =>
+                prevEmails.map((email) => {
 
-                const updatedEmail = updatedEmails.find(
+                  const updatedEmail = updatedEmails.find(
                     (updated) =>
-                        String(updated.id) ===
-                        String(email.id)
-                );
+                      String(updated.id) ===
+                      String(email.id)
+                  );
 
-                return updatedEmail || email;
-            }) );
-        setSelectedEmails([]);
-    }}
-/>
+                  return updatedEmail || email;
+                }));
+              setSelectedEmails([]);
+            }} />
           <Tooltip title="Snooze">
             <IconButton onClick={() => setSnoozeOpen(true)}>
               <SnoozeIcon />
@@ -470,11 +651,9 @@ const Mailtoolbar = ({ emails, selectedEmails, setSelectedEmails, loadEmails, sh
         </>
       )}
 
-      <SnoozeDialog
-        open={snoozeOpen}
+      <SnoozeDialog open={snoozeOpen}
         onClose={() => setSnoozeOpen(false)}
-        onSnooze={handleSnoozeSelected}
-      />
+        onSnooze={handleSnoozeSelected} />
 
     </div>
   );

@@ -103,3 +103,13 @@
 .manage-account-link button:hover {
   text-decoration: underline;
 }
+.remove-profile-button {
+  border: none;
+  background: transparent;
+  color: #d93025;
+  cursor: pointer;
+  font-size: 12px;
+}
+.remove-profile-button:hover {
+  text-decoration: underline;
+}

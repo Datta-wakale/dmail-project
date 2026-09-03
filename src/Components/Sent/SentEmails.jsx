@@ -2,25 +2,19 @@ import { useContext } from "react";
 import { useOutletContext } from "react-router-dom";
 import { UserContext } from "../../Context/UserContext";
 import EmailRow from "../EmailRow.jsx/EmailRow";
-import { isEmailForUser } from "../../Utils/mailUtils";
+import { getVisibleEmails } from "../../Utils/visibleEmails";
 
 const SentEmails = () => {
   const { loggedInUser } = useContext(UserContext);
 
   const { emails, search, filterEmails } = useOutletContext();
-
-  const sentEmails = emails.filter(
-    (email) => isEmailForUser(email.from, loggedInUser) && email.senderFolder === "sent"
-  );
-
-    // Search + sort
-    const filteredEmails = [
-        ...filterEmails(sentEmails, search)
-    ].sort(
-        (a, b) =>
-            new Date(b.createdAt) -
-            new Date(a.createdAt)
-    );
+  const filteredEmails = getVisibleEmails({
+    emails,
+    folder: "sent",
+    loggedInUser,
+    search,
+    filterEmails,
+  });
 
     return (
         <div className="sent-container">

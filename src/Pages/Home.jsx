@@ -10,10 +10,12 @@ import { useState } from "react";
 import { createWelcomeEmail, getEmails } from "../authApi/emailsApi";
 import DmailCategories from "../Components/DmailCategories/DmailCategories";
 import ActionSnackbar from "../Components/Common/ActionSnackBar/ActionSnackBar";
+import { getVisibleEmails } from "../Utils/visibleEmails";
 const Home = ({ sidebarOpen, search, setSearch, filterEmails, searchFilter }) => {
   const { loggedInUser } = useContext(UserContext);
   const [openCompose, setOpenCompose] = useState(false);
   const [emails, setEmails] = useState([]);
+
   const [draftToEdit, setDraftToEdit] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("primary");
   const [selectedEmails, setSelectedEmails] = useState([]);
@@ -90,6 +92,19 @@ const Home = ({ sidebarOpen, search, setSearch, filterEmails, searchFilter }) =>
     });
   };
   const location = useLocation();
+  const folder = location.pathname.replace("/", "") || "inbox";
+  const visibleEmails = getVisibleEmails({ emails, folder, loggedInUser,search,
+       filterEmails,selectedCategory,
+  });
+  const visibleEmailIds = new Set(visibleEmails.map((email) => email.id));
+  const visibleSelectedEmails = selectedEmails.filter((id) =>
+    visibleEmailIds.has(id)
+  );
+
+  useEffect(()=> {
+    setSelectedEmails([]);
+  },[location.pathname, search, selectedCategory]);
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setSearch("");
@@ -127,12 +142,12 @@ const Home = ({ sidebarOpen, search, setSearch, filterEmails, searchFilter }) =>
 
             {/* TOOLBAR */}
             <Mailtoolbar
-              emails={emails}
-              selectedEmails={selectedEmails}
+              emails={visibleEmails}
+              selectedEmails={visibleSelectedEmails}
               setSelectedEmails={setSelectedEmails}
               loadEmails={loadEmails}
               showSnackbar={showSnackbar}
-              folder={location.pathname.replace("/", "") || "inbox"}
+              folder={folder}
               setEmails={setEmails}
             />
             

@@ -2,35 +2,21 @@ import { useContext } from "react";
 import { useOutletContext } from "react-router-dom";
 import { UserContext } from "../../Context/UserContext";
 import EmailRow from "../EmailRow.jsx/EmailRow";
-import { isEmailForUser, matchesAnyRecipient } from "../../Utils/mailUtils";
+import { getVisibleEmails } from "../../Utils/visibleEmails";
+import { isEmailForUser } from "../../Utils/mailUtils";
 
 const StarredEmails = () => {
 
     const { loggedInUser } = useContext(UserContext);
 
-    const {
+    const { emails, search, filterEmails } = useOutletContext();
+    const filteredEmails = getVisibleEmails({
         emails,
+        folder: "starred",
+        loggedInUser,
         search,
-        filterEmails
-    } = useOutletContext();
-
-    const starredEmails = emails.filter(
-        (email) =>
-            email.starred === true &&
-            (
-                isEmailForUser(email.from, loggedInUser) ||
-                matchesAnyRecipient(email.to, loggedInUser)
-            )
-    );
-
-    // Search + sort
-    const filteredEmails = [
-        ...filterEmails(starredEmails, search)
-    ].sort(
-        (a, b) =>
-            new Date(b.createdAt) -
-            new Date(a.createdAt)
-    );
+        filterEmails,
+    });
 
     return (
         <div className="inbox-container">
@@ -60,6 +46,7 @@ const StarredEmails = () => {
                                     ? "sent"
                                     : "inbox"
                             }
+                            isStarredView={true}
                         />
 
                     ))
@@ -71,5 +58,4 @@ const StarredEmails = () => {
         </div>
     );
 };
-
 export default StarredEmails;

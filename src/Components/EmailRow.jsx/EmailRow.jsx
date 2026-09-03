@@ -18,7 +18,7 @@ import { formatMailDate, getReceiverDisplayLabel, getSenderDisplayLabel } from "
 import "./EmailRow.css";
 import SnoozeDialog from "../SnoozeDialoge/SnoozeDialog";
 import { updateEmail } from "../../authApi/updateEmail";
-const EmailRow = ({ email, folder }) => {
+const EmailRow = ({ email, folder , isStarredView=false}) => {
   const { loggedInUser } = useContext(UserContext);
   const { setEmails, openSelectedMail, selectedEmails,
     setSelectedEmails,
@@ -63,113 +63,156 @@ const EmailRow = ({ email, folder }) => {
     }
   };
 
-  const handleDelete = async (event) => {
-    event.stopPropagation();
-    try {
-      // Trash → permanently delete
-      if (folder === "trash") {
-        await permanentlyDeleteEmail(email.id);
-        setEmails((prevEmails) =>
-          prevEmails.filter((item) => item.id !== email.id)
-        );
-        setSelectedEmails((prev) =>
-          prev.filter((id) => id !== email.id)
-        );
-        showSnackbar("Email permanently deleted");
-        return;
-      }
+const handleDelete = async (event) => {
+  event.stopPropagation();
 
-      // Inbox / Sent / Spam → Trash
-      await deleteEmail(email.id, folder);
+  // Save the exact original state for Undo
+  const originalEmail = { ...email };
+  console.log("original email", originalEmail);
+  try {
+    // Trash → permanently delete
+    if (folder === "trash") {
+      await permanentlyDeleteEmail(email.id);
+
       setEmails((prevEmails) =>
-        prevEmails.map((item) => {
-          if (item.id !== email.id) {
-            return item;
-          }
-          // Inbox → Trash
+        prevEmails.filter((item) => item.id !== email.id)
+      );
+
+      setSelectedEmails((prev) =>
+        prev.filter((id) => id !== email.id)
+      );
+
+      showSnackbar("Email permanently deleted");
+      return;
+    }
+
+    // Move email to Trash
+    await deleteEmail( email.id,folder, isStarredView);
+
+    // Update local state
+    setEmails((prevEmails) =>
+      prevEmails.map((item) => {
+        if (item.id !== email.id) {
+          return item;
+        }
+
+        //  Deleted from Starred
+        if (isStarredView) {
           if (folder === "inbox") {
+            return {
+              ...item,
+              receiverFolder: "trash",
+              starred: false,
+            };
+          }
+
+          if (folder === "sent") {
+            return {
+              ...item,
+              senderFolder: "trash",
+              starred: false,
+            };
+          }
+        }
+
+        // Normal Inbox → Trash
+        if (folder === "inbox") {
+          return {
+            ...item,
+            receiverFolder: "trash",
+          };
+        }
+
+        // Spam → Trash
+        if (folder === "spam") {
+          if (item.receiverFolder === "spam") {
             return {
               ...item,
               receiverFolder: "trash",
             };
           }
-          // Spam → Trash
-          if (folder === "spam") {
-            // Received Spam
-            if (item.receiverFolder === "spam") {
-              return {
-                ...item,
-                receiverFolder: "trash",
-              };
-            }
-            // Sent Spam
-            if (item.senderFolder === "spam") {
-              return {
-                ...item,
-                senderFolder: "trash",
-              };
-            }
-          }
-          // Sent → Trash
-          if (folder === "sent") {
+
+          if (item.senderFolder === "spam") {
             return {
               ...item,
               senderFolder: "trash",
             };
           }
-          if (folder === "archive") {
-            if (item.receiverFolder === "archive") {
-              return {
-                ...item,
-                receiverFolder: "trash",
-              };
-            }
-            if (item.senderFolder === "archive") {
-              return {
-                ...item,
-                senderFolder: "trash",
-              };
-            }
-          }
-          return item;
-        })
-      );
-
-      // Remove from selected
-      setSelectedEmails((prev) =>
-        prev.filter((id) => id !== email.id)
-      );
-
-      // Undo
-      showSnackbar("Email moved to Trash", async () => {
-        try {
-          const restoredEmail = await restoreEmail(
-            email.id,
-            folder
-          );
-
-          setEmails((prevEmails) =>
-            prevEmails.map((item) =>
-              item.id === email.id
-                ? restoredEmail
-                : item
-            )
-          );
-        } catch (error) {
-          console.error(
-            "Unable to undo delete",
-            error
-          );
         }
-      });
 
-    } catch (error) {
-      console.error(
-        "Unable to delete email",
-        error
-      );
-    }
-  };
+        // Sent → Trash
+        if (folder === "sent") {
+          return {
+            ...item,
+            senderFolder: "trash",
+          };
+        }
+
+        // Archive → Trash
+        if (folder === "archive") {
+          if (item.receiverFolder === "archive") {
+            return {
+              ...item,
+              receiverFolder: "trash",
+            };
+          }
+
+          if (item.senderFolder === "archive") {
+            return {
+              ...item,
+              senderFolder: "trash",
+            };
+          }
+        }
+
+        // Draft → Trash
+        if (folder === "draft") {
+          return {
+            ...item,
+            senderFolder: "trash",
+          };
+        }
+        return item;
+      })
+    );
+
+    // Remove from selected
+    setSelectedEmails((prev) =>
+      prev.filter((id) => id !== email.id)
+    );
+
+    // Undo
+    showSnackbar("Email moved to Trash", async () => {
+      try {
+        // Restore the ORIGINAL email state.
+        // This restores both the real folder and starred state.
+        const restoredEmail = await updateEmail(
+          originalEmail.id,
+          originalEmail
+        );
+
+        setEmails((prevEmails) =>
+          prevEmails.map((item) =>
+            item.id === originalEmail.id
+              ? restoredEmail
+              : item
+          )
+        );
+      } catch (error) {
+        console.error(
+          "Unable to undo delete",
+          error
+        );
+      }
+    });
+
+  } catch (error) {
+    console.error(
+      "Unable to delete email",
+      error
+    );
+  }
+};
 
   const isArchived =
     (email.from === loggedInUser?.email && email.senderFolder === "archive") ||
@@ -177,7 +220,8 @@ const EmailRow = ({ email, folder }) => {
 
   const isDraftInTrash =
     folder === "trash" &&
-    email?.senderFolder === "draft" &&
+    (email?.isDraft === true || email?.senderFolder === "draft") &&
+    (email?.senderFolder === "trash" || email?.senderFolder === "draft") &&
     email?.from === loggedInUser?.email;
 
   const handleOpenEmail = () => {
@@ -185,7 +229,6 @@ const EmailRow = ({ email, folder }) => {
       setDraftToEdit(email);
       return;
     }
-
     openSelectedMail(email.id, folder);
   };
 
@@ -213,8 +256,7 @@ const EmailRow = ({ email, folder }) => {
       setEmails((prevEmails) =>
         prevEmails.map((item) =>
           item.id === email.id
-            ? archivedEmail
-            : item
+            ? archivedEmail : item
         )
       );
 
@@ -228,10 +270,7 @@ const EmailRow = ({ email, folder }) => {
         "Conversation archived",
         async () => {
           try {
-            const restoredEmail = await restoreArchivedEmail(
-              email.id,
-              originalFolder
-            );
+            const restoredEmail = await restoreArchivedEmail( email.id, originalFolder);
 
             setEmails((prevEmails) =>
               prevEmails.map((item) =>
@@ -250,10 +289,7 @@ const EmailRow = ({ email, folder }) => {
       );
 
     } catch (error) {
-      console.error(
-        "Unable to archive email",
-        error
-      );
+      console.error("Unable to archive email", error );
     }
   };
 
