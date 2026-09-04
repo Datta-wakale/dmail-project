@@ -2,6 +2,7 @@ import { useContext } from "react";
 import { useOutletContext } from "react-router-dom";
 import { UserContext } from "../../Context/UserContext";
 import EmailRow from "../EmailRow.jsx/EmailRow";
+import DraftRow from "../Drafts/DraftRow";
 import { getVisibleEmails } from "../../Utils/visibleEmails";
 import { isEmailForUser } from "../../Utils/mailUtils";
 
@@ -38,16 +39,21 @@ const StarredEmails = () => {
 
                     filteredEmails.map((email) => (
 
-                        <EmailRow
-                            key={email.id}
-                            email={email}
-                            folder={
-                                isEmailForUser(email.from, loggedInUser)
-                                    ? "sent"
-                                    : "inbox"
-                            }
-                            isStarredView={true}
-                        />
+                        (email.isDraft === true || email.senderFolder === "draft") ? (
+                            <DraftRow key={email.id} email={email} folder="draft" />
+                        ) : (
+                            <EmailRow
+                                key={email.id}
+                                email={email}
+                                folder={
+                                    isEmailForUser(email.from, loggedInUser)
+                                        ? "sent"
+                                        : "inbox"
+                                }
+                                viewFolder="starred"
+                                isStarredView={true}
+                            />
+                        )
 
                     ))
 

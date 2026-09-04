@@ -4,7 +4,7 @@ export const normalizeEmailAddress = (value) => {
   }
 
   const normalized = String(value).trim().toLowerCase();
-  if (!normalized) {
+  if(!normalized) {
     return "";
   }
   return normalized.includes("@") ? normalized : `${normalized}@dmail.com`;
@@ -50,6 +50,31 @@ export const isEmailInTrash = (email, currentUserEmail) => {
     return true;
   }
   return false;
+};
+
+export const getEmailSourceLabel = (email, folder, currentUser) => {
+  if (!email || folder === "trash") {
+    return "";
+  }
+  const isDraft = email.isDraft === true || email.senderFolder === "draft";
+  if (folder === "draft" || folder === "drafts" || isDraft) {
+    const source = email.senderOriginFolder || email.originFolder || "";
+    return source ? source.charAt(0).toUpperCase() + source.slice(1) : "";
+  }
+  if (folder !== "starred" && folder !== "all-mail") {
+    return "";
+  }
+  if (isEmailForUser(email.from, currentUser)) {
+    const source = email.senderOriginFolder || email.originFolder || "";
+    return source ? source.charAt(0).toUpperCase() + source.slice(1) : "";
+  }
+  if (matchesAnyRecipient(email.to, currentUser)) {
+    const source = email.receiverOriginFolder ||
+      email.originFolder ||
+      (email.receiverFolder === "inbox" ? "inbox" : "");
+    return source ? source.charAt(0).toUpperCase() + source.slice(1) : "";
+  }
+  return "";
 };
 
 export const canUseReplyOrForward = (email, currentUserEmail) => {
@@ -139,7 +164,6 @@ export const getUserEmailAddresses = (user) => {
     if (!user) {
         return [];
     }
-
     const currentEmail = normalizeEmailAddress(user.email);
 
     const aliases = Array.isArray(user.emailAliases)
@@ -164,4 +188,20 @@ export const isEmailForUser = (email, user) => {
     return getUserEmailAddresses(user).includes(
         normalizedEmail
     );
+};
+
+export const getEmailFolderForUser = (email, user) => {
+  if (!email || !user) {
+    return null;
+  }
+
+  if (isEmailForUser(email.from, user)) {
+    return email.senderFolder || "sent";
+  }
+
+  if (matchesAnyRecipient(email.to, user)) {
+    return email.receiverFolder || "inbox";
+  }
+
+  return null;
 };

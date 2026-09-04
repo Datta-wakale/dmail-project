@@ -21,6 +21,7 @@ import Snoozed from "./Snoozed/Snoozed";
 import ManageAccount from "./UserProfile/ManageAccount";
 import Archive from "./Components/Archieve/Archive";
 import UpdatePassword from "./UserProfile/UpdatePassword";
+import { isEmailForUser, matchesAnyRecipient } from "./Utils/mailUtils";
 function AppContent() {
   
   const location = useLocation();
@@ -32,7 +33,7 @@ function AppContent() {
   const [search, setSearch] = useState("");
   const [searchFilter, setSearchFilter] = useState("all");
 
-  const filterEmails = (emails, search, folderFilter = searchFilter) => {
+  const filterEmails = (emails, search, folderFilter = searchFilter, currentUser) => {
     const trimmedSearch = search?.trim() || "";
     const filteredByText = !trimmedSearch
       ? emails
@@ -53,25 +54,30 @@ function AppContent() {
 
     return filteredByText.filter((email) => {
       if (folderFilter === "inbox") {
-        return email.receiverFolder === "inbox" || (email.to && email.to.includes("@"));
+        return matchesAnyRecipient(email.to, currentUser) && email.receiverFolder === "inbox";
       }
       if (folderFilter === "sent") {
-        return email.senderFolder === "sent" || email.from === email.from;
+        return isEmailForUser(email.from, currentUser) && email.senderFolder === "sent";
       }
       if (folderFilter === "trash") {
-        return email.receiverFolder === "trash" || email.senderFolder === "trash";
+        return (matchesAnyRecipient(email.to, currentUser) && email.receiverFolder === "trash") ||
+          (isEmailForUser(email.from, currentUser) && email.senderFolder === "trash");
       }
       if (folderFilter === "starred") {
-        return Boolean(email.starred);
+        return Boolean(email.starred) &&
+          ((matchesAnyRecipient(email.to, currentUser) && email.receiverFolder !== "trash") ||
+            (isEmailForUser(email.from, currentUser) && email.senderFolder !== "trash"));
       }
       if (folderFilter === "spam") {
-        return email.receiverFolder === "spam" || email.senderFolder === "spam";
+        return (matchesAnyRecipient(email.to, currentUser) && email.receiverFolder === "spam") ||
+          (isEmailForUser(email.from, currentUser) && email.senderFolder === "spam");
       }
       if (folderFilter === "drafts") {
-        return email.senderFolder === "draft";
+        return isEmailForUser(email.from, currentUser) && email.senderFolder === "draft";
       }
       if (folderFilter === "archive") {
-        return email.senderFolder === "archive";
+        return (matchesAnyRecipient(email.to, currentUser) && email.receiverFolder === "archive") ||
+          (isEmailForUser(email.from, currentUser) && email.senderFolder === "archive");
       }
       return true;
     });

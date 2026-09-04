@@ -174,6 +174,7 @@ const Home = ({ sidebarOpen, search, setSearch, filterEmails, searchFilter }) =>
             onEmailSent={handleEmailSent}
             onDraftSaved={handleDraftSaved}
             draftToEdit={draftToEdit}
+            currentFolder={folder}
           />
 
           <ActionSnackbar open={snackbar.open} message={snackbar.message} onAction={snackbar.action} onClose={closeSnackbar} />

@@ -85,7 +85,7 @@ export const createWelcomeEmail = async (user) => {
   }
 };
 
-export const deleteEmail = async (id, folder,isStarredView=false) => {
+export const deleteEmail = async (id, folder) => {
   const response = await fetch(`${apiUrl}/${id}`);
 
   if (!response.ok) {
@@ -149,10 +149,6 @@ export const deleteEmail = async (id, folder,isStarredView=false) => {
       isDraft: true,
     };
   }
-  if(isStarredView){
-    updatedEmail.starred = false;
-  }
-
   if (!updatedEmail) {
     throw new Error("Unable to determine email folder");
   }
@@ -417,6 +413,7 @@ export const saveDraft = async (draftData) => {
             ...draftData,
             senderFolder: "draft",
             isDraft: true,
+            senderOriginFolder: draftData.senderOriginFolder || draftData.originFolder || null,
         }),
     });
 
@@ -438,6 +435,7 @@ export const updateDraft = async (id, draftData) => {
             id,
             senderFolder: "draft",
             isDraft: true,
+            senderOriginFolder: draftData.senderOriginFolder || draftData.originFolder || null,
         }),
     });
 

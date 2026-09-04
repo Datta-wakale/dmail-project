@@ -35,11 +35,7 @@ const EmailChangeDialog = ({ open,onClose,onCancel, onContinue, attemptsLeft,}) 
                 <Button onClick={onCancel || onClose}>
                     Cancel
                 </Button>
-                <Button
-                    variant="contained"
-                    onClick={onContinue || onClose}>
-                    Continue
-                </Button>
+                <Button variant="contained" onClick={onContinue || onClose}> Continue</Button>
             </DialogActions>
         </Dialog>
     );

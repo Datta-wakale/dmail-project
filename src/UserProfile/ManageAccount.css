@@ -127,3 +127,11 @@
 .update-password-btn:hover {
     background-color: #e2e8f0;
 }
+.verify-phone-btn{
+  padding: 8px 10px;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  border-radius: 6px;
+  color: #1a73e8;
+}

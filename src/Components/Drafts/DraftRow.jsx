@@ -1,7 +1,11 @@
 import { useState } from "react";
+import { useContext } from "react";
 import { useOutletContext } from "react-router-dom";
+import { UserContext } from "../../Context/UserContext";
 import Checkbox from "@mui/material/Checkbox";
 import IconButton from "@mui/material/IconButton";
+import StarBorderIcon from "@mui/icons-material/StarBorder";
+import StarIcon from "@mui/icons-material/Star";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SnoozeIcon from "@mui/icons-material/Snooze";
 import MarkEmailReadIcon from "@mui/icons-material/MarkEmailRead";
@@ -9,7 +13,8 @@ import MarkEmailUnreadIcon from "@mui/icons-material/MarkEmailUnread";
 import { deleteEmail, permanentlyDeleteEmail, snoozeEmail } from "../../authApi/emailsApi";
 import { unsnoozeEmail } from "../../authApi/UnSnoozeEmail";
 import { updateEmail } from "../../authApi/updateEmail";
-import { formatMailDate } from "../../Utils/mailUtils";
+import { formatMailDate, getEmailSourceLabel } from "../../Utils/mailUtils";
+import { toggleStarEmail } from "../../authApi/emailsApi";
 import SnoozeDialog from "../SnoozeDialoge/SnoozeDialog";
 import "./DraftRow.css";
 
@@ -21,9 +26,26 @@ const DraftRow = ({ email, folder = "draft" }) => {
         setDraftToEdit,
         showSnackbar,
     } = useOutletContext();
+    const { loggedInUser } = useContext(UserContext);
     const [snoozeOpen, setSnoozeOpen] = useState(false);
     const isSelected = selectedEmails.includes(email.id);
     const isInTrash = folder === "trash";
+
+    const handleStar = async (event) => {
+        event.stopPropagation();
+        if (isInTrash) {
+            return;
+        }
+        const starred = !email.starred;
+        try {
+            const updatedEmail = await toggleStarEmail(email.id, starred);
+            setEmails((prev) => prev.map((item) =>
+                item.id === updatedEmail.id ? updatedEmail : item
+            ));
+        } catch (error) {
+            console.error("Unable to update draft star", error);
+        }
+    };
 
     const handleCheckboxChange = (event) => {
         event.stopPropagation();
@@ -113,9 +135,19 @@ const DraftRow = ({ email, folder = "draft" }) => {
                     onClick={(event) => event.stopPropagation()}
                     onChange={handleCheckboxChange}
                 />
+                {!isInTrash && (
+                    <IconButton title={email.starred ? "Unstar" : "Star"} onClick={handleStar}>
+                        {email.starred ? <StarIcon className="star-active" /> : <StarBorderIcon />}
+                    </IconButton>
+                )}
                 <div className="email-sender text">Draft</div>
                 <div className="email-content">
                     <span className="email-subject">{email.subject || "(no subject)"}</span>
+                    {getEmailSourceLabel(email, folder, loggedInUser) && (
+                        <span className="email-source-label">
+                            {getEmailSourceLabel(email, folder, loggedInUser)}
+                        </span>
+                    )}
                     <span className="email-preview">{" - " + (email.message || "")}</span>
                 </div>
                 <div className="email-date">

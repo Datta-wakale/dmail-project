@@ -16,7 +16,7 @@ import SnoozeIcon from "@mui/icons-material/Snooze";
 import MoveToMenu from "../MoveTo/MoveTo";
 import SnoozeDialog from "../SnoozeDialoge/SnoozeDialog";
 import { deleteEmail, archiveEmail, moveEmailToSpam, snoozeEmail } from "../../authApi/emailsApi";
-import { restoreArchivedEmail, restoreEmail, restoreSpamEmail } from "../../authApi/restoreEmail";
+import { restoreSpamEmail } from "../../authApi/restoreEmail";
 import { unsnoozeEmail } from "../../authApi/UnSnoozeEmail";
 import { updateEmail } from "../../authApi/updateEmail";
 import "./Mailtoolbar.css";
@@ -28,35 +28,23 @@ const Mailtoolbar = ({ emails, selectedEmails, setSelectedEmails, loadEmails, sh
   const selectedCount = selectedEmails.length;
   const hasSelection = selectedCount > 0;
   const { loggedInUser } = useContext(UserContext);
+  const selectedEmailObjects = selectedEmails
+    .map((id) => emails.find((email) => String(email.id) === String(id)))
+    .filter(Boolean);
+
+  const allSelectedAreRead =
+    selectedEmailObjects.length > 0 &&
+    selectedEmailObjects.every((email) => email.read === true);
   const moreOpen = Boolean(moreAnchorEl);
 
   const getSelectedEmailById = (id) => emails.find((item) => String(item.id) === String(id));
 
-  // const getEffectiveFolderForEmail = (email) => {
-  //   if (!email) {
-  //     return ["inbox", "sent", "spam", "trash", "draft"].includes(folder)
-  //       ? folder
-  //       : email?.from === loggedInUser?.email
-  //         ? "sent"
-  //         : "inbox";
-  //   }
-
-  //   if (["inbox", "sent", "spam", "trash", "draft", "archive"].includes(folder)) {
-  //     return folder;
-  //   }
-  //   if (email.from === loggedInUser?.email) {
-  //     return email.senderFolder || "sent";
-  //   }
-
-  //   return email.receiverFolder || "inbox";
-  // };
   const getEffectiveFolderForEmail = (email) => {
     if (!email) {
       return null;
     }
 
-    // ⭐ Starred is a VIEW, not a real folder.
-    // Always determine the actual folder from the email.
+    //  determine the actual folder from the email.
     if (
       folder === "starred" ||
       folder === "starred-received" ||
@@ -66,28 +54,24 @@ const Mailtoolbar = ({ emails, selectedEmails, setSelectedEmails, loadEmails, sh
         return email.senderFolder || "sent";
       }
 
+      if (folder === "all-mail") {
+        if (email.from === loggedInUser?.email) {
+          return email.senderFolder || "sent";
+        }
+        return email.receiverFolder || "inbox";
+      }
+
       return email.receiverFolder || "inbox";
     }
 
     // Normal real folders
-    if (
-      [
-        "inbox",
-        "sent",
-        "spam",
-        "trash",
-        "draft",
-        "archive",
-      ].includes(folder)
-    ) {
+    if (["inbox", "sent", "spam", "trash", "draft", "archive",].includes(folder)) {
       return folder;
     }
-
     // Fallback
     if (email.from === loggedInUser?.email) {
       return email.senderFolder || "sent";
     }
-
     return email.receiverFolder || "inbox";
   };
 
@@ -237,15 +221,10 @@ const Mailtoolbar = ({ emails, selectedEmails, setSelectedEmails, loadEmails, sh
       });
 
     } catch (error) {
-      console.error(
-        "Error handling archive:",
-        error
-      );
-
+      console.error("Error handling archive:", error);
       showSnackbar("Unable to archive emails");
     }
   };
-
 
   const handleDeleteSelected = async () => {
     try {
@@ -268,16 +247,11 @@ const Mailtoolbar = ({ emails, selectedEmails, setSelectedEmails, loadEmails, sh
           const realFolder = getEffectiveFolderForEmail(email);
 
           // Starred is a VIEW, not a real folder
-          const isStarredView =
-            folder === "starred" ||
+          const isStarredView = folder === "starred" ||
             folder === "starred-received" ||
             folder === "starred-sent";
 
-          return deleteEmail(
-            email.id,
-            realFolder,
-            isStarredView
-          );
+          return deleteEmail(email.id, realFolder, isStarredView);
         })
       );
 
@@ -297,17 +271,13 @@ const Mailtoolbar = ({ emails, selectedEmails, setSelectedEmails, loadEmails, sh
 
       setSelectedEmails([]);
 
-      showSnackbar(
-        "Emails moved to Trash",
+      showSnackbar("Emails moved to Trash",
         async () => {
           try {
             // Restore EXACT original state
             const restored = await Promise.all(
               originalEmails.map((originalEmail) =>
-                updateEmail(
-                  originalEmail.id,
-                  originalEmail
-                )
+                updateEmail(originalEmail.id, originalEmail)
               )
             );
 
@@ -349,10 +319,7 @@ const Mailtoolbar = ({ emails, selectedEmails, setSelectedEmails, loadEmails, sh
       // Move selected emails to Spam
       const spamResults = await Promise.all(
         spamItems.map((email) =>
-          moveEmailToSpam(
-            email.id,
-            getEffectiveFolderForEmail(email)
-          )
+          moveEmailToSpam(email.id, getEffectiveFolderForEmail(email))
         )
       );
 
@@ -364,8 +331,7 @@ const Mailtoolbar = ({ emails, selectedEmails, setSelectedEmails, loadEmails, sh
           (email) =>
             !spamItems.some(
               (spamEmail) =>
-                String(spamEmail.id) === String(email.id)
-            )
+                String(spamEmail.id) === String(email.id))
         )
       );
 
@@ -382,7 +348,6 @@ const Mailtoolbar = ({ emails, selectedEmails, setSelectedEmails, loadEmails, sh
           );
 
           console.log("Restored from spam:", restored);
-
           // Put restored emails back into current folder
           setEmails((prevEmails) => {
             const existingIds = new Set(
@@ -400,10 +365,7 @@ const Mailtoolbar = ({ emails, selectedEmails, setSelectedEmails, loadEmails, sh
             ];
           });
         } catch (error) {
-          console.error(
-            "Unable to undo spam selected emails:",
-            error
-          );
+          console.error("Unable to undo spam selected emails:", error);
         }
       });
     } catch (error) {
@@ -459,9 +421,7 @@ const Mailtoolbar = ({ emails, selectedEmails, setSelectedEmails, loadEmails, sh
         snoozedResults.map((item) => [String(item.id), item])
       );
 
-      setEmails((prev) =>
-        prev.map((email) => snoozedMap[String(email.id)] || email)
-      );
+      setEmails((prev) => prev.map((email) => snoozedMap[String(email.id)] || email));
 
       setSelectedEmails([]);
       setSnoozeOpen(false);
@@ -593,17 +553,23 @@ const Mailtoolbar = ({ emails, selectedEmails, setSelectedEmails, loadEmails, sh
       </Menu>
       {hasSelection && (
         <>
-          <Tooltip title="Archive">
-            <IconButton onClick={handleArchiveSelected}>
-              <ArchiveIcon />
-            </IconButton>
-          </Tooltip>
+          {folder !== "archive" && folder !== "trash" && folder !== "drafts" &&
+            <Tooltip title="Archive">
+              <IconButton onClick={handleArchiveSelected}>
+                <ArchiveIcon />
+              </IconButton>
+            </Tooltip>
+          }
 
-          {folder !== "spam" && <Tooltip title="Report spam">
-            <IconButton onClick={handleSpamSelected}>
-              <ReportIcon />
-            </IconButton>
-          </Tooltip>}
+
+          {folder !== "spam" && folder !== "drafts" && folder !== "trash" && (
+            <Tooltip title="Report spam">
+              <IconButton onClick={handleSpamSelected}>
+                <ReportIcon />
+              </IconButton>
+            </Tooltip>
+          )}
+
 
           <Tooltip title="Delete">
             <IconButton onClick={handleDeleteSelected}>
@@ -611,17 +577,19 @@ const Mailtoolbar = ({ emails, selectedEmails, setSelectedEmails, loadEmails, sh
             </IconButton>
           </Tooltip>
 
-          <Tooltip title="Mark as read">
-            <IconButton onClick={() => handleMarkSelected(true)}>
-              <MarkEmailReadIcon />
-            </IconButton>
-          </Tooltip>
-
-          <Tooltip title="Mark as unread">
-            <IconButton onClick={() => handleMarkSelected(false)}>
-              <MarkEmailUnreadIcon />
-            </IconButton>
-          </Tooltip>
+          {allSelectedAreRead ? (
+            <Tooltip title="Mark as unread">
+              <IconButton onClick={() => handleMarkSelected(false)}>
+                <MarkEmailUnreadIcon />
+              </IconButton>
+            </Tooltip>
+          ) : (
+            <Tooltip title="Mark as read">
+              <IconButton onClick={() => handleMarkSelected(true)}>
+                <MarkEmailReadIcon />
+              </IconButton>
+            </Tooltip>
+          )}
 
           <MoveToMenu
             selectedEmails={selectedEmails}
@@ -650,7 +618,6 @@ const Mailtoolbar = ({ emails, selectedEmails, setSelectedEmails, loadEmails, sh
           </Tooltip>
         </>
       )}
-
       <SnoozeDialog open={snoozeOpen}
         onClose={() => setSnoozeOpen(false)}
         onSnooze={handleSnoozeSelected} />

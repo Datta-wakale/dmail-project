@@ -258,9 +258,56 @@
       "lname": "",
       "email": "arya@dmail.com",
       "phone": "9944761234",
-      "dob": "2003-02-02",
-      "password": "$2b$10$SOHeJQV4hXKHPBMWBvfqtOpnvJMvPxWqS8zxkzg5AdMWhnDq/9sHS",
-      "id": "49-HBEFPnTw"
+      "dob": "2000-02-02",
+      "password": "$2b$10$p2Uy/2cEjyFaQep8xfYtm.eNIuVgQzsOI0yLh54W6OAqkr.l1NhN.",
+      "id": "49-HBEFPnTw",
+      "phoneVerified": true
+    },
+    {
+      "fname": "patil",
+      "lname": "",
+      "email": "patil@dmail.com",
+      "phone": "",
+      "dob": "2000-03-02",
+      "password": "$2b$10$w9.mRAOpAm5jRvxE/49fq..antRCn4BELtbGlaYjfMdkkbdMWjbqK",
+      "id": "bd1QqitX73I"
+    },
+    {
+      "fname": "datta",
+      "lname": "",
+      "email": "datta.@dmail.com",
+      "phone": "9022372812",
+      "dob": "2002-03-03",
+      "password": "$2b$10$EDtUqHbmxwdfT9mVWaUsbOVEbcWrSgA5E.2afQ96Knka83QKx2x9e",
+      "id": "Q7qylJzCJuY"
+    },
+    {
+      "fname": "ajju",
+      "lname": "",
+      "email": "ajju@dmail.com",
+      "phone": "",
+      "dob": "2005-02-02",
+      "password": "$2b$10$.5tox5F9HOqfp1S42LwI3u7yy8g6RtZMJUAs9UjsJ/riO3ocD4q/C",
+      "id": "LMnltYJNgI4"
+    },
+    {
+      "fname": "akash",
+      "lname": "",
+      "email": "akash@dmail.com",
+      "phone": "",
+      "dob": "2002-09-10",
+      "password": "$2b$10$EVUE3glIaFm/7OMIlchyIOVf.FddNfrHZLQ/XGHQ/292rs292T1.e",
+      "id": "EwOUPeFQf4A",
+      "phoneVerified": false
+    },
+    {
+      "fname": "akash",
+      "lname": "",
+      "email": "akash@dmail.com",
+      "phone": "",
+      "dob": "2000-09-10",
+      "password": "$2b$10$p4vkde1OMu4a7LAzhMFtPeSTh/3OH6rekTXEg8YZ7UT5azansSplS",
+      "id": "jXTTC6-V82k"
     }
   ],
   "emails": [
@@ -2062,28 +2109,13 @@
       "attachment": null,
       "createdAt": "2026-09-02T10:19:45.652Z",
       "senderFolder": "archive",
-      "receiverFolder": "inbox",
+      "receiverFolder": "spam",
       "read": true,
       "welcome": true,
       "threadId": "a6a7b865-1cf2-4069-8698-3d2ba9008fa4",
       "id": "Ad3_lZUc8MI",
       "starred": false,
       "receiverSnoozedUntil": null
-    },
-    {
-      "from": "arya@dmail.com",
-      "to": "pratik@dmail.com",
-      "subject": "Check working or not",
-      "message": "lkjljk",
-      "createdAt": "2026-09-03T02:41:33.938Z",
-      "attachment": null,
-      "threadId": "eea9fe03-82af-458a-8b3f-e856da1bae9c",
-      "senderFolder": "trash",
-      "receiverFolder": "trash",
-      "read": true,
-      "id": "wUPJZAKgub0",
-      "starred": false,
-      "senderSnoozedUntil": null
     },
     {
       "from": "arya@dmail.com",
@@ -2097,7 +2129,8 @@
       "receiverFolder": "trash",
       "read": true,
       "id": "EeHKieAIshY",
-      "senderSnoozedUntil": null
+      "senderSnoozedUntil": null,
+      "starred": false
     },
     {
       "from": "arya@dmail.com",
@@ -2124,7 +2157,7 @@
       "threadId": "b290776b-b480-4073-b953-9174df8bb68a",
       "senderFolder": "archive",
       "receiverFolder": "inbox",
-      "read": false,
+      "read": true,
       "id": "MtjjQtOE2SU",
       "senderSnoozedUntil": null,
       "starred": false
@@ -2137,7 +2170,7 @@
       "createdAt": "2026-09-03T07:43:49.668Z",
       "attachment": null,
       "threadId": "bacd74a5-cdca-477d-b736-034aee4b2fd1",
-      "senderFolder": "archive",
+      "senderFolder": "deleted",
       "receiverFolder": "archive",
       "read": false,
       "id": "MxnVGUo2YoM",
@@ -2151,11 +2184,11 @@
       "message": "",
       "attachment": null,
       "createdAt": "2026-09-03T08:47:00.232Z",
-      "senderFolder": "sent",
+      "senderFolder": "deleted",
       "id": "8dBApz2pEDc",
       "read": true,
       "senderSnoozedUntil": null,
-      "starred": true
+      "starred": false
     },
     {
       "from": "arya@dmail.com",
@@ -2164,11 +2197,11 @@
       "message": "jyhjhgjh",
       "attachment": null,
       "createdAt": "2026-09-03T10:26:47.146Z",
-      "senderFolder": "sent",
+      "senderFolder": "deleted",
       "id": "zLf6Fa4MPOg",
       "read": true,
       "isDraft": true,
-      "starred": true
+      "starred": false
     },
     {
       "from": "arya@dmail.com",
@@ -2177,7 +2210,7 @@
       "message": "",
       "attachment": null,
       "createdAt": "2026-09-03T11:07:36.664Z",
-      "senderFolder": "trash",
+      "senderFolder": "deleted",
       "isDraft": true,
       "id": "ziC8um7HXfQ",
       "read": true
@@ -2189,7 +2222,7 @@
       "message": "",
       "attachment": null,
       "createdAt": "2026-09-03T11:21:38.721Z",
-      "senderFolder": "trash",
+      "senderFolder": "deleted",
       "isDraft": true,
       "id": "O6E7mbLhVVE"
     },
@@ -2200,9 +2233,116 @@
       "message": "",
       "attachment": null,
       "createdAt": "2026-09-03T11:32:36.898Z",
-      "senderFolder": "trash",
+      "senderFolder": "deleted",
       "isDraft": true,
       "id": "v-vf0uhRis8"
+    },
+    {
+      "from": "arya@dmail.com",
+      "to": "abhi@dmail.com",
+      "subject": "",
+      "message": "",
+      "attachment": null,
+      "createdAt": "2026-09-04T01:28:37.928Z",
+      "senderFolder": "deleted",
+      "isDraft": true,
+      "id": "BQckIbC2drs"
+    },
+    {
+      "from": "dmail_team@dmail.com",
+      "to": "patil@dmail.com",
+      "subject": "Welcome to D-mail",
+      "message": "Hi patil,\n\nWelcome to D-mail! We are excited to have you here. Your inbox is ready, and this is your first welcome message from the D-mail team.\n\nStart exploring your inbox and enjoy a cleaner, smarter way to stay connected.\n\nBest regards,\nD-mail Team",
+      "attachment": null,
+      "createdAt": "2026-09-04T02:05:18.737Z",
+      "senderFolder": "sent",
+      "receiverFolder": "inbox",
+      "read": false,
+      "welcome": true,
+      "threadId": "1e51f36b-2161-4ba9-8dde-7181720f02cc",
+      "id": "1SHdK0iN_Ak"
+    },
+    {
+      "from": "dmail_team@dmail.com",
+      "to": "datta.@dmail.com",
+      "subject": "Welcome to D-mail",
+      "message": "Hi datta,\n\nWelcome to D-mail! We are excited to have you here. Your inbox is ready, and this is your first welcome message from the D-mail team.\n\nStart exploring your inbox and enjoy a cleaner, smarter way to stay connected.\n\nBest regards,\nD-mail Team",
+      "attachment": null,
+      "createdAt": "2026-09-04T02:07:59.772Z",
+      "senderFolder": "sent",
+      "receiverFolder": "inbox",
+      "read": true,
+      "welcome": true,
+      "threadId": "dd4547e2-9ade-4174-afce-1229cbe0c430",
+      "id": "MNuUIUoKt4o"
+    },
+    {
+      "from": "arya@dmail.com",
+      "to": "",
+      "subject": "lkllhjkl",
+      "message": "",
+      "attachment": null,
+      "createdAt": "2026-09-04T02:44:17.990Z",
+      "senderOriginFolder": "inbox",
+      "senderFolder": "deleted",
+      "isDraft": true,
+      "id": "qpL4T2YO2UE",
+      "read": false,
+      "senderSnoozedUntil": null
+    },
+    {
+      "from": "arya@dmail.com",
+      "to": "",
+      "subject": "lklkjj",
+      "message": "",
+      "attachment": null,
+      "createdAt": "2026-09-04T04:06:50.797Z",
+      "senderOriginFolder": "inbox",
+      "senderFolder": "deleted",
+      "isDraft": true,
+      "id": "Yd-RHRriNJs"
+    },
+    {
+      "from": "dmail_team@dmail.com",
+      "to": "ajju@dmail.com",
+      "subject": "Welcome to D-mail",
+      "message": "Hi ajju,\n\nWelcome to D-mail! We are excited to have you here. Your inbox is ready, and this is your first welcome message from the D-mail team.\n\nStart exploring your inbox and enjoy a cleaner, smarter way to stay connected.\n\nBest regards,\nD-mail Team",
+      "attachment": null,
+      "createdAt": "2026-09-04T05:31:10.985Z",
+      "senderFolder": "sent",
+      "receiverFolder": "inbox",
+      "read": false,
+      "welcome": true,
+      "threadId": "4bdad06d-e938-4a32-9480-53c6c6013313",
+      "id": "IqixqDejBqE"
+    },
+    {
+      "from": "arya@dmail.com",
+      "to": "datta@gmail.com",
+      "subject": "grdgd",
+      "message": "gdfgdf",
+      "createdAt": "2026-09-04T08:28:50.562Z",
+      "attachment": null,
+      "threadId": "116f0bd0-e6a4-45e4-9c16-b3b22d7d3791",
+      "senderFolder": "deleted",
+      "receiverFolder": "inbox",
+      "read": false,
+      "id": "JHLRtMhK0OI"
+    },
+    {
+      "from": "dmail_team@dmail.com",
+      "to": "akash@dmail.com",
+      "subject": "Welcome to D-mail",
+      "message": "Hi akash,\n\nWelcome to D-mail! We are excited to have you here. Your inbox is ready, and this is your first welcome message from the D-mail team.\n\nStart exploring your inbox and enjoy a cleaner, smarter way to stay connected.\n\nBest regards,\nD-mail Team",
+      "attachment": null,
+      "createdAt": "2026-09-04T08:38:38.877Z",
+      "senderFolder": "sent",
+      "receiverFolder": "inbox",
+      "read": true,
+      "welcome": true,
+      "threadId": "516599d0-85ea-45ce-88b1-8975ac7cb34c",
+      "id": "18jC5yGvl30",
+      "starred": false
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"

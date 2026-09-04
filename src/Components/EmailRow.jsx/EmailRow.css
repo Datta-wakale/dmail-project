@@ -71,6 +71,14 @@
     color: #f4b400;
 }
 
+.email-source-label {
+    display: inline-block;
+    margin-left: 8px;
+    color: #666;
+    font-size: 0.75rem;
+    font-weight: 400;
+}
+
 /* No emails */
 .no-email {
     text-align: center;

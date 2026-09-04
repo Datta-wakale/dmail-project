@@ -651,11 +651,14 @@ if (folder === "spam") {
               </IconButton>
             </Tooltip>
           )}
-          <Tooltip title="Report spam">
+        
+        { folder !== "spam" &&
+             <Tooltip title="Report spam">
             <IconButton onClick={handleReportSpam}>
               <ReportIcon />
             </IconButton>
           </Tooltip>
+        } 
 
           <Tooltip title="Delete">
             <IconButton onClick={handleDelete}>
@@ -679,17 +682,14 @@ if (folder === "spam") {
             </IconButton>
           </Tooltip>
 
-
           <Tooltip title="More">
             <IconButton onClick={handleMoreClick}>
               <MoreVertIcon />
             </IconButton>
           </Tooltip>
-          <Menu
-            anchorEl={moreAnchorEl}
+          <Menu anchorEl={moreAnchorEl}
             open={moreOpen}
-            onClose={handleMoreClose}
-          >
+            onClose={handleMoreClose} >
             <MenuItem onClick={handleMarkAsRead}>
               Mark as read
             </MenuItem>

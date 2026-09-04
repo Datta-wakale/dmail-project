@@ -159,8 +159,8 @@ const Register = () => {
 
     const validateStep5 = () => {
         const errors = {};
-
-        if (user.phone.length !== 10) {
+        const phone = user.phone.trim();
+        if (phone  && phone.length !== 10) {
             errors.phone = "Phone number must be 10 digits";
         }
         setError(errors);
@@ -334,10 +334,12 @@ const Register = () => {
                 {step === 5 && (
                     <>
                         <h2>Add your phone number</h2>
-                        <p className="step-description">  Enter your 10 digit phone number. </p>
+                        <p className="step-description">
+                            Add a phone number for account recovery. This is optional.</p>
+
                         <div className="form-group">
                             <label htmlFor="phone">
-                                Phone
+                                Phone (optional)
                             </label>
                             <input type="text" id="phone" name="phone"
                                 placeholder="Enter 10 digit phone number" value={user.phone}

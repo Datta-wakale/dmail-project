@@ -1,5 +1,5 @@
 import getEmailCategory from "./emailsCategoriesUtils";
-import {isEmailForUser, matchesAnyRecipient,} from "./mailUtils";
+import {isEmailForUser, isEmailInTrash, matchesAnyRecipient,} from "./mailUtils";
 
 export const getVisibleEmails = ({
   emails,
@@ -36,6 +36,7 @@ export const getVisibleEmails = ({
     folderEmails = emails.filter(
       (email) =>
         email.starred === true &&
+        !isEmailInTrash(email, loggedInUser) &&
         (isEmailForUser(email.from, loggedInUser) ||
           matchesAnyRecipient(email.to, loggedInUser))
     );
@@ -101,10 +102,14 @@ export const getVisibleEmails = ({
   }
 
   const searchedEmails = filterEmails
-    ? filterEmails(folderEmails, search)
+    ? filterEmails(folderEmails, search, undefined, loggedInUser)
     : folderEmails;
 
-  return [...searchedEmails].sort(
+  const uniqueEmails = [...new Map(
+    searchedEmails.map((email) => [String(email.id), email])
+  ).values()];
+
+  return uniqueEmails.sort(
     (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
   );
 };

@@ -17,11 +17,7 @@ const OtpDialog = ({ open, otp, onClose }) => {
         </h2>
       </DialogContent>
       <DialogActions>
-        <Button
-          onClick={onClose}
-          variant="contained" >
-          OK
-        </Button>
+        <Button onClick={onClose} variant="contained" > OK </Button>
       </DialogActions>
     </Dialog>
   );

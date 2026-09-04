@@ -13,7 +13,7 @@ import { toast } from "react-toastify";
 import { splitRecipients, joinRecipients } from "../../Utils/mailUtils";
 import "./ComposeDialog.css";
 
-const ComposeDialog = ({ open, onClose, onEmailSent, draftToEdit, onDraftSaved }) => {
+const ComposeDialog = ({ open, onClose, onEmailSent, draftToEdit, onDraftSaved, currentFolder }) => {
 const { loggedInUser } = useContext(UserContext);
 console.log("loggedInUser in ComposeDialog:: 18", loggedInUser);
 const [mail, setMail] = useState({
@@ -165,6 +165,11 @@ const handleClose = async () => {
       message: mail.message.trim(),
       attachment: mail.attachment,
       createdAt: new Date().toISOString(),
+      senderOriginFolder: draftToEdit?.senderOriginFolder ||
+        draftToEdit?.originFolder ||
+        (["inbox", "sent", "spam", "archive"].includes(currentFolder)
+          ? currentFolder
+          : null),
     };
 
     if (draftToEdit) {
@@ -197,6 +202,10 @@ const handleClose = async () => {
         ...draftData,
         id: draftToEdit.id,
         senderFolder: "draft",
+        senderOriginFolder: draftToEdit.senderOriginFolder ||
+          draftToEdit.originFolder ||
+          draftData.senderOriginFolder ||
+          null,
       });
       onDraftSaved(updatedDraft);
       onClose();

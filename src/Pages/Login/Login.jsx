@@ -142,6 +142,9 @@ const Login = () => {
             <h2>Welcome back</h2>
             <p className="signin-subtitle"> Enter your password to continue  </p>
             <div className="signin-form-group">
+               <IconButton onClick={handleBack} className="back-btn">
+                <ArrowBackIcon />
+              </IconButton>
               <label htmlFor="email"> Email </label>
               <input type="text" id="email" value={user.email} disabled />
             </div>
@@ -159,9 +162,7 @@ const Login = () => {
             {error.login && (<div className="login-error"> {error.login} </div>)}
             <div className="login-button-row">
               {/* <button type="button" className="back-btn" onClick={handleBack} > Back</button> */}
-              <IconButton onClick={handleBack} className="back-btn">
-                <ArrowBackIcon />
-              </IconButton>
+             
               <button type="button" className="signin-btn"
                 onClick={handleLogin} >
                 Sign in</button>

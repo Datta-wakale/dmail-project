@@ -12,13 +12,12 @@ import MarkEmailReadIcon from "@mui/icons-material/MarkEmailRead";
 import MarkEmailUnreadIcon from "@mui/icons-material/MarkEmailUnread";
 import { deleteEmail, toggleStarEmail, permanentlyDeleteEmail, archiveEmail, snoozeEmail } from "../../authApi/emailsApi";
 import { restoreArchivedEmail } from "../../authApi/restoreEmail";
-import { restoreEmail } from "../../authApi/restoreEmail";
 import { unsnoozeEmail } from "../../authApi/UnSnoozeEmail";
-import { formatMailDate, getReceiverDisplayLabel, getSenderDisplayLabel } from "../../Utils/mailUtils";
+import { formatMailDate, getEmailSourceLabel, getReceiverDisplayLabel, getSenderDisplayLabel } from "../../Utils/mailUtils";
 import "./EmailRow.css";
 import SnoozeDialog from "../SnoozeDialoge/SnoozeDialog";
 import { updateEmail } from "../../authApi/updateEmail";
-const EmailRow = ({ email, folder , isStarredView=false}) => {
+const EmailRow = ({ email, folder, viewFolder = folder, isStarredView=false}) => {
   const { loggedInUser } = useContext(UserContext);
   const { setEmails, openSelectedMail, selectedEmails,
     setSelectedEmails,
@@ -44,6 +43,10 @@ const EmailRow = ({ email, folder , isStarredView=false}) => {
   // Star
   const handleStar = async (event) => {
     event.stopPropagation();
+
+    if (folder === "trash") {
+      return;
+    }
 
     const newStarredValue = !email.starred;
     try {
@@ -97,24 +100,6 @@ const handleDelete = async (event) => {
         }
 
         //  Deleted from Starred
-        if (isStarredView) {
-          if (folder === "inbox") {
-            return {
-              ...item,
-              receiverFolder: "trash",
-              starred: false,
-            };
-          }
-
-          if (folder === "sent") {
-            return {
-              ...item,
-              senderFolder: "trash",
-              starred: false,
-            };
-          }
-        }
-
         // Normal Inbox → Trash
         if (folder === "inbox") {
           return {
@@ -460,6 +445,7 @@ const handleUnarchive = async (event) => {
     : (folder === "sent" || (folder === "archive" && email.from === loggedInUser?.email)
       ? displayReceiver
       : displaySender);
+  const sourceLabel = getEmailSourceLabel(email, viewFolder, loggedInUser);
 
   return (
     <>
@@ -486,6 +472,7 @@ const handleUnarchive = async (event) => {
 {/* Sender */}
 <div className={`email-sender ${!email.read && !isDraftInTrash ? "unread" : ""} ${isDraftInTrash ? "text" : ""}`}>
   {senderLabel}
+  {sourceLabel && <span className="email-source-label">{sourceLabel}</span>}
 </div>
         {/* Subject + Message */}
         <div className={`email-content ${!email.read ? "unread" : ""}`}>
