@@ -1,3 +1,4 @@
+// normalize email address to lowercase , add default domain if missing
 export const normalizeEmailAddress = (value) => {
   if (!value) {
     return "";
@@ -10,6 +11,7 @@ export const normalizeEmailAddress = (value) => {
   return normalized.includes("@") ? normalized : `${normalized}@dmail.com`;
 };
 
+// get the email address of the user from the email object
 export const splitRecipients = (value) => {
   if (!value) {
     return [];
@@ -22,6 +24,7 @@ export const splitRecipients = (value) => {
     .map((recipient) => normalizeEmailAddress(recipient));
 };
 
+// match the email address of the user with the email object
 export const matchesAnyRecipient = (recipients, targetEmail) => {
   const targets = typeof targetEmail === "object" && targetEmail
     ? getUserEmailAddresses(targetEmail)
@@ -34,6 +37,7 @@ export const matchesAnyRecipient = (recipients, targetEmail) => {
   );
 };
 
+// is the email in trash for the current user
 export const isEmailInTrash = (email, currentUserEmail) => {
   if (!email) {
     return false;
@@ -52,6 +56,7 @@ export const isEmailInTrash = (email, currentUserEmail) => {
   return false;
 };
 
+// get the source label of the email based on the folder and current user
 export const getEmailSourceLabel = (email, folder, currentUser) => {
   if (!email || folder === "trash") {
     return "";
@@ -77,6 +82,7 @@ export const getEmailSourceLabel = (email, folder, currentUser) => {
   return "";
 };
 
+// check if the email can be replied or forwarded based on the folder and current user
 export const canUseReplyOrForward = (email, currentUserEmail) => {
   if (!email || !currentUserEmail) {
     return false;
@@ -127,6 +133,7 @@ export const formatMailDate = (value) =>{
   });
 };
 
+// get the display label for the sender of the email based on the current user
 export const getSenderDisplayLabel = (email, currentUserEmail) => {
   if (!email) {
     return "";
@@ -142,6 +149,7 @@ export const getSenderDisplayLabel = (email, currentUserEmail) => {
   return email.from || "Unknown sender";
 };
 
+// get the display label for the receiver of the email based on the current user
 export const getReceiverDisplayLabel = (email, currentUserEmail) => {
   if (!email) {
     return "";

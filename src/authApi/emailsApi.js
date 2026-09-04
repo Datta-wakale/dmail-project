@@ -169,43 +169,6 @@ export const deleteEmail = async (id, folder) => {
 };
 
 // move email to spam
-// export const moveEmailToSpam = async (id, folder) => {
-//   const response = await fetch(`${apiUrl}/${id}`);
-
-//   if (!response.ok) {
-//     throw new Error("Unable to find email");
-//   }
-//   const email = await response.json();
-//   const updatedEmail = {
-//     ...email,
-//   };
-//   // Received email
-//   if (
-//     folder === "inbox" ||
-//     folder === "spam" ||
-//     folder === "starred-received"
-//   ) {
-//     updatedEmail.receiverFolder = "spam";
-//   }
-//   // Sent email
-//   if (folder === "sent" ||folder === "starred-sent") {
-//     updatedEmail.senderFolder = "spam";
-//   }
-
-//   const updateResponse = await fetch(`${apiUrl}/${id}`, {
-//     method: "PUT",
-//     headers: {
-//       "Content-Type": "application/json",
-//     },
-//     body: JSON.stringify(updatedEmail),
-//   });
-
-//   if (!updateResponse.ok) {
-//     throw new Error("Unable to move email to spam");
-//   }
-
-//   return await updateResponse.json();
-// };
 export const moveEmailToSpam = async (id, folder) => {
   const response = await fetch(`${apiUrl}/${id}`);
 

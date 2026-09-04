@@ -29,17 +29,6 @@ export const getUsers = async () => {
 };
 
 // Check whether email exists (returns the user object or null)
-// export const checkEmailExists = async (email) => {
-//   const normalized = normalizeEmail(email);
-//   const response = await fetch(`${API_URL}?email=${encodeURIComponent(normalized)}`);
-
-//   if (!response.ok) {
-//     throw new Error("Unable to check email");
-//   }
-//   const users = await response.json();
-//   // json-server returns an array for query; return the first match or null
-//   return users && users.length ? users[0] : null;
-// };
 
 export const findUserByEmail = async (email) => {
     const normalizedEmail = normalizeEmailForLookup(email);
@@ -97,49 +86,6 @@ export const registerUser = async (userData) => {
 
   return await response.json();
 };
-
-// export const registerUser = async (userData) => {
-//   const normalizedEmail = normalizeEmail(userData.email);
-//   const emailExists = await checkEmailExists(normalizedEmail);
-//   if (emailExists) {
-//     return null;
-//   }
-
-//   const response = await fetch(API_URL, {
-//     method: "POST",
-//     headers: {
-//       "Content-Type": "application/json",
-//     },
-//     body: JSON.stringify({
-//       ...userData,
-//       email: normalizedEmail,
-//     }),
-//   });
-
-//   if (!response.ok) {
-//     throw new Error("Registration failed");
-//   }
-
-//   return await response.json();
-// };
-
-
-// Login user
-// export const loginUser = async (email, password) => {
-//   const normalized = normalizeEmail(email);
-//   const response = await fetch(`${API_URL}?email=${encodeURIComponent(normalized)}`);
-//   if (!response.ok) {
-//     throw new Error("Unable to login");
-//   }
-//   const users = await response.json();
-//   const user = users.find(
-//     (user) =>
-//       user.email === normalized &&
-//       user.password === password
-//   );
-//   return user;
-// };
-
 
 // Login user
 export const loginUser = async (email, password) => {

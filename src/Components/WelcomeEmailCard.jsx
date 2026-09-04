@@ -23,4 +23,5 @@ const WelcomeEmailCard = () => {
     </div>
   );
 };
+
 export default WelcomeEmailCard;
