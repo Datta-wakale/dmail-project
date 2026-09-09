@@ -22,6 +22,7 @@ import ManageAccount from "./UserProfile/ManageAccount";
 import Archive from "./Components/Archieve/Archive";
 import UpdatePassword from "./UserProfile/UpdatePassword";
 import { isEmailForUser, matchesAnyRecipient } from "./Utils/mailUtils";
+import NotFoundUrl from "./Route/NotFoundUrl";
 function AppContent() {
   
   const location = useLocation();
@@ -126,6 +127,8 @@ function AppContent() {
           </Route>
           <Route path="/manage-account" element={<ManageAccount />} />
           <Route path="/update-password" element= {<UpdatePassword/>}/>
+
+          <Route path="*" element={<NotFoundUrl />} />
         </Routes>
      
       <ToastContainer position="top-center" autoClose={2000} />

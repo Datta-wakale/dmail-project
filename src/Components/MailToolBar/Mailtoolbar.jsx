@@ -15,7 +15,7 @@ import MarkEmailUnreadIcon from "@mui/icons-material/MarkEmailUnread";
 import SnoozeIcon from "@mui/icons-material/Snooze";
 import MoveToMenu from "../MoveTo/MoveTo";
 import SnoozeDialog from "../SnoozeDialoge/SnoozeDialog";
-import { deleteEmail, archiveEmail, moveEmailToSpam, snoozeEmail } from "../../authApi/emailsApi";
+import { deleteEmail, archiveEmail, moveEmailToSpam, snoozeEmail, permanentlyDeleteEmail } from "../../authApi/emailsApi";
 import { restoreSpamEmail } from "../../authApi/restoreEmail";
 import { unsnoozeEmail } from "../../authApi/UnSnoozeEmail";
 import { updateEmail } from "../../authApi/updateEmail";
@@ -31,6 +31,9 @@ const Mailtoolbar = ({ emails, selectedEmails, setSelectedEmails, loadEmails, sh
   const selectedEmailObjects = selectedEmails
     .map((id) => emails.find((email) => String(email.id) === String(id)))
     .filter(Boolean);
+  const hasSelectedDraft = selectedEmailObjects.some(
+    (email) => email.isDraft === true || email.senderFolder === "draft"
+  );
 
   const allSelectedAreRead =
     selectedEmailObjects.length > 0 &&
@@ -147,6 +150,11 @@ const Mailtoolbar = ({ emails, selectedEmails, setSelectedEmails, loadEmails, sh
   };
 
   const handleArchiveSelected = async () => {
+    if (hasSelectedDraft) {
+      showSnackbar("Drafts cannot be archived");
+      return;
+    }
+
     try {
       const archivedItems = selectedEmails
         .map((id) => getSelectedEmailById(id))
@@ -241,6 +249,22 @@ const Mailtoolbar = ({ emails, selectedEmails, setSelectedEmails, loadEmails, sh
         ...email,
       }));
 
+      if (folder === "trash") {
+        await Promise.all(
+          deletedItems.map((email) => permanentlyDeleteEmail(email.id))
+        );
+        const deletedIds = new Set(
+          deletedItems.map((email) => String(email.id))
+        );
+
+        setEmails((prevEmails) =>
+          prevEmails.filter((email) => !deletedIds.has(String(email.id)))
+        );
+        setSelectedEmails([]);
+        showSnackbar("Emails permanently deleted");
+        return;
+      }
+
       // Determine the REAL folder for every selected email
       const deletedResults = await Promise.all(
         deletedItems.map((email) => {
@@ -308,6 +332,11 @@ const Mailtoolbar = ({ emails, selectedEmails, setSelectedEmails, loadEmails, sh
   };
 
   const handleSpamSelected = async () => {
+    if (hasSelectedDraft) {
+      showSnackbar("Drafts cannot be reported as spam");
+      return;
+    }
+
     try {
       const spamItems = selectedEmails
         .map((id) => getSelectedEmailById(id))

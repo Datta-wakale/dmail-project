@@ -37,7 +37,7 @@ export const matchesAnyRecipient = (recipients, targetEmail) => {
   );
 };
 
-// is the email in trash for the current user
+// is the email is in trash for the current user
 export const isEmailInTrash = (email, currentUserEmail) => {
   if (!email) {
     return false;
@@ -166,7 +166,7 @@ export const getReceiverDisplayLabel = (email, currentUserEmail) => {
   return email.to || "Unknown recipient";
 };
 
-// for edit email utility functions
+// for edit email utility utility function
 
 export const getUserEmailAddresses = (user) => {
     if (!user) {
@@ -210,6 +210,7 @@ export const getEmailFolderForUser = (email, user) => {
   if (matchesAnyRecipient(email.to, user)) {
     return email.receiverFolder || "inbox";
   }
-
   return null;
 };
+
+

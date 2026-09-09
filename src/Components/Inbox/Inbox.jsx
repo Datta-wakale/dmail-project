@@ -6,19 +6,9 @@ import { getVisibleEmails } from "../../Utils/visibleEmails";
 
 const Inbox = () => {
 const { loggedInUser } = useContext(UserContext);
-const {
-    emails,
-    search,
-    filterEmails,
-    selectedCategory
-} = useOutletContext();
+const { emails, search, filterEmails,  selectedCategory} = useOutletContext();
 
-const filteredEmails = getVisibleEmails({
-    emails,
-    folder: "inbox",
-    loggedInUser,
-    search,
-    filterEmails,
+const filteredEmails = getVisibleEmails({emails, folder: "inbox",loggedInUser,search, filterEmails,
     selectedCategory,
 });
 
@@ -29,7 +19,7 @@ const filteredEmails = getVisibleEmails({
                     <p className="no-email">
                         {search.trim()
                             ? `no dmails found for ${search}`
-                            : "No dmails is present in your inbox"
+                            : `No dmails is present in ${selectedCategory}`
                         }
                     </p>
 
@@ -39,7 +29,7 @@ const filteredEmails = getVisibleEmails({
                             key={email.id}
                             email={email}
                             folder="inbox"
-                        />  ))
+                        /> ))
                 )}
             </div>
         </div>

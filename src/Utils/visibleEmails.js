@@ -57,10 +57,7 @@ export const getVisibleEmails = ({
         (matchesAnyRecipient(email.to, loggedInUser) &&
           email.receiverFolder === "trash") ||
         (isEmailForUser(email.from, loggedInUser) &&
-          email.senderFolder === "trash") ||
-        (isEmailForUser(email.from, loggedInUser) &&
-          (email.isDraft === true || email.senderFolder === "draft") &&
-          email.senderFolder === "draft")
+          email.senderFolder === "trash")
     );
   } else if (folder === "archive") {
     folderEmails = emails.filter((email) => {

@@ -308,6 +308,15 @@
       "dob": "2000-09-10",
       "password": "$2b$10$p4vkde1OMu4a7LAzhMFtPeSTh/3OH6rekTXEg8YZ7UT5azansSplS",
       "id": "jXTTC6-V82k"
+    },
+    {
+      "fname": "vikee",
+      "lname": "Patil",
+      "email": "vikee@dmail.com",
+      "phone": "",
+      "dob": "2000-02-02",
+      "password": "$2b$10$ptPPUmAP49/PNR2/VsDyW.S5EPWMxSwfmRoM.ARm7bcJbSMdVpfiG",
+      "id": "oAcVSHrZPMw"
     }
   ],
   "emails": [
@@ -2109,7 +2118,7 @@
       "attachment": null,
       "createdAt": "2026-09-02T10:19:45.652Z",
       "senderFolder": "archive",
-      "receiverFolder": "spam",
+      "receiverFolder": "trash",
       "read": true,
       "welcome": true,
       "threadId": "a6a7b865-1cf2-4069-8698-3d2ba9008fa4",
@@ -2125,7 +2134,7 @@
       "createdAt": "2026-09-03T03:13:04.870Z",
       "attachment": null,
       "threadId": "2a4583fe-1a49-408b-af0b-ffab08102033",
-      "senderFolder": "sent",
+      "senderFolder": "trash",
       "receiverFolder": "trash",
       "read": true,
       "id": "EeHKieAIshY",
@@ -2155,7 +2164,7 @@
       "createdAt": "2026-09-03T05:25:28.678Z",
       "attachment": null,
       "threadId": "b290776b-b480-4073-b953-9174df8bb68a",
-      "senderFolder": "archive",
+      "senderFolder": "trash",
       "receiverFolder": "inbox",
       "read": true,
       "id": "MtjjQtOE2SU",
@@ -2343,6 +2352,58 @@
       "threadId": "516599d0-85ea-45ce-88b1-8975ac7cb34c",
       "id": "18jC5yGvl30",
       "starred": false
+    },
+    {
+      "from": "arya@dmail.com",
+      "to": "hhf",
+      "subject": "fhgfh",
+      "message": "fhfg",
+      "attachment": null,
+      "createdAt": "2026-09-09T02:28:48.495Z",
+      "senderOriginFolder": "inbox",
+      "senderFolder": "deleted",
+      "isDraft": true,
+      "id": "Pzas4fhycvc"
+    },
+    {
+      "from": "arya@dmail.com",
+      "to": "fgff",
+      "subject": "fgdfg",
+      "message": "",
+      "attachment": null,
+      "createdAt": "2026-09-09T02:36:36.748Z",
+      "senderOriginFolder": null,
+      "senderFolder": "deleted",
+      "isDraft": true,
+      "id": "gRE8N-tRH3w",
+      "read": true
+    },
+    {
+      "from": "dmail_team@dmail.com",
+      "to": "vikee@dmail.com",
+      "subject": "Welcome to D-mail",
+      "message": "Hi vikee,\n\nWelcome to D-mail! We are excited to have you here. Your inbox is ready, and this is your first welcome message from the D-mail team.\n\nStart exploring your inbox and enjoy a cleaner, smarter way to stay connected.\n\nBest regards,\nD-mail Team",
+      "attachment": null,
+      "createdAt": "2026-09-09T04:30:33.405Z",
+      "senderFolder": "sent",
+      "receiverFolder": "inbox",
+      "read": true,
+      "welcome": true,
+      "threadId": "d2a4dc98-3561-49a6-9014-6894a581f35f",
+      "id": "8xXKf4IQueY",
+      "receiverSnoozedUntil": null
+    },
+    {
+      "from": "vikee@dmail.com",
+      "to": "datta@gmail.com",
+      "subject": "hgfhjh",
+      "message": "hghghjg",
+      "attachment": null,
+      "createdAt": "2026-09-09T04:45:03.756Z",
+      "senderOriginFolder": null,
+      "senderFolder": "draft",
+      "isDraft": true,
+      "id": "2zvqWQwoDG8"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"
