@@ -121,6 +121,11 @@
   border-radius: 8px;
   background-color: #f8f9fa;
 }
+.attachment-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
 .attachment-preview img {
   width: 60px;
   height: 60px;

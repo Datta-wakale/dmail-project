@@ -14,8 +14,7 @@ const SearchBar = ({ search, setSearch, searchFilter, setSearchFilter }) => {
         className="search-filter"
         value={searchFilter}
         onChange={(e) => setSearchFilter(e.target.value)}
-        aria-label="Search filter"
-      >
+        aria-label="Search filter">
         <option value="all">All</option>
         <option value="inbox">Inbox</option>
         <option value="sent">Sent</option>

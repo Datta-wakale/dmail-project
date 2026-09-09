@@ -2391,7 +2391,8 @@
       "welcome": true,
       "threadId": "d2a4dc98-3561-49a6-9014-6894a581f35f",
       "id": "8xXKf4IQueY",
-      "receiverSnoozedUntil": null
+      "receiverSnoozedUntil": null,
+      "starred": false
     },
     {
       "from": "vikee@dmail.com",
@@ -2401,9 +2402,25 @@
       "attachment": null,
       "createdAt": "2026-09-09T04:45:03.756Z",
       "senderOriginFolder": null,
-      "senderFolder": "draft",
+      "senderFolder": "deleted",
       "isDraft": true,
-      "id": "2zvqWQwoDG8"
+      "id": "2zvqWQwoDG8",
+      "starred": false,
+      "senderSnoozedUntil": null,
+      "read": true
+    },
+    {
+      "from": "vikee@dmail.com",
+      "to": "abhi@dmail.com",
+      "subject": "",
+      "message": "",
+      "attachment": null,
+      "createdAt": "2026-09-09T05:03:45.236Z",
+      "senderOriginFolder": null,
+      "senderFolder": "deleted",
+      "isDraft": true,
+      "id": "eGOT2Ryj4X0",
+      "senderSnoozedUntil": null
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"

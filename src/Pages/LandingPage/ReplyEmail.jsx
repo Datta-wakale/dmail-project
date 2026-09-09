@@ -1,25 +1,34 @@
 import { useState } from "react";
 import { sendEmail } from "../../authApi/emailsApi";
 import { toast } from "react-toastify";
-import { canUseReplyOrForward } from "../../Utils/mailUtils";
+import {
+  canUseReplyOrForward,
+  readAttachmentFile,
+} from "../../Utils/mailUtils";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import "./ReplyEmail.css";
 
 const ReplyEmail = ({ email, loggedInUser, onClose, onReplySent }) => {
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
-  const [attachment, setAttachment] = useState(null);
+  const [attachments, setAttachments] = useState([]);
 
-  const handleAttachment = (event) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    if (file.size > 70 * 1024) {
-      toast.error("Attachment is too large (upto 70kb)");
+  const handleAttachment = async (event) => {
+    const files = Array.from(event.target.files || []);
+    event.target.value = "";
+    if (!files.length) return;
+    const oversizedFile = files.find((file) => file.size > 70 * 1024);
+    if (oversizedFile) {
+      toast.error(`Attachment is too large (upto 70kb): ${oversizedFile.name}`);
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => setAttachment({ name: file.name, type: file.type, data: reader.result });
-    reader.readAsDataURL(file);
+    try {
+      const newAttachments = await Promise.all(files.map(readAttachmentFile));
+      setAttachments((previous) => [...previous, ...newAttachments]);
+    } catch (error) {
+      console.error("Unable to read reply attachments", error);
+      toast.error("Unable to read one or more attachments");
+    }
   };
 
   const handleSendReply = async () => {
@@ -52,7 +61,7 @@ const ReplyEmail = ({ email, loggedInUser, onClose, onReplySent }) => {
         to: email.from,
         subject: email.subject.startsWith("Re:") ? email.subject : `Re: ${email.subject}`,
         message: replyMessage,
-        attachment,
+        attachments,
         threadId,
       };
 
@@ -64,6 +73,7 @@ const ReplyEmail = ({ email, loggedInUser, onClose, onReplySent }) => {
 
       toast.success("Reply sent successfully");
       setMessage("");
+      setAttachments([]);
       onClose();
     } catch (error) {
       console.error("Unable to send reply", error);
@@ -86,7 +96,24 @@ const ReplyEmail = ({ email, loggedInUser, onClose, onReplySent }) => {
         onChange={(e) => setMessage(e.target.value)}
         placeholder="Write your reply..."
       />
-      {attachment && <div className="reply-attachment">{attachment.name}</div>}
+      {attachments.length > 0 && (
+        <div className="reply-attachment-list">
+          {attachments.map((attachment, index) => (
+            <div className="reply-attachment" key={`${attachment.name}-${index}`}>
+              <span>{attachment.name}</span>
+              <button
+                type="button"
+                onClick={() =>
+                  setAttachments((previous) =>
+                    previous.filter((attachment, itemIndex) => itemIndex !== index)
+                  )
+                }>
+                Remove
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
 
       <div className="original-email">
         <div className="original-line">---------- Original message ----------</div>
@@ -107,7 +134,7 @@ const ReplyEmail = ({ email, loggedInUser, onClose, onReplySent }) => {
       <div className="reply-actions">
         <label className="attachment-button">
           <AttachFileIcon />
-          <input type="file" onChange={handleAttachment} hidden />
+          <input type="file" multiple onChange={handleAttachment} hidden />
         </label>
         <button onClick={handleSendReply} disabled={sending}>
           {sending ? "Sending..." : "Send"}

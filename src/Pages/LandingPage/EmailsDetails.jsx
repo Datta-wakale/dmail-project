@@ -2,6 +2,7 @@ import { useContext, useState, useEffect } from "react";
 import { useNavigate, useOutletContext, useParams, useLocation, } from "react-router-dom";
 import { toast } from "react-toastify";
 import { UserContext } from "../../Context/UserContext";
+import { normalizeAttachments } from "../../Utils/mailUtils";
 import { deleteEmail, moveEmailToSpam, archiveEmail, permanentlyDeleteEmail, snoozeEmail, toggleStarEmail } from "../../authApi/emailsApi";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
@@ -28,7 +29,7 @@ import MoveToMenu from "../../Components/MoveTo/MoveTo";
 import { unsnoozeEmail } from "../../authApi/UnSnoozeEmail";
 import { updateEmail } from "../../authApi/updateEmail";
 import SnoozeDialog from "../../Components/SnoozeDialoge/SnoozeDialog";
-import { canUseReplyOrForward, formatMailDate, getReceiverDisplayLabel, getSenderDisplayLabel, isEmailForUser, matchesAnyRecipient, normalizeEmailAddress } from "../../Utils/mailUtils";
+import { canUseReplyOrForward, formatMailDate, getEmailFolderForUser, getReceiverDisplayLabel, getSenderDisplayLabel, isEmailForUser, matchesAnyRecipient, normalizeEmailAddress } from "../../Utils/mailUtils";
 import { restoreSpamEmail } from "../../authApi/restoreEmail";
 import { restoreArchivedEmail } from "../../authApi/restoreEmail";
 const EmailsDetails = () => {
@@ -57,6 +58,7 @@ const EmailsDetails = () => {
   });
   // Find selected email
   const email = emails.find((email) => String(email.id) === String(id));
+  const realFolder = getEmailFolderForUser(email, loggedInUser) || folder;
   useEffect(() => {
     if (!email || email.read) {
       return;
@@ -281,17 +283,17 @@ if (folder === "spam") {
       const originalFolder = folder;
 
       if (
-        originalFolder !== "inbox" &&
-        originalFolder !== "spam" &&
-        originalFolder !== "sent" &&
-        originalFolder !== "starred-received" &&
-        originalFolder !== "starred-sent"
+        realFolder !== "inbox" &&
+        realFolder !== "spam" &&
+        realFolder !== "sent" &&
+        realFolder !== "starred-received" &&
+        realFolder !== "starred-sent"
       ) {
         console.error(`Cannot archive email from folder: ${originalFolder}`);
         return;
       }
 
-      const archivedEmail = await archiveEmail(email.id, originalFolder);
+      const archivedEmail = await archiveEmail(email.id, realFolder);
       setEmails((prevEmails) =>
         prevEmails.map((item) => (item.id === email.id ? archivedEmail : item)),
       );
@@ -361,7 +363,7 @@ if (folder === "spam") {
   const handleReportSpam = async () => {
     try {
       const previous = { ...email };
-      const spamEmail = await moveEmailToSpam(email.id, folder);
+      const spamEmail = await moveEmailToSpam(email.id, realFolder);
 
       setEmails((prevEmails) =>
         prevEmails.map((item) =>
@@ -542,12 +544,7 @@ if (folder === "spam") {
   const handleSnooze = async (snoozedUntil) => {
     const previous = { ...email };
     try {
-     const effectiveFolder = folder === "starred-received"
-        ? "inbox" : folder === "starred-sent"
-      ? "sent"
-      : folder;
-
-      const updated = await snoozeEmail(email.id, effectiveFolder, snoozedUntil);
+     const updated = await snoozeEmail(email.id, realFolder, snoozedUntil);
       setEmails((items) => items.map((item) => item.id === email.id ? updated : item));
       setSnoozeOpen(false);
       notify("Email snoozed", async () => {
@@ -791,21 +788,21 @@ if (folder === "spam") {
               <div className="email-message">
                 {conversationEmail.message}
               </div>
-              {conversationEmail.attachment && (
-                <div className="email-attachment">
-                  {conversationEmail.attachment.type?.startsWith("image/") ? (
+              {normalizeAttachments(conversationEmail).map((attachment, index) => (
+                <div className="email-attachment" key={`${attachment.name}-${index}`}>
+                  {attachment.type?.startsWith("image/") ? (
                     <img className="email-attchment-image"
-                      src={conversationEmail.attachment.data}
-                      alt={conversationEmail.attachment.name} />
+                      src={attachment.data}
+                      alt={attachment.name} />
                   ) : <AttachFileIcon />}
                   <div className="email-attachment-name">
-                    <a href={conversationEmail.attachment.data}
-                      download={conversationEmail.attachment.name}>
-                      {conversationEmail.attachment.name}
+                    <a href={attachment.data}
+                      download={attachment.name}>
+                      {attachment.name}
                     </a>
                   </div>
                 </div>
-              )}
+              ))}
             </div>
           ))}
         </div>

@@ -1,7 +1,13 @@
 import { useState } from "react";
 import { sendEmail } from "../../authApi/emailsApi";
 import { toast } from "react-toastify";
-import { canUseReplyOrForward, splitRecipients, joinRecipients } from "../../Utils/mailUtils";
+import {
+  canUseReplyOrForward,
+  splitRecipients,
+  joinRecipients,
+  normalizeAttachments,
+  readAttachmentFile,
+} from "../../Utils/mailUtils";
 import { findUserByEmail } from "../../authApi/authApi";
 import "./ForwardEmail.css";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
@@ -10,17 +16,23 @@ const ForwardEmail = ({ email, loggedInUser, onClose }) => {
  const [to, setTo] = useState("");
  const [message, setMessage] = useState("");
  const [sending, setSending] = useState(false);
- const [attachment, setAttachment] = useState(null);
- const handleAttachment = (event) => {
-   const file = event.target.files?.[0];
-   if (!file) return;
-   if (file.size > 70 * 1024) {
-     toast.error("Attachment is too large (upto 70kb)");
+ const [attachments, setAttachments] = useState([]);
+ const handleAttachment = async (event) => {
+   const files = Array.from(event.target.files || []);
+   event.target.value = "";
+   if (!files.length) return;
+   const oversizedFile = files.find((file) => file.size > 70 * 1024);
+   if (oversizedFile) {
+     toast.error(`Attachment is too large (upto 70kb): ${oversizedFile.name}`);
      return;
    }
-   const reader = new FileReader();
-   reader.onload = () => setAttachment({ name: file.name, type: file.type, data: reader.result });
-   reader.readAsDataURL(file);
+   try {
+     const newAttachments = await Promise.all(files.map(readAttachmentFile));
+     setAttachments((previous) => [...previous, ...newAttachments]);
+   } catch (error) {
+     console.error("Unable to read forward attachments", error);
+     toast.error("Unable to read one or more attachments");
+   }
  };
 
  const handleSendForward = async () => {
@@ -78,13 +90,17 @@ ${email.message}`.trim();
        to: joinRecipients(validRecipients),
        subject: email.subject.startsWith("Fwd:") ? email.subject : `Fwd: ${email.subject}`,
        message: forwardedMessage,
-       attachment: attachment || email.attachment || null,
+       attachments: [
+         ...normalizeAttachments(email),
+         ...attachments,
+       ],
      };
 
      await sendEmail(forwardEmail);
      toast.success("Forward sent successfully");
      setTo("");
      setMessage("");
+     setAttachments([]);
      onClose();
    } catch (error) {
      console.error("Unable to forward email", error);
@@ -112,7 +128,24 @@ ${email.message}`.trim();
        onChange={(e) => setMessage(e.target.value)}
        placeholder="Write your message..."
      />
-     {attachment && <div className="forward-attachment">{attachment.name}</div>}
+     {attachments.length > 0 && (
+       <div className="forward-attachment-list">
+         {attachments.map((attachment, index) => (
+           <div className="forward-attachment" key={`${attachment.name}-${index}`}>
+             <span>{attachment.name}</span>
+             <button
+               type="button"
+               onClick={() =>
+                 setAttachments((previous) =>
+                   previous.filter((attachment, itemIndex) => itemIndex !== index)
+                 )
+               }>
+               Remove
+             </button>
+           </div>
+         ))}
+       </div>
+     )}
 
      <div className="forwarded-preview">
        <div className="forwarded-line">---------- Forwarded message ----------</div>
@@ -133,7 +166,7 @@ ${email.message}`.trim();
      <div className="forward-actions">
        <label className="attachment-button">
          <AttachFileIcon />
-         <input type="file" onChange={handleAttachment} hidden />
+         <input type="file" multiple onChange={handleAttachment} hidden />
        </label>
        <button onClick={handleSendForward} disabled={sending}>
          {sending ? "Sending..." : "Send"}

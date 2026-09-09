@@ -24,6 +24,27 @@ export const splitRecipients = (value) => {
     .map((recipient) => normalizeEmailAddress(recipient));
 };
 
+export const normalizeAttachments = (email) => {
+  if (Array.isArray(email?.attachments)) {
+    return email.attachments;
+  }
+
+  return email?.attachment ? [email.attachment] : [];
+};
+
+export const readAttachmentFile = (file) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () =>
+      resolve({
+        name: file.name,
+        type: file.type,
+        data: reader.result,
+      });
+    reader.onerror = () => reject(new Error(`Unable to read attachment: ${file.name}`));
+    reader.readAsDataURL(file);
+  });
+
 // match the email address of the user with the email object
 export const matchesAnyRecipient = (recipients, targetEmail) => {
   const targets = typeof targetEmail === "object" && targetEmail
@@ -213,4 +234,4 @@ export const getEmailFolderForUser = (email, user) => {
   return null;
 };
 
-
+ 

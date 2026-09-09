@@ -10,7 +10,7 @@ import AttachFileIcon from "@mui/icons-material/AttachFile";
 import RemoveIcon from "@mui/icons-material/Remove";
 import OpenInFullIcon from "@mui/icons-material/OpenInFull";
 import { toast } from "react-toastify";
-import { splitRecipients, joinRecipients } from "../../Utils/mailUtils";
+import {splitRecipients, joinRecipients, normalizeAttachments,readAttachmentFile,} from "../../Utils/mailUtils";
 import "./ComposeDialog.css";
 
 const ComposeDialog = ({ open, onClose, onEmailSent, draftToEdit, onDraftSaved, currentFolder }) => {
@@ -20,7 +20,7 @@ const [mail, setMail] = useState({
   to: "",
   subject: "",
   message: "",
-  attachment: null,
+  attachments: [],
 });
 const [minimized, setMinimized] = useState(false);
 const [addressNotFound, setAddressNotFound] = useState(null);
@@ -39,31 +39,31 @@ const handleChange = (event) => {
 
 const [toFocused, setToFocused] = useState(false);
 
-const handleAttachment = (event) => {
-  const file = event.target.files[0];
-  if (!file) {
+const handleAttachment = async (event) => {
+  const files = Array.from(event.target.files || []);
+  event.target.value = "";
+  if (!files.length) {
     return;
   }
 
   const maxSize = 70 * 1024;
-  if (file.size > maxSize) {
-    setError("Attachment is too large (upto 70kb)");
+  const oversizedFile = files.find((file) => file.size > maxSize);
+  if (oversizedFile) {
+    setError(`Attachment is too large (upto 70kb): ${oversizedFile.name}`);
     return;
   }
 
-  const reader = new FileReader();
-  reader.onload = () => {
+  try {
+    const newAttachments = await Promise.all(files.map(readAttachmentFile));
     setMail((prev) => ({
       ...prev,
-      attachment: {
-         name: file.name,
-         type: file.type,
-         data: reader.result,
-      },
+      attachments: [...prev.attachments, ...newAttachments],
     }));
     setError("");
-  };
-  reader.readAsDataURL(file);
+  } catch (error) {
+    console.error("Unable to read attachments", error);
+    setError("Unable to read one or more attachments");
+  }
 };
 
 const handleSend = async () => {
@@ -114,7 +114,7 @@ const handleSend = async () => {
       subject: mail.subject.trim(),
       message: mail.message.trim(),
       createdAt: new Date().toISOString(),
-      attachment: mail.attachment,
+      attachments: mail.attachments,
     };
 
     const newEmail = await sendEmail(emailData);
@@ -128,7 +128,7 @@ const handleSend = async () => {
       to: "",
       subject: "",
       message: "",
-      attachment: null,
+      attachments: [],
     });
     setError("");
     onClose();
@@ -150,7 +150,7 @@ const handleClose = async () => {
     mail.to.trim() ||
     mail.subject.trim() ||
     mail.message.trim() ||
-    mail.attachment;
+    mail.attachments.length;
 
   if (!hasContent) {
     onClose();
@@ -163,7 +163,7 @@ const handleClose = async () => {
       to: mail.to.trim(),
       subject: mail.subject.trim(),
       message: mail.message.trim(),
-      attachment: mail.attachment,
+      attachments: mail.attachments,
       createdAt: new Date().toISOString(),
       senderOriginFolder: draftToEdit?.senderOriginFolder ||
         draftToEdit?.originFolder ||
@@ -177,19 +177,19 @@ const handleClose = async () => {
         to: draftToEdit.to || "",
         subject: draftToEdit.subject || "",
         message: draftToEdit.message || "",
-        attachment: draftToEdit.attachment || null,
+        attachments: normalizeAttachments(draftToEdit),
       };
 
       const hasDraftChanges = JSON.stringify({
         to: draftData.to,
         subject: draftData.subject,
         message: draftData.message,
-        attachment: draftData.attachment,
+        attachments: draftData.attachments,
       }) !== JSON.stringify({
         to: originalDraft.to,
         subject: originalDraft.subject,
         message: originalDraft.message,
-        attachment: originalDraft.attachment,
+        attachments: originalDraft.attachments,
       });
 
       if (!hasDraftChanges) {
@@ -239,13 +239,13 @@ useEffect(() => {
         to: draftToEdit.to || "",
         subject: draftToEdit.subject || "",
         message: draftToEdit.message || "",
-        attachment: draftToEdit.attachment || null,
+        attachments: normalizeAttachments(draftToEdit),
       }
     : {
         to: "",
         subject: "",
         message: "",
-        attachment: null,
+        attachments: [],
       };
 
   const timer = setTimeout(() => {
@@ -343,20 +343,26 @@ return (
            className="compose-message"
          />
 
-         {mail.attachment && (
-           <div className="attachment-preview">
-             <img src={mail.attachment.data} alt={mail.attachment.name} />
-             <span>{mail.attachment.name}</span>
-             <button
-               type="button"
-               onClick={() =>
-                 setMail((prev) => ({
-                   ...prev,
-                   attachment: null,
-                 }))
-               }>
-               <CloseIcon />
-             </button>
+         {mail.attachments.length > 0 && (
+           <div className="attachment-list">
+             {mail.attachments.map((attachment, index) => (
+               <div className="attachment-preview" key={`${attachment.name}-${index}`}>
+                 {attachment.type?.startsWith("image/") && (
+                   <img src={attachment.data} alt={attachment.name} />
+                 )}
+                 <span>{attachment.name}</span>
+                 <button
+                   type="button"
+                   onClick={() =>
+                     setMail((prev) => ({
+                       ...prev,
+                       attachments: prev.attachments.filter((attachment, itemIndex) => itemIndex !== index),
+                     }))
+                   }>
+                   <CloseIcon />
+                 </button>
+               </div>
+             ))}
            </div>
          )}
 
@@ -365,7 +371,7 @@ return (
          <div className="compose-footer">
            <label className="attachment-button">
              <AttachFileIcon />
-             <input type="file" accept="image/*" onChange={handleAttachment} hidden />
+             <input type="file" accept="image/*" multiple onChange={handleAttachment} hidden />
            </label>
            <button className="send-button" onClick={handleSend}>
              <SendIcon />
