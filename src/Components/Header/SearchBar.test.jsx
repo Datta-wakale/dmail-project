@@ -236,5 +236,7 @@ describe("SearchBar Component", () => {
 
     await user.selectOptions(searchFilter, "drafts");
     expect(setSearchFilter).toHaveBeenCalledWith("drafts");
-  }); 
+    
+    
+  });
 });

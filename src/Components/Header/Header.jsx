@@ -15,8 +15,7 @@ const Header = ({ sidebarOpen, handleToggleSidebar, search, setSearch, searchFil
         {loggedInUser && (
           <IconButton
             onClick={handleToggleSidebar}
-            className={`menu-toggle ${sidebarOpen ? "menu-open" : ""}`}
-          >
+            className={`menu-toggle ${sidebarOpen ? "menu-open" : ""}`}>
             <MenuIcon />
           </IconButton>
         )}
