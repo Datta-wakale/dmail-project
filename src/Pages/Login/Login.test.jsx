@@ -44,8 +44,4 @@ describe("Login Component",()=> {
         vi.clearAllMocks();
         localStorage.clear();
     });
-
-    test("should render the login step",()=> {
-        
-    })
 })
